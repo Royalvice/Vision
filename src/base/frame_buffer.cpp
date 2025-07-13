@@ -13,7 +13,11 @@ void ScreenBuffer::update_resolution(ocarina::uint2 res, Device &device) noexcep
 }
 
 FrameBuffer::FrameBuffer(const vision::FrameBufferDesc &desc)
-    : Node(desc) {
+    : Node(desc),
+      tone_mapper_(desc.tone_mapper),
+      resolution_(desc["resolution"].as_uint2(make_uint2(1280, 720))),
+      screen_window_(make_float2(-1.f), make_float2(1.f)),
+      accumulation_(desc["accumulation"].as_uint(1)) {
     visualizer_->init();
 }
 

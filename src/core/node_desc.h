@@ -272,7 +272,16 @@ public:
     void init(const ParameterSet &ps) noexcept override;
 };
 
+
+struct ToneMapperDesc : public NodeDesc {
+public:
+    VISION_DESC_COMMON(ToneMapper)
+    void init(const ParameterSet &ps) noexcept override;
+};
+
 struct FrameBufferDesc : public NodeDesc {
+public:
+    ToneMapperDesc tone_mapper;
 
 public:
     VISION_DESC_COMMON(FrameBuffer)
@@ -288,12 +297,6 @@ public:
 
 public:
     VISION_DESC_COMMON(Pipeline)
-    void init(const ParameterSet &ps) noexcept override;
-};
-
-struct ToneMapperDesc : public NodeDesc {
-public:
-    VISION_DESC_COMMON(ToneMapper)
     void init(const ParameterSet &ps) noexcept override;
 };
 
