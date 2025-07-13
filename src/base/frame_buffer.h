@@ -85,12 +85,13 @@ public:
     void update_resolution(uint2 res, Device &device) noexcept;
 };
 
-class FrameBuffer : public Node, public Observer {
+class FrameBuffer : public Node, public Encodable, public Observer {
 public:
     static constexpr auto final_result = "FrameBuffer::final_result_";
 
 protected:
-    using gbuffer_signature = void(uint, Buffer<PixelGeometry>, Buffer<float2>, Buffer<float4>, Buffer<float4>, Buffer<float4>);
+    using gbuffer_signature = void(uint, Buffer<PixelGeometry>, Buffer<float2>,
+                                   Buffer<float4>, Buffer<float4>, Buffer<float4>);
     Shader<gbuffer_signature> compute_geom_;
 
     using grad_signature = void(uint, Buffer<PixelGeometry>);
@@ -108,6 +109,12 @@ protected:
     SP<Visualizer> visualizer_{make_shared<Visualizer>()};
 
     vector<float4> window_buffer_;
+
+    uint2 resolution_;
+    Box2f screen_window_;
+    EncodedData<uint> accumulation_;
+    TToneMapper tone_mapper_{};
+    EncodedData<float> exposure_{};
 
 #define VS_MAKE_BUFFER(Type, buffer_name, count)                           \
 protected:                                                                 \
@@ -189,6 +196,7 @@ public:
                            /// shaders
                            compute_geom_, compute_grad_, compute_hit_,
                            accumulate_, tone_mapping_)
+    OC_ENCODABLE_FUNC(Encodable, accumulation_, tone_mapper_, exposure_)
     void prepare() noexcept override;
     void update_runtime_object(const IObjectConstructor *constructor) noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;

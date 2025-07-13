@@ -51,16 +51,19 @@ public:
         TSensor &camera = scene().sensor();
         TSampler &sampler = scene().sampler();
         ocarina::Kernel<signature> kernel = [&](Uint frame_index) -> void {
-            pipeline()->load_data();
+            Env::instance().clear_global_vars();
+            Uint2 pixel = dispatch_idx().xy();
+            RenderEnv render_env;
+            sampler->load_data();
+            camera->load_data();
+            load_data();
             if (inspector_->on()) {
                 $if(inspector_->is_convergence(frame_index)) {
                     return_();
                 };
                 $condition_info("is convergence {}", inspector_->is_convergence(frame_index).cast<uint>());
             }
-            RenderEnv render_env;
             render_env.initial(sampler, frame_index, spectrum());
-            Uint2 pixel = dispatch_idx().xy();
             sampler->start(pixel, frame_index, 0);
             SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
             Float scatter_pdf = 1e16f;

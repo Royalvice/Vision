@@ -264,15 +264,6 @@ void Pipeline::update_geometry() noexcept {
     geometry_.upload();
 }
 
-void Pipeline::load_data() noexcept {
-    TSensor &camera = scene().sensor();
-    TSampler &sampler = scene().sampler();
-    Env::instance().clear_global_vars();
-    sampler->load_data();
-    camera->load_data();
-    integrator()->load_data();
-}
-
 void Pipeline::clear_geometry() noexcept {
     geometry_.clear();
     scene_.clear_shapes();
