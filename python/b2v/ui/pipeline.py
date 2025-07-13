@@ -5,7 +5,20 @@ dic = {
     "fixed": {
         "label": "fixed",
         "description": "fixed pipeline.",
-        "parameters": {},
+        "parameters": {
+            "obfuscation": {
+                "type": "Bool",
+                "args": {
+                    "default": False,
+                },
+            },
+            "valid_check": {
+                "type": "Bool",
+                "args": {
+                    "default": False,
+                },
+            },
+        },
     },
 }
 

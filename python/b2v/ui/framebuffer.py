@@ -5,12 +5,28 @@ dic = {
     "normal": {
         "label": "normal",
         "description": "normal frame buffer.",
-        "parameters": {},
+        "parameters": {
+            "accumulation": {
+                "type": "Bool",
+                "args": {
+                    "default": True,
+                },
+            },
+            "exposure": {"type": "Float", "args": {"default": 1, "max": 10, "min": 0}},
+        },
     },
     "lightfield": {
         "label": "lightfield",
         "description": "lightfield frame buffer.",
-        "parameters": {},
+        "parameters": {
+            "accumulation": {
+                "type": "Bool",
+                "args": {
+                    "default": True,
+                },
+            },
+            "exposure": {"type": "Float", "args": {"default": 1, "max": 10, "min": 0}},
+        },
     },
 }
 
