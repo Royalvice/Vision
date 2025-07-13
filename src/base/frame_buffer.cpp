@@ -27,7 +27,7 @@ void FrameBuffer::prepare() noexcept {
 }
 
 void FrameBuffer::update_runtime_object(const vision::IObjectConstructor *constructor) noexcept {
-    std::tuple tp = {addressof(visualizer_)};
+    std::tuple tp = {addressof(visualizer_), addressof(tone_mapper_.impl())};
     HotfixSystem::replace_objects(constructor, tp);
 }
 
@@ -82,6 +82,27 @@ void FrameBuffer::init_screen_buffer(const SP<ScreenBuffer> &buffer) noexcept {
 void FrameBuffer::prepare_screen_buffer(const SP<vision::ScreenBuffer> &buffer) noexcept {
     init_screen_buffer(buffer);
     register_(buffer);
+}
+
+void FrameBuffer::compile_accumulation() noexcept {
+    Kernel kernel = [&](BufferVar<float4> input, BufferVar<float4> output, Uint frame_index) {
+        Float4 accum_prev = output.read(dispatch_id());
+        Float4 val = input.read(dispatch_id());
+        Float a = 1.f / (frame_index + 1);
+        val = lerp(make_float4(a), accum_prev, val);
+        output.write(dispatch_id(), val);
+    };
+    accumulate_ = device().compile(kernel, "RGBFilm-accumulation");
+}
+
+void FrameBuffer::compile_tone_mapping() noexcept {
+    Kernel kernel = [&](BufferVar<float4> input, BufferVar<float4> output) {
+        Float4 val = input.read(dispatch_id());
+        val = tone_mapper_->apply(val);
+        val.w = 1.f;
+        output.write(dispatch_id(), val);
+    };
+    tone_mapping_ = device().compile(kernel, "RGBFilm-tone_mapping");
 }
 
 void FrameBuffer::compile_gamma() noexcept {
@@ -265,6 +286,22 @@ CommandList FrameBuffer::gamma_correct(BufferView<float4> input,
 CommandList FrameBuffer::gamma_correct() const noexcept {
     const Buffer<float4> &input = cur_screen_buffer();
     return gamma_correct(input, view_buffer_);
+}
+
+Float3 FrameBuffer::add_sample(const Uint2 &pixel, Float4 val, const Uint &frame_index) noexcept {
+    Float a = 1.f / (frame_index + 1);
+    Uint index = dispatch_id(pixel);
+    val = Env::instance().zero_if_nan_inf(val);
+    if (accumulation_.hv()) {
+        Float4 accum_prev = rt_buffer_.read(index);
+        val = lerp(make_float4(a), accum_prev, val);
+    }
+    rt_buffer_.write(index, val);
+    val = apply_exposure(val);
+    val = tone_mapper_->apply(val);
+    val.w = 1.f;
+    output_buffer_->write(index, val);
+    return val.xyz();
 }
 
 void FrameBuffer::register_(const SP<ScreenBuffer> &buffer) noexcept {

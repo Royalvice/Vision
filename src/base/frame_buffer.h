@@ -171,6 +171,9 @@ public:                                                                    \
     VS_MAKE_BUFFER(RegistrableBuffer<float4>, emission, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, albedo, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, normal, 1)
+    VS_MAKE_BUFFER(RegistrableManaged<float4>, rt_buffer, 1)
+
+    SP<ScreenBuffer> output_buffer_{make_shared<ScreenBuffer>(final_result)};
 
     VS_MAKE_DOUBLE_BUFFER(RegistrableBuffer<PixelGeometry>, gbuffer)
 
@@ -192,7 +195,7 @@ public:
     explicit FrameBuffer(const FrameBufferDesc &desc);
     VS_HOTFIX_MAKE_RESTORE(Node, cur_view_, gbuffer_, surfaces_, surface_exts_, hit_bsdfs_,
                            motion_vectors_, hit_buffer_, screen_buffers_, gamma_correct_,
-                           view_buffer_, visualizer_, window_buffer_,
+                           view_buffer_, visualizer_, window_buffer_, rt_buffer_, output_buffer_,
                            /// shaders
                            compute_geom_, compute_grad_, compute_hit_,
                            accumulate_, tone_mapping_)
@@ -212,9 +215,12 @@ public:
     [[nodiscard]] uint2 resolution() const noexcept;
     [[nodiscard]] uint pixel_index(uint2 pos) const noexcept;
     [[nodiscard]] BindlessArray &bindless_array() const noexcept;
-
     [[nodiscard]] const Buffer<float4> &cur_screen_buffer() const noexcept;
-
+    [[nodiscard]] virtual uint2 launch_dim() const noexcept { return resolution_; }
+    [[nodiscard]] virtual uint frame_buffer_size() const noexcept {
+        uint2 dim = launch_dim();
+        return dim.x * dim.y;
+    }
     void register_(const SP<ScreenBuffer> &buffer) noexcept;
     void unregister(const SP<ScreenBuffer> &buffer) noexcept;
     void unregister(const string &name) noexcept;
@@ -234,6 +240,9 @@ public:
     void compile_compute_grad() noexcept;
     void compile_compute_hit() noexcept;
     void compile_gamma() noexcept;
+    void compile_accumulation() noexcept;
+    void compile_tone_mapping() noexcept;
+    
     void compute_gradient(PixelGeometryVar &center_data,
                           const BufferVar<PixelGeometry> &gbuffer) const noexcept;
     [[nodiscard]] CommandList gamma_correct(BufferView<float4> input,
@@ -247,7 +256,10 @@ public:
                                                    BufferView<float4> emission, BufferView<float4> normal) const noexcept;
     [[nodiscard]] virtual CommandList compute_grad(uint frame_index, BufferView<PixelGeometry> gbuffer) const noexcept;
     [[nodiscard]] virtual CommandList compute_hit(uint frame_index) const noexcept;
-
+    Float3 add_sample(const Uint2 &pixel, Float4 val, const Uint &frame_index) noexcept;
+    Float3 add_sample(const Uint2 &pixel, const Float3 &val, const Uint &frame_index) noexcept {
+        return add_sample(pixel, make_float4(val, 1.f), frame_index);
+    }
     template<typename T>
     void init_buffer_impl(RegistrableBuffer<T> &buffer, bool has_register, const string &desc, uint count = 1) noexcept {
         uint element_num = count * pixel_num();
