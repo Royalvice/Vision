@@ -283,6 +283,25 @@ CommandList FrameBuffer::gamma_correct(BufferView<float4> input,
     return ret;
 }
 
+CommandList FrameBuffer::accumulate(BufferView<float4> input, BufferView<float4> output,
+                                    uint frame_index) const noexcept {
+    CommandList ret;
+    ret << accumulate_(input,
+                       output,
+                       frame_index)
+               .dispatch(resolution());
+    return ret;
+}
+
+CommandList FrameBuffer::tone_mapping(BufferView<ocarina::float4> input,
+                                      BufferView<ocarina::float4> output) const noexcept {
+    CommandList ret;
+    ret << tone_mapping_(input,
+                         output)
+               .dispatch(resolution());
+    return ret;
+}
+
 CommandList FrameBuffer::gamma_correct() const noexcept {
     const Buffer<float4> &input = cur_screen_buffer();
     return gamma_correct(input, view_buffer_);

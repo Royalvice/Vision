@@ -235,6 +235,7 @@ public:
     [[nodiscard]] Float3 compute_motion_vector(const TSensor &camera, const Float3 &cur_pos, const Float3 &pre_pos) const noexcept;
     [[nodiscard]] static Uint checkerboard_value(const Uint2 &coord) noexcept;
     [[nodiscard]] static Uint checkerboard_value(const Uint2 &coord, const Uint &frame_index) noexcept;
+
     virtual void compile() noexcept;
     void compile_compute_geom() noexcept;
     void compile_compute_grad() noexcept;
@@ -242,7 +243,6 @@ public:
     void compile_gamma() noexcept;
     void compile_accumulation() noexcept;
     void compile_tone_mapping() noexcept;
-    
     void compute_gradient(PixelGeometryVar &center_data,
                           const BufferVar<PixelGeometry> &gbuffer) const noexcept;
     [[nodiscard]] CommandList gamma_correct(BufferView<float4> input,
@@ -256,6 +256,10 @@ public:
                                                    BufferView<float4> emission, BufferView<float4> normal) const noexcept;
     [[nodiscard]] virtual CommandList compute_grad(uint frame_index, BufferView<PixelGeometry> gbuffer) const noexcept;
     [[nodiscard]] virtual CommandList compute_hit(uint frame_index) const noexcept;
+    [[nodiscard]] CommandList accumulate(BufferView<float4> input, BufferView<float4> output,
+                                         uint frame_index) const noexcept;
+    [[nodiscard]] CommandList tone_mapping(BufferView<float4> input,
+                                           BufferView<float4> output) const noexcept;
     Float3 add_sample(const Uint2 &pixel, Float4 val, const Uint &frame_index) noexcept;
     Float3 add_sample(const Uint2 &pixel, const Float3 &val, const Uint &frame_index) noexcept {
         return add_sample(pixel, make_float4(val, 1.f), frame_index);
