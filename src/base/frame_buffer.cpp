@@ -17,6 +17,7 @@ FrameBuffer::FrameBuffer(const vision::FrameBufferDesc &desc)
       tone_mapper_(desc.tone_mapper),
       resolution_(desc["resolution"].as_uint2(make_uint2(1280, 720))),
       screen_window_(make_float2(-1.f), make_float2(1.f)),
+      exposure_(desc["exposure"].as_float(1.f)),
       accumulation_(uint(desc["accumulation"].as_bool(true))) {
     visualizer_->init();
 }
@@ -52,6 +53,21 @@ void FrameBuffer::render_sub_UI(ocarina::Widgets *widgets) noexcept {
     for (auto iter = screen_buffers_.begin();
          iter != screen_buffers_.end(); ++iter) {
         show_buffer(*iter->second);
+    }
+}
+
+Float4 FrameBuffer::apply_exposure(const ocarina::Float4 &input) const noexcept {
+    return 1.f - exp(-input * *exposure_);
+}
+
+void FrameBuffer::update_screen_window() noexcept {
+    float ratio = resolution_.x * 1.f / resolution_.y;
+    if (ratio > 1.f) {
+        screen_window_.lower.x = -ratio;
+        screen_window_.upper.x = ratio;
+    } else {
+        screen_window_.lower.y = -1.f / ratio;
+        screen_window_.upper.y = 1.f / ratio;
     }
 }
 

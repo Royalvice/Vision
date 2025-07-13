@@ -198,6 +198,8 @@ public:
                            accumulate_, tone_mapping_)
     OC_ENCODABLE_FUNC(Encodable, accumulation_, tone_mapper_, exposure_)
     void prepare() noexcept override;
+    [[nodiscard]] Float4 apply_exposure(const Float4 &input) const noexcept;
+    void update_screen_window() noexcept;
     void update_runtime_object(const IObjectConstructor *constructor) noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
