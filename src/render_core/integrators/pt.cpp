@@ -51,10 +51,7 @@ public:
         TSensor &camera = scene().sensor();
         TSampler &sampler = scene().sampler();
         ocarina::Kernel<signature> kernel = [&](Uint frame_index) -> void {
-            Env::instance().clear_global_vars();
-            sampler->load_data();
-            camera->load_data();
-            load_data();
+            pipeline()->load_data();
             if (inspector_->on()) {
                 $if(inspector_->is_convergence(frame_index)) {
                     return_();

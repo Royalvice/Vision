@@ -151,6 +151,8 @@ public:
         postprocessor_.denoise(OC_FORWARD(args)...);
     }
 
+    void load_data() noexcept;
+
     /// for dsl
     template<typename... Args>
     [[nodiscard]] TriangleHitVar trace_closest(Args &&...args) const noexcept {
