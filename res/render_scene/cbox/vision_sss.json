@@ -1169,24 +1169,30 @@
 			"backend" : "GPU"
 		}
 	},
-	"pipeline" : {
-//		"type" : "bake",
-		"param": {
-			"rasterizer" : {
-				"type": "cpu"
-			},
-			"uv_unwrapper": {
-				"type": "xatlas",
-				"param" : {
-					"min": 300,
-//					"max": 1024,
-//					"scale": 1,
-					"padding": 3
-				}
-			}
-		}
-		//		"type" : "customized"
-	},
+	"pipeline": {
+        "type": "fixed",
+        "param": {
+            "obfuscation" : false,
+            "valid_check" : false,
+            "frame_buffer" : {
+                "accumulation": 0,
+                "type" : "normal",
+                "param" : {
+                    "resolution" : [
+                        1024,
+                        1024
+                    ],
+                    "fb_state" : 0,
+                    "tone_mapper" : {
+                        "type": "aces",
+                        "param" : {
+                            "exposure" : 1.0
+                        }
+                    }
+                }
+            }
+        }
+    },
 	"output" : {
 		"spp" : 0,
 		"save_exit" : false,

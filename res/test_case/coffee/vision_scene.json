@@ -1158,6 +1158,30 @@
             "lights": []
         }
     },
+    "pipeline": {
+        "type": "fixed",
+        "param": {
+            "obfuscation" : false,
+            "valid_check" : false,
+            "frame_buffer" : {
+                "accumulation": 0,
+                "type" : "normal",
+                "param" : {
+                    "resolution" : [
+                        800,
+                        1000
+                    ],
+                    "fb_state" : 0,
+                    "tone_mapper" : {
+                        "type": "aces",
+                        "param" : {
+                            "exposure" : 1.0
+                        }
+                    }
+                }
+            }
+        }
+    },
     "output": {
         "spp": 1024,
         "save_exit": true,

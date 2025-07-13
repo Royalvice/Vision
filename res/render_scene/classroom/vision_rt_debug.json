@@ -3947,18 +3947,34 @@
             ]
         }
     },
+    "pipeline": {
+        "type": "fixed",
+        "param": {
+            "obfuscation" : false,
+            "valid_check" : false,
+            "frame_buffer" : {
+                "accumulation": 0,
+                "type" : "normal",
+                "param" : {
+                    "resolution" : [
+                        1280,
+                        720
+                    ],
+                    "fb_state" : 0,
+                    "tone_mapper" : {
+                        "type": "aces",
+                        "param" : {
+                            "exposure" : 1.0
+                        }
+                    }
+                }
+            }
+        }
+    },
     "spectrum" : {
         "type" : "srgb",
         "param" : {
             "dimension": 3
-        }
-    },
-
-    "pipeline": {
-//        "type": "customized"
-        "param": {
-            //			"obfuscation" : false,
-//           			"valid_check" : true
         }
     }
 }
