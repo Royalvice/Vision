@@ -24,5 +24,5 @@ class VISION_RENDER_PT_ToneMapper(bpy.types.Panel, VISION_RENDER_PT_VisionBasePa
     bl_idname = "VISION_RENDER_PT_ToneMapper"
     bl_label = "ToneMapper"
     attr_type = "tone_mapper"
-    bl_parent_id = "VISION_RENDER_PT_Camera"
+    bl_parent_id = "VISION_RENDER_PT_FrameBuffer"
     dic = dic
