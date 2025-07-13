@@ -217,10 +217,7 @@ public:
     void unregister(const SP<ScreenBuffer> &buffer) noexcept;
     void unregister(const string &name) noexcept;
     void init_screen_buffer(const SP<ScreenBuffer> &buffer) noexcept;
-    void prepare_screen_buffer(const SP<ScreenBuffer> &buffer) noexcept {
-        init_screen_buffer(buffer);
-        register_(buffer);
-    }
+    void prepare_screen_buffer(const SP<ScreenBuffer> &buffer) noexcept;
 
     [[nodiscard]] BindlessArray &bindless_array() noexcept;
     void after_render() noexcept;

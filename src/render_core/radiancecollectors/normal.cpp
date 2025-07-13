@@ -12,7 +12,6 @@ using namespace ocarina;
 class NormalRadianceCollector : public RadianceCollector {
 private:
     RegistrableManaged<float4> rt_buffer_;
-    RegistrableManaged<float4> accumulation_buffer_;
     SP<ScreenBuffer> output_buffer_{make_shared<ScreenBuffer>(FrameBuffer::final_result)};
 
     Shader<void(Buffer<float4>, Buffer<float4>, uint)> accumulate_;
@@ -24,9 +23,9 @@ public:
         : RadianceCollector(desc),
           rt_buffer_(pipeline()->bindless_array()) {}
 
-    OC_ENCODABLE_FUNC(RadianceCollector, rt_buffer_, accumulation_buffer_, output_buffer_)
+    OC_ENCODABLE_FUNC(RadianceCollector, rt_buffer_, output_buffer_)
     VS_MAKE_PLUGIN_NAME_FUNC
-    VS_HOTFIX_MAKE_RESTORE(RadianceCollector, rt_buffer_, accumulation_buffer_, output_buffer_,
+    VS_HOTFIX_MAKE_RESTORE(RadianceCollector, rt_buffer_, output_buffer_,
                            accumulate_, tone_mapping_)
 
     void on_resize(uint2 res) noexcept override {
@@ -74,7 +73,6 @@ public:
             managed.register_self();
         };
         prepare(rt_buffer_, "RGBFilm::rt_buffer_");
-        prepare(accumulation_buffer_, "RGBFilm::accumulation_buffer_");
     }
     void prepare() noexcept override {
         prepare_buffers();

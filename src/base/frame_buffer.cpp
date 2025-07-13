@@ -63,6 +63,11 @@ void FrameBuffer::init_screen_buffer(const SP<ScreenBuffer> &buffer) noexcept {
     buffer->register_self();
 }
 
+void FrameBuffer::prepare_screen_buffer(const SP<vision::ScreenBuffer> &buffer) noexcept {
+    init_screen_buffer(buffer);
+    register_(buffer);
+}
+
 void FrameBuffer::compile_gamma() noexcept {
     Kernel kernel = [&](BufferVar<float4> input, BufferVar<float4> output) {
         Float4 val = input.read(dispatch_id());
