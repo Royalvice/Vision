@@ -97,6 +97,8 @@ protected:
     Shader<grad_signature> compute_grad_;
 
     Shader<void(Buffer<TriangleHit>, uint)> compute_hit_;
+    Shader<void(Buffer<float4>, Buffer<float4>, uint)> accumulate_;
+    Shader<void(Buffer<float4>, Buffer<float4>)> tone_mapping_;
 
 protected:
     string cur_view_{final_result};
@@ -184,7 +186,9 @@ public:
     VS_HOTFIX_MAKE_RESTORE(Node, cur_view_, gbuffer_, surfaces_, surface_exts_, hit_bsdfs_,
                            motion_vectors_, hit_buffer_, screen_buffers_, gamma_correct_,
                            view_buffer_, visualizer_, window_buffer_,
-                           compute_geom_, compute_grad_, compute_hit_)
+                           /// shaders
+                           compute_geom_, compute_grad_, compute_hit_,
+                           accumulate_, tone_mapping_)
     void prepare() noexcept override;
     void update_runtime_object(const IObjectConstructor *constructor) noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
