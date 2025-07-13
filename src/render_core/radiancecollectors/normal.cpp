@@ -12,7 +12,7 @@ using namespace ocarina;
 class NormalRadianceCollector : public RadianceCollector {
 private:
     RegistrableManaged<float4> rt_buffer_;
-    SP<ScreenBuffer> output_buffer_{make_shared<ScreenBuffer>(FrameBuffer::final_result)};
+    SP<ScreenBuffer> output_buffer_{make_shared<ScreenBuffer>(FrameBuffer::final_result_old)};
 
 public:
     NormalRadianceCollector() = default;

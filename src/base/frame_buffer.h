@@ -87,7 +87,8 @@ public:
 
 class FrameBuffer : public Node, public Encodable, public Observer {
 public:
-    static constexpr auto final_result = "FrameBuffer::final_result_";
+    static constexpr auto final_result_old = "FrameBuffer::final_result_old";
+    static constexpr auto final_result = "FrameBuffer::final_result";
 
 protected:
     using gbuffer_signature = void(uint, Buffer<PixelGeometry>, Buffer<float2>,
@@ -102,7 +103,7 @@ protected:
     Shader<void(Buffer<float4>, Buffer<float4>)> tone_mapping_;
 
 protected:
-    string cur_view_{final_result};
+    string cur_view_{final_result_old};
     ScreenBuffer::manager_type screen_buffers_;
     Shader<void(Buffer<float4>, Buffer<float4>)> gamma_correct_;
 
