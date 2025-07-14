@@ -9,18 +9,15 @@
 
 namespace vision {
 
-class RayTracingFrameBuffer : public FrameBuffer {
-
+class NormalFrameBuffer : public FrameBuffer {
 public:
-    RayTracingFrameBuffer() = default;
-    explicit RayTracingFrameBuffer(const FrameBufferDesc &desc)
+    NormalFrameBuffer() = default;
+    explicit NormalFrameBuffer(const FrameBufferDesc &desc)
         : FrameBuffer(desc) {}
     VS_MAKE_PLUGIN_NAME_FUNC
-    VS_HOTFIX_MAKE_RESTORE(FrameBuffer, compute_geom_, compute_grad_, compute_hit_)
-
 
 };
 
 }// namespace vision
 
-VS_MAKE_CLASS_CREATOR_HOTFIX(vision, RayTracingFrameBuffer)
+VS_MAKE_CLASS_CREATOR_HOTFIX(vision, NormalFrameBuffer)
