@@ -85,7 +85,7 @@ public:
     void update_resolution(uint2 res, Device &device) noexcept;
 };
 
-class FrameBuffer : public Node, public Encodable, public Observer {
+class FrameBuffer : public Node, public EncodedObject, public Observer {
 public:
     static constexpr auto final_result_old = "FrameBuffer::final_result_old";
     static constexpr auto final_result = "FrameBuffer::final_result";
@@ -200,7 +200,7 @@ public:
                            /// shaders
                            compute_geom_, compute_grad_, compute_hit_,
                            accumulate_, tone_mapping_)
-    OC_ENCODABLE_FUNC(Encodable, accumulation_, tone_mapper_, exposure_)
+    OC_ENCODABLE_FUNC(EncodedObject, accumulation_, tone_mapper_, exposure_)
     void prepare() noexcept override;
     [[nodiscard]] Float4 apply_exposure(const Float4 &input) const noexcept;
     void update_screen_window() noexcept;
@@ -267,7 +267,7 @@ public:
     }
     template<typename T>
     void init_buffer_impl(RegistrableBuffer<T> &buffer, bool has_register, const string &desc, uint count = 1) noexcept {
-        uint element_num = count * pixel_num();
+        uint element_num = count * frame_buffer_size();
         buffer.super() = device().create_buffer<T>(element_num, desc);
         vector<T> vec{};
         vec.assign(element_num, T{});
@@ -276,9 +276,9 @@ public:
         buffer.register_self();
         for (int i = 1; i < count; ++i) {
             if (has_register) {
-                buffer.register_view_index(i, pixel_num() * i, pixel_num());
+                buffer.register_view_index(i, frame_buffer_size() * i, frame_buffer_size());
             } else {
-                buffer.register_view(pixel_num() * i, pixel_num());
+                buffer.register_view(frame_buffer_size() * i, frame_buffer_size());
             }
         }
     }
@@ -298,7 +298,7 @@ public:
 
     template<typename T>
     void init_buffer_impl(RegistrableManaged<T> &buffer, bool has_register, const string &desc, uint count = 1) noexcept {
-        uint element_num = count * pixel_num();
+        uint element_num = count * frame_buffer_size();
         buffer.reset_all(device(), element_num, desc);
         buffer.host_buffer().assign(element_num, T{});
         buffer.upload_immediately();
@@ -306,9 +306,9 @@ public:
         buffer.register_self();
         for (int i = 1; i < count; ++i) {
             if (has_register) {
-                buffer.register_view_index(i, pixel_num() * i, pixel_num());
+                buffer.register_view_index(i, frame_buffer_size() * i, frame_buffer_size());
             } else {
-                buffer.register_view(pixel_num() * i, pixel_num());
+                buffer.register_view(frame_buffer_size() * i, frame_buffer_size());
             }
         }
     }

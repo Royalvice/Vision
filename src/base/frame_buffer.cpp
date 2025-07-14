@@ -20,11 +20,13 @@ FrameBuffer::FrameBuffer(const vision::FrameBufferDesc &desc)
       exposure_(desc["exposure"].as_float(1.f)),
       accumulation_(uint(desc["accumulation"].as_bool(true))) {
     visualizer_->init();
+    resize(resolution_);
 }
 
 void FrameBuffer::prepare() noexcept {
     prepare_view_buffer();
     prepare_screen_buffer(output_buffer_);
+    prepare_rt_buffer();
 }
 
 void FrameBuffer::update_runtime_object(const vision::IObjectConstructor *constructor) noexcept {
@@ -377,11 +379,11 @@ void FrameBuffer::update_resolution(ocarina::uint2 res) noexcept {
 }
 
 uint FrameBuffer::pixel_num() const noexcept {
-    return pipeline()->pixel_num();
+    return resolution_.x * resolution_.y;
 }
 
 uint2 FrameBuffer::resolution() const noexcept {
-    return pipeline()->resolution();
+    return resolution_;
 }
 
 BindlessArray &FrameBuffer::bindless_array() noexcept {

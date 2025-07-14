@@ -70,6 +70,7 @@ public:
             RayState rs = camera->generate_ray(ss);
             Float3 L = Li(rs, scatter_pdf, *max_depth_, spectrum()->one(), max_depth_.hv() < 2, {}, render_env) * ss.filter_weight;
             add_sample(dispatch_idx().xy(), L, frame_index);
+            frame_buffer().add_sample(dispatch_idx().xy(), L, frame_index);
         };
         shader_ = device().compile(kernel, "path tracing integrator");
     }

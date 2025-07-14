@@ -25,7 +25,7 @@ Pipeline::Pipeline(const vision::PipelineDesc &desc)
 }
 
 void Pipeline::init() noexcept {
-    frame_buffer_->resize(resolution());
+
 }
 
 void Pipeline::prepare() noexcept {
