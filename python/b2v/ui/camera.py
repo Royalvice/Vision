@@ -26,5 +26,5 @@ dic = {
 class VISION_RENDER_PT_Camera(bpy.types.Panel, VISION_RENDER_PT_VisionBasePanel):
     bl_idname = "VISION_RENDER_PT_Camera"
     bl_label = "Camera"
-    attr_type = "Camera"
+    attr_type = "camera"
     dic = dic

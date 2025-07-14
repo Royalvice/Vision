@@ -795,6 +795,30 @@
         // "pixel" : [60, 79],
         "MIS_mode" : 2
     },
+    "pipeline": {
+        "type": "fixed",
+        "param": {
+            "obfuscation" : false,
+            "valid_check" : false,
+            "frame_buffer" : {
+                "accumulation": 0,
+                "type" : "normal",
+                "param" : {
+                    "resolution" : [
+                        1024,
+                        1024
+                    ],
+                    "fb_state" : 0,
+                    "tone_mapper" : {
+                        "type": "aces",
+                        "param" : {
+                            "exposure" : 1.0
+                        }
+                    }
+                }
+            }
+        }
+    },
     "output" : {
         "fn" : "cornell-box-sss.png",
         // "fn": "cornell-box-wf.png",

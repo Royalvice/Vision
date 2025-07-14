@@ -18,8 +18,7 @@ def export(exporter, object):
     camera = object.data
     res_x = exporter.context.scene.render.resolution_x
     res_y = exporter.context.scene.render.resolution_y
-    transform = exporter.correct_matrix(object.matrix_world)
-    ret = exporter.get_params("Camera")
+    ret = exporter.get_params("camera")
     
     mat = utils.to_mat(object.matrix_world)
     pos = mat[3][0:3]

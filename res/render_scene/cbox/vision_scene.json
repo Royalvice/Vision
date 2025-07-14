@@ -1048,8 +1048,24 @@
 	"pipeline": {
 //		"type": "customized"
 		"param": {
-			//			"obfuscation" : false,
-//						"valid_check" : true
+			"obfuscation" : false,
+			"valid_check" : false,
+			"frame_buffer" : {
+				"type" : "normal",
+				"param" : {
+					"resolution" : [
+						1024,
+						1024
+					],
+					"fb_state" : 0,
+					"tone_mapper" : {
+						"type": "aces",
+						"param" : {
+							"exposure" : 1.0
+						}
+					}
+				}
+			}
 		}
 	},
 	"output" : {

@@ -13538,11 +13538,28 @@
             "lights": []
         }
     },
-    "pipeline" : {
-//        "type": "customized"
+    "pipeline": {
+        "type": "fixed",
         "param": {
-            //			"obfuscation" : false,
-//            			"valid_check" : true
+            "obfuscation" : false,
+            "valid_check" : false,
+            "frame_buffer" : {
+                "accumulation": 0,
+                "type" : "normal",
+                "param" : {
+                    "resolution" : [
+                        1920,
+                        1080
+                    ],
+                    "fb_state" : 0,
+                    "tone_mapper" : {
+                        "type": "aces",
+                        "param" : {
+                            "exposure" : 1.0
+                        }
+                    }
+                }
+            }
         }
     },
     "render_setting": {

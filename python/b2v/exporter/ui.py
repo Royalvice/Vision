@@ -10,6 +10,7 @@ import json
 import traceback
 from . import geometry
 from . import material
+from . import pipeline
 from . import light
 from . import camera
 import time
@@ -152,6 +153,7 @@ class VisionExporter(bpy.types.Operator, ExportHelper):
         lights = []
         materials = {}
         data["shapes"] = shapes
+        data["pipeline"] = pipeline.export(self)
         data["render_setting"] = {
             "min_world_radius": 10,
             "polymorphic_mode" : 1

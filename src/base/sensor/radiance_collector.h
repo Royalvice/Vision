@@ -42,7 +42,6 @@ public:
     VS_HOTFIX_MAKE_RESTORE(Node, resolution_, screen_window_,
                            accumulation_, tone_mapper_, exposure_)
     VS_MAKE_GUI_STATUS_FUNC(Node, tone_mapper_)
-    virtual void compile() noexcept = 0;
     [[nodiscard]] uint pixel_num() const noexcept { return resolution_.x * resolution_.y; }
     [[nodiscard]] Box2f screen_window() const noexcept { return screen_window_; }
     [[nodiscard]] bool enable_accumulation() const noexcept { return accumulation_.hv(); }
@@ -69,14 +68,8 @@ public:
     virtual Float3 add_sample(const Uint2 &pixel, const Float3 &val, const Uint &frame_index) noexcept {
         return add_sample(pixel, make_float4(val, 1.f), frame_index);
     }
-    [[nodiscard]] virtual CommandList accumulate(BufferView<float4> input, BufferView<float4> output,
-                                                 uint frame_index) const noexcept = 0;
-    [[nodiscard]] virtual CommandList tone_mapping(BufferView<float4> input,
-                                                   BufferView<float4> output) const noexcept = 0;
     [[nodiscard]] virtual const RegistrableManaged<float4> &output_buffer() const noexcept = 0;
     [[nodiscard]] virtual RegistrableManaged<float4> &output_buffer() noexcept = 0;
-    [[nodiscard]] virtual const RegistrableManaged<float4> &accumulation_buffer() const noexcept = 0;
-    [[nodiscard]] virtual RegistrableManaged<float4> &accumulation_buffer() noexcept = 0;
     [[nodiscard]] virtual const RegistrableManaged<float4> &rt_buffer() const noexcept = 0;
     [[nodiscard]] virtual RegistrableManaged<float4> &rt_buffer() noexcept = 0;
 };

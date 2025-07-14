@@ -85,27 +85,37 @@ public:
     void update_resolution(uint2 res, Device &device) noexcept;
 };
 
-class FrameBuffer : public Node, public Observer {
+class FrameBuffer : public Node, public Encodable, public Observer {
 public:
-    static constexpr auto final_result = "FrameBuffer::final_result_";
+    static constexpr auto final_result_old = "FrameBuffer::final_result_old";
+    static constexpr auto final_result = "FrameBuffer::final_result";
 
 protected:
-    using gbuffer_signature = void(uint, Buffer<PixelGeometry>, Buffer<float2>, Buffer<float4>, Buffer<float4>, Buffer<float4>);
+    using gbuffer_signature = void(uint, Buffer<PixelGeometry>, Buffer<float2>,
+                                   Buffer<float4>, Buffer<float4>, Buffer<float4>);
     Shader<gbuffer_signature> compute_geom_;
 
     using grad_signature = void(uint, Buffer<PixelGeometry>);
     Shader<grad_signature> compute_grad_;
 
     Shader<void(Buffer<TriangleHit>, uint)> compute_hit_;
+    Shader<void(Buffer<float4>, Buffer<float4>, uint)> accumulate_;
+    Shader<void(Buffer<float4>, Buffer<float4>)> tone_mapping_;
 
 protected:
-    string cur_view_{final_result};
+    string cur_view_{final_result_old};
     ScreenBuffer::manager_type screen_buffers_;
     Shader<void(Buffer<float4>, Buffer<float4>)> gamma_correct_;
 
     SP<Visualizer> visualizer_{make_shared<Visualizer>()};
 
     vector<float4> window_buffer_;
+
+    uint2 resolution_;
+    Box2f screen_window_;
+    EncodedData<uint> accumulation_;
+    TToneMapper tone_mapper_{};
+    EncodedData<float> exposure_{};
 
 #define VS_MAKE_BUFFER(Type, buffer_name, count)                           \
 protected:                                                                 \
@@ -162,6 +172,9 @@ public:                                                                    \
     VS_MAKE_BUFFER(RegistrableBuffer<float4>, emission, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, albedo, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, normal, 1)
+    VS_MAKE_BUFFER(RegistrableManaged<float4>, rt_buffer, 1)
+
+    SP<ScreenBuffer> output_buffer_{make_shared<ScreenBuffer>(final_result)};
 
     VS_MAKE_DOUBLE_BUFFER(RegistrableBuffer<PixelGeometry>, gbuffer)
 
@@ -183,9 +196,14 @@ public:
     explicit FrameBuffer(const FrameBufferDesc &desc);
     VS_HOTFIX_MAKE_RESTORE(Node, cur_view_, gbuffer_, surfaces_, surface_exts_, hit_bsdfs_,
                            motion_vectors_, hit_buffer_, screen_buffers_, gamma_correct_,
-                           view_buffer_, visualizer_, window_buffer_,
-                           compute_geom_, compute_grad_, compute_hit_)
+                           view_buffer_, visualizer_, window_buffer_, rt_buffer_, output_buffer_,
+                           /// shaders
+                           compute_geom_, compute_grad_, compute_hit_,
+                           accumulate_, tone_mapping_)
+    OC_ENCODABLE_FUNC(Encodable, accumulation_, tone_mapper_, exposure_)
     void prepare() noexcept override;
+    [[nodiscard]] Float4 apply_exposure(const Float4 &input) const noexcept;
+    void update_screen_window() noexcept;
     void update_runtime_object(const IObjectConstructor *constructor) noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
@@ -198,17 +216,17 @@ public:
     [[nodiscard]] uint2 resolution() const noexcept;
     [[nodiscard]] uint pixel_index(uint2 pos) const noexcept;
     [[nodiscard]] BindlessArray &bindless_array() const noexcept;
-
     [[nodiscard]] const Buffer<float4> &cur_screen_buffer() const noexcept;
-
+    [[nodiscard]] virtual uint2 launch_dim() const noexcept { return resolution_; }
+    [[nodiscard]] virtual uint frame_buffer_size() const noexcept {
+        uint2 dim = launch_dim();
+        return dim.x * dim.y;
+    }
     void register_(const SP<ScreenBuffer> &buffer) noexcept;
     void unregister(const SP<ScreenBuffer> &buffer) noexcept;
     void unregister(const string &name) noexcept;
     void init_screen_buffer(const SP<ScreenBuffer> &buffer) noexcept;
-    void prepare_screen_buffer(const SP<ScreenBuffer> &buffer) noexcept {
-        init_screen_buffer(buffer);
-        register_(buffer);
-    }
+    void prepare_screen_buffer(const SP<ScreenBuffer> &buffer) noexcept;
 
     [[nodiscard]] BindlessArray &bindless_array() noexcept;
     void after_render() noexcept;
@@ -218,11 +236,14 @@ public:
     [[nodiscard]] Float3 compute_motion_vector(const TSensor &camera, const Float3 &cur_pos, const Float3 &pre_pos) const noexcept;
     [[nodiscard]] static Uint checkerboard_value(const Uint2 &coord) noexcept;
     [[nodiscard]] static Uint checkerboard_value(const Uint2 &coord, const Uint &frame_index) noexcept;
+
     virtual void compile() noexcept;
     void compile_compute_geom() noexcept;
     void compile_compute_grad() noexcept;
     void compile_compute_hit() noexcept;
     void compile_gamma() noexcept;
+    void compile_accumulation() noexcept;
+    void compile_tone_mapping() noexcept;
     void compute_gradient(PixelGeometryVar &center_data,
                           const BufferVar<PixelGeometry> &gbuffer) const noexcept;
     [[nodiscard]] CommandList gamma_correct(BufferView<float4> input,
@@ -236,7 +257,14 @@ public:
                                                    BufferView<float4> emission, BufferView<float4> normal) const noexcept;
     [[nodiscard]] virtual CommandList compute_grad(uint frame_index, BufferView<PixelGeometry> gbuffer) const noexcept;
     [[nodiscard]] virtual CommandList compute_hit(uint frame_index) const noexcept;
-
+    [[nodiscard]] CommandList accumulate(BufferView<float4> input, BufferView<float4> output,
+                                         uint frame_index) const noexcept;
+    [[nodiscard]] CommandList tone_mapping(BufferView<float4> input,
+                                           BufferView<float4> output) const noexcept;
+    Float3 add_sample(const Uint2 &pixel, Float4 val, const Uint &frame_index) noexcept;
+    Float3 add_sample(const Uint2 &pixel, const Float3 &val, const Uint &frame_index) noexcept {
+        return add_sample(pixel, make_float4(val, 1.f), frame_index);
+    }
     template<typename T>
     void init_buffer_impl(RegistrableBuffer<T> &buffer, bool has_register, const string &desc, uint count = 1) noexcept {
         uint element_num = count * pixel_num();

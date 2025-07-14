@@ -227,9 +227,10 @@ void PassDesc::init(const vision::ParameterSet &ps) noexcept {
 
 void FrameBufferDesc::init(const vision::ParameterSet &ps) noexcept {
     NodeDesc::init(ps);
-    sub_type = ps["type"].as_string("rt");
+    sub_type = ps["type"].as_string("normal");
     ParameterSet param = ps.value("param", DataWrap::object());
     set_parameter(param);
+    tone_mapper.init(parameter_.value("tone_mapper", DataWrap::object()));
 }
 
 void PipelineDesc::init(const vision::ParameterSet &ps) noexcept {
@@ -333,7 +334,7 @@ void LightSamplerDesc::init(const ParameterSet &ps) noexcept {
 
 void RadianceCollectorDesc::init(const ParameterSet &ps) noexcept {
     NodeDesc::init(ps);
-    sub_type = ps["type"].as_string("rgb");
+    sub_type = ps["type"].as_string("normal");
     ParameterSet param = ps.value("param", DataWrap::object());
     set_parameter(param);
     tone_mapper.init(parameter_.value("tone_mapper", DataWrap::object()));
