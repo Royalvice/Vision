@@ -12,11 +12,16 @@ private:
     const SampledWavelengths *swl_{nullptr};
 
 public:
-    explicit BlackBodyLobe(const SampledWavelengths &swl) : swl_(&swl) {}
+    explicit BlackBodyLobe(const SampledWavelengths &swl, const optional<ShadingFrame> &shading_frame)
+        : Lobe(shading_frame), swl_(&swl) {}
     [[nodiscard]] Uint flag() const noexcept override { return BxDFFlag::Diffuse; }
     [[nodiscard]] ScatterEval evaluate_local_impl(const Float3 &wo, const Float3 &wi,
                                                   MaterialEvalMode mode, const Uint &flag,
                                                   TransportMode tm) const noexcept override;
+    [[nodiscard]] SampledDirection sample_wi_local_impl(const Float3 &wo, const Uint &flag,
+                                                        TSampler &sampler) const noexcept override {
+        return {};
+    }
     [[nodiscard]] const SampledWavelengths *swl() const override;
     [[nodiscard]] BSDFSample sample_local(const Float3 &wo, const Uint &flag, TSampler &sampler,
                                           TransportMode tm) const noexcept override;
@@ -55,7 +60,8 @@ protected:
 
 public:
     [[nodiscard]] UP<Lobe> create_lobe_set(const Interaction &it, const SampledWavelengths &swl) const noexcept override {
-        return make_unique<BlackBodyLobe>(swl);
+        auto shading_frame = compute_shading_frame(it, swl);
+        return make_unique<BlackBodyLobe>(swl, std::move(shading_frame));
     }
     [[nodiscard]] uint alignment() const noexcept override { return sizeof(float); }
     uint cal_offset(ocarina::uint prev_size) const noexcept override { return ocarina::max(prev_size, 1u); }

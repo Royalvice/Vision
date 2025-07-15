@@ -13,8 +13,7 @@ public:
     VS_MAKE_PLUGIN_NAME_FUNC
     void prepare() noexcept override {
         Pipeline::prepare();
-        auto pixel_num = resolution().x * resolution().y;
-        final_picture_.reset_all(device(), pixel_num, "offline final picture");
+        final_picture_.reset_all(device(), pixel_num(), "offline final picture");
         scene_.prepare();
         image_pool().prepare();
         prepare_geometry();

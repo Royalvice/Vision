@@ -25,8 +25,7 @@ void BakePipeline::init_postprocessor(const DenoiserDesc &desc) {
 
 void BakePipeline::prepare() noexcept {
     Pipeline::prepare();
-    auto pixel_num = resolution().x * resolution().y;
-    final_picture_.reset_all(device(), pixel_num);
+    final_picture_.reset_all(device(), pixel_num());
     scene_.prepare();
     image_pool().prepare();
     preprocess();

@@ -236,7 +236,7 @@
 			"param" : {
 				//				"fn" : "mesh/nanosuit/nanosuit.obj",
 				"fn" : "mesh/apple.gltf",
-				//				"fn" : "mesh/planet/planet.obj",
+//								"fn" : "mesh/planet/planet.obj",
 				"x" : 1,
 				"y" : 1,
 				"z" : 1,
@@ -280,58 +280,58 @@
 					}
 				}
 			}
-		},
-		{
-			"type" : "model",
-			"name" : "shape_5",
-			"param" : {
-//				"fn" : "mesh/nanosuit/nanosuit.obj",
-				"fn" : "mesh/apple.gltf",
-//				"fn" : "mesh/planet/planet.obj",
-				"x" : 1,
-				"y" : 1,
-				"z" : 1,
-//				"smooth": true,
-//				"material" : "Light",
-//				"material" : "ShortBox",
-//								"material" : "substrate",
-//								"material" : "Mirror",
-								"material" : "matte2",
-//								                "material" : "principled_bsdf",
-//												                "material" : "mix",
-//								                                "material" : "Glass",
-//				"emission" : {
-//					"type" : "area",
-//					"param" : {
-//						"color" : {
-//							"channels" : "xyz",
-//							"node" : [
-//								17,
-//								12,
-//								4
-//							]
-//						},
-//						//						"color" : {
-//						//							"channels" : "xyz",
-//						//							"node" : {
-//						//								"fn" : "Painting3.jpg",
-//						//								"color_space" : "srgb"
-//						//							}
-//						//						},
-//						"two_sided" : false,
-//						"scale" : 0.1
-//					}
-//				},
-				"transform" : {
-					"type" : "trs",
-					"param" : {
-						"t" : [-0.3, 0.6, 0],
-						"r" : [1, 0, 0, 0],
-						"s" : [0.4, 0.4, 0.4]
-					}
-				}
-			}
 		}
+//		{
+//			"type" : "model",
+//			"name" : "shape_5",
+//			"param" : {
+////				"fn" : "mesh/nanosuit/nanosuit.obj",
+//				"fn" : "mesh/apple.gltf",
+////				"fn" : "mesh/planet/planet.obj",
+//				"x" : 1,
+//				"y" : 1,
+//				"z" : 1,
+////				"smooth": true,
+////				"material" : "Light",
+////				"material" : "ShortBox",
+////								"material" : "substrate",
+////								"material" : "Mirror",
+//								"material" : "matte2",
+////								                "material" : "principled_bsdf",
+////												                "material" : "mix",
+////								                                "material" : "Glass",
+////				"emission" : {
+////					"type" : "area",
+////					"param" : {
+////						"color" : {
+////							"channels" : "xyz",
+////							"node" : [
+////								17,
+////								12,
+////								4
+////							]
+////						},
+////						//						"color" : {
+////						//							"channels" : "xyz",
+////						//							"node" : {
+////						//								"fn" : "Painting3.jpg",
+////						//								"color_space" : "srgb"
+////						//							}
+////						//						},
+////						"two_sided" : false,
+////						"scale" : 0.1
+////					}
+////				},
+//				"transform" : {
+//					"type" : "trs",
+//					"param" : {
+//						"t" : [-0.3, 0.6, 0],
+//						"r" : [1, 0, 0, 0],
+//						"s" : [0.4, 0.4, 0.4]
+//					}
+//				}
+//			}
+//		}
 //				{
 //					"type" : "cube",
 //					"name" : "shape_5",
@@ -665,43 +665,43 @@
 			"type" : "diffuse",
 			"name" : "BackWall",
 			"param" : {
-				//				"color" : {
-				//					"channels" : "xyz",
-				//					"node" : {
-				//						"type" : "image",
-				//						"param" : {
-				//							"fn" : "checker.jpg",
-				//							"color_space" : "srgb"
-				//						}
-				//					}
-				//				}
-				"color" : {
-					"channels" : "xyz",
-					"node" : {
-						"type" : "multiply",
-						"param" : {
-							"lhs" : {
-								"channels" : "xyz",
-								"node" : {
-									"type" : "image",
-									"param" : {
-										"fn" : "checker.jpg",
-										"color_space" : "srgb"
+								"color" : {
+									"channels" : "xyz",
+									"node" : {
+										"type" : "image",
+										"param" : {
+											"fn" : "checker.jpg",
+											"color_space" : "srgb"
+										}
 									}
 								}
-							},
-							"rhs" : {
-								"channels" : "xyz",
-								"node" : {
-									"type" : "number",
-									"param" : {
-										"value" : [0.9, 1, 0.9]
-									}
-								}
-							}
-						}
-					}
-				}
+//				"color" : {
+//					"channels" : "xyz",
+//					"node" : {
+//						"type" : "multiply",
+//						"param" : {
+//							"lhs" : {
+//								"channels" : "xyz",
+//								"node" : {
+//									"type" : "image",
+//									"param" : {
+//										"fn" : "checker.jpg",
+//										"color_space" : "srgb"
+//									}
+//								}
+//							},
+//							"rhs" : {
+//								"channels" : "xyz",
+//								"node" : {
+//									"type" : "number",
+//									"param" : {
+//										"value" : [0.9, 1, 0.9]
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
 			}
 		},
 		{
