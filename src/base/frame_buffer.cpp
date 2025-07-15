@@ -369,14 +369,16 @@ void FrameBuffer::update_resolution(ocarina::uint2 res) noexcept {
     resize(res);
     reset_surfaces();
     reset_surface_exts();
-    reset_gbuffer();
-    reset_hit_bsdfs();
     reset_motion_vectors();
-    reset_hit_buffer();
+    reset_hit_bsdfs();
+    reset_emission();
+    reset_albedo();
+    reset_normal();
     reset_rt_buffer();
+    reset_gbuffer();
+    reset_hit_buffer();
     reset_view_buffer();
     update_screen_window();
-    reset_buffer(view_buffer_, "FrameBuffer::view_buffer_");
     for (auto &it : screen_buffers_) {
         it.second->update_resolution(res, device());
     }
