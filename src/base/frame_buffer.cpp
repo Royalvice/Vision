@@ -28,6 +28,7 @@ void FrameBuffer::prepare() noexcept {
     prepare_view_buffer();
     prepare_screen_buffer(output_buffer_);
     prepare_rt_buffer();
+    prepare_rays();
 }
 
 void FrameBuffer::update_runtime_object(const vision::IObjectConstructor *constructor) noexcept {
@@ -375,6 +376,7 @@ void FrameBuffer::update_resolution(ocarina::uint2 res) noexcept {
     reset_albedo();
     reset_normal();
     reset_rt_buffer();
+    reset_rays();
     reset_gbuffer();
     reset_hit_buffer();
     reset_view_buffer();

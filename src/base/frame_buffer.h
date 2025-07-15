@@ -32,11 +32,6 @@ OC_STRUCT(vision,PixelGeometry, normal_fwidth, p_film,
     }
 };
 
-// clang-format on
-namespace vision {
-using PixelGeometryVar = ocarina::Var<PixelGeometry>;
-}// namespace vision
-
 namespace vision {
 
 /// use for pingpong
@@ -174,16 +169,14 @@ public:                                                                    \
     VS_MAKE_BUFFER(RegistrableManaged<float4>, albedo, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, normal, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, rt_buffer, 1)
-
-    SP<ScreenBuffer> output_buffer_{make_shared<ScreenBuffer>(final_result)};
-
+    VS_MAKE_BUFFER(RegistrableManaged<Ray>, rays, 1)
     VS_MAKE_DOUBLE_BUFFER(RegistrableBuffer<PixelGeometry>, gbuffer)
-
     /// used for editor
     VS_MAKE_BUFFER(RegistrableManaged<TriangleHit>, hit_buffer, 1)
-
     /// Display in full screen on the screen
     VS_MAKE_BUFFER(RegistrableBuffer<float4>, view_buffer, 1)
+
+    SP<ScreenBuffer> output_buffer_{make_shared<ScreenBuffer>(final_result)};
 
 #undef VS_MAKE_DOUBLE_BUFFER
 
