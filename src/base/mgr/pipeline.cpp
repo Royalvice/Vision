@@ -250,6 +250,7 @@ void Pipeline::change_resolution(uint2 res) noexcept {
     frame_buffer_->update_resolution(res);
     scene_.update_resolution(res);
     final_picture_.reset_all(device(), pixel_num(), "offline final picture");
+    pipeline()->upload_bindless_array();
 }
 
 void Pipeline::prepare_geometry() noexcept {

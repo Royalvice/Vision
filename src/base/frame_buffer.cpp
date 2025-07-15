@@ -382,7 +382,6 @@ void FrameBuffer::update_resolution(ocarina::uint2 res) noexcept {
     for (auto &it : screen_buffers_) {
         it.second->update_resolution(res, device());
     }
-    pipeline()->upload_bindless_array();
 }
 
 uint FrameBuffer::pixel_num() const noexcept {
