@@ -20,6 +20,6 @@ def export(exporter):
     
     ret["param"]["frame_buffer"] = exporter.get_params("frame_buffer")
     fb_data = ret["param"]["frame_buffer"]
-    fb_data["tone_mapper"] = exporter.get_params("tone_mapper")
-    fb_data["resolution"] = [res_x, res_y]
+    fb_data["param"]["tone_mapper"] = exporter.get_params("tone_mapper")
+    fb_data["param"]["resolution"] = [res_x, res_y]
     return ret

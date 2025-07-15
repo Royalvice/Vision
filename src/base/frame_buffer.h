@@ -7,6 +7,7 @@
 #include "dsl/dsl.h"
 #include "node.h"
 #include "sensor/sensor.h"
+#include "sensor/tonemapper.h"
 #include "scattering/interaction.h"
 #include "visualizer.h"
 
@@ -85,7 +86,7 @@ public:
     void update_resolution(uint2 res, Device &device) noexcept;
 };
 
-class FrameBuffer : public Node, public Encodable, public Observer {
+class FrameBuffer : public Node, public EncodedObject, public Observer {
 public:
     static constexpr auto final_result_old = "FrameBuffer::final_result_old";
     static constexpr auto final_result = "FrameBuffer::final_result";
@@ -103,7 +104,7 @@ protected:
     Shader<void(Buffer<float4>, Buffer<float4>)> tone_mapping_;
 
 protected:
-    string cur_view_{final_result_old};
+    string cur_view_{final_result};
     ScreenBuffer::manager_type screen_buffers_;
     Shader<void(Buffer<float4>, Buffer<float4>)> gamma_correct_;
 
@@ -200,13 +201,16 @@ public:
                            /// shaders
                            compute_geom_, compute_grad_, compute_hit_,
                            accumulate_, tone_mapping_)
-    OC_ENCODABLE_FUNC(Encodable, accumulation_, tone_mapper_, exposure_)
+    OC_ENCODABLE_FUNC(EncodedObject, accumulation_, tone_mapper_, exposure_)
     void prepare() noexcept override;
     [[nodiscard]] Float4 apply_exposure(const Float4 &input) const noexcept;
     void update_screen_window() noexcept;
+    OC_MAKE_MEMBER_GETTER(screen_window, )
+    OC_MAKE_MEMBER_GETTER(tone_mapper, &)
     void update_runtime_object(const IObjectConstructor *constructor) noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
+    [[nodiscard]] bool enable_accumulation() const noexcept { return accumulation_.hv(); }
     OC_MAKE_MEMBER_GETTER(visualizer, &)
     OC_MAKE_MEMBER_GETTER(window_buffer, &)
     void fill_window_buffer(const Buffer<float4> &input) noexcept;
@@ -244,6 +248,8 @@ public:
     void compile_gamma() noexcept;
     void compile_accumulation() noexcept;
     void compile_tone_mapping() noexcept;
+    [[nodiscard]] auto& output_buffer() noexcept { return output_buffer_->super(); }
+    [[nodiscard]] const auto& output_buffer() const noexcept { return output_buffer_->super(); }
     void compute_gradient(PixelGeometryVar &center_data,
                           const BufferVar<PixelGeometry> &gbuffer) const noexcept;
     [[nodiscard]] CommandList gamma_correct(BufferView<float4> input,
@@ -267,7 +273,7 @@ public:
     }
     template<typename T>
     void init_buffer_impl(RegistrableBuffer<T> &buffer, bool has_register, const string &desc, uint count = 1) noexcept {
-        uint element_num = count * pixel_num();
+        uint element_num = count * frame_buffer_size();
         buffer.super() = device().create_buffer<T>(element_num, desc);
         vector<T> vec{};
         vec.assign(element_num, T{});
@@ -276,9 +282,9 @@ public:
         buffer.register_self();
         for (int i = 1; i < count; ++i) {
             if (has_register) {
-                buffer.register_view_index(i, pixel_num() * i, pixel_num());
+                buffer.register_view_index(i, frame_buffer_size() * i, frame_buffer_size());
             } else {
-                buffer.register_view(pixel_num() * i, pixel_num());
+                buffer.register_view(frame_buffer_size() * i, frame_buffer_size());
             }
         }
     }
@@ -298,7 +304,7 @@ public:
 
     template<typename T>
     void init_buffer_impl(RegistrableManaged<T> &buffer, bool has_register, const string &desc, uint count = 1) noexcept {
-        uint element_num = count * pixel_num();
+        uint element_num = count * frame_buffer_size();
         buffer.reset_all(device(), element_num, desc);
         buffer.host_buffer().assign(element_num, T{});
         buffer.upload_immediately();
@@ -306,9 +312,9 @@ public:
         buffer.register_self();
         for (int i = 1; i < count; ++i) {
             if (has_register) {
-                buffer.register_view_index(i, pixel_num() * i, pixel_num());
+                buffer.register_view_index(i, frame_buffer_size() * i, frame_buffer_size());
             } else {
-                buffer.register_view(pixel_num() * i, pixel_num());
+                buffer.register_view(frame_buffer_size() * i, frame_buffer_size());
             }
         }
     }

@@ -25,7 +25,7 @@ Pipeline::Pipeline(const vision::PipelineDesc &desc)
 }
 
 void Pipeline::init() noexcept {
-    frame_buffer_->resize(resolution());
+
 }
 
 void Pipeline::prepare() noexcept {
@@ -247,9 +247,10 @@ const Buffer<float4> &Pipeline::view_buffer() {
 
 void Pipeline::change_resolution(uint2 res) noexcept {
     if (all(res == resolution())) { return; }
-    scene_.update_resolution(res);
     frame_buffer_->update_resolution(res);
+    scene_.update_resolution(res);
     final_picture_.reset_all(device(), pixel_num(), "offline final picture");
+    pipeline()->upload_bindless_array();
 }
 
 void Pipeline::prepare_geometry() noexcept {
@@ -311,7 +312,7 @@ void Pipeline::display(double dt) noexcept {
 }
 
 float4 *Pipeline::final_picture(const OutputDesc &desc) noexcept {
-    RegistrableManaged<float4> &original = scene_.rad_collector()->output_buffer();
+    RegistrableManaged<float4> &original = frame_buffer_->output_buffer();
     bool gamma = !(desc.fn.ends_with("exr") || desc.fn.ends_with("hdr"));
     if (desc.denoise) {
         OfflineDenoiseInput input;

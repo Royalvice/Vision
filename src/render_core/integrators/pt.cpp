@@ -34,14 +34,12 @@ public:
     VS_HOTFIX_MAKE_RESTORE(IlluminationIntegrator, inspector_)
     OC_ENCODABLE_FUNC(IlluminationIntegrator, inspector_)
     VS_MAKE_GUI_STATUS_FUNC(IlluminationIntegrator, inspector_)
-    [[nodiscard]] RadianceCollector *rad_collector() noexcept { return scene().rad_collector(); }
-    [[nodiscard]] const RadianceCollector *rad_collector() const noexcept { return scene().rad_collector(); }
     void update_runtime_object(const vision::IObjectConstructor *constructor) noexcept override {
         std::tuple tp = {addressof(inspector_)};
         HotfixSystem::replace_objects(constructor, tp);
     }
     void add_sample(const Uint2 &pixel, Float3 val, const Uint &frame_index) noexcept {
-        val = rad_collector()->add_sample(pixel, val, frame_index);
+        val = frame_buffer().add_sample(pixel, val, frame_index);
         if (inspector_->on()) {
             inspector_->add_sample(pixel, val, frame_index);
         }
@@ -69,7 +67,8 @@ public:
             Float scatter_pdf = 1e16f;
             RayState rs = camera->generate_ray(ss);
             Float3 L = Li(rs, scatter_pdf, *max_depth_, spectrum()->one(), max_depth_.hv() < 2, {}, render_env) * ss.filter_weight;
-            add_sample(dispatch_idx().xy(), L, frame_index);
+//            add_sample(dispatch_idx().xy(), L, frame_index);
+            frame_buffer().add_sample(dispatch_idx().xy(), L, frame_index);
         };
         shader_ = device().compile(kernel, "path tracing integrator");
     }
@@ -82,8 +81,8 @@ public:
         ret.gbuffer = frame_buffer().cur_gbuffer_view(frame_index_);
         ret.prev_gbuffer = frame_buffer().prev_gbuffer_view(frame_index_);
         ret.motion_vec = frame_buffer().motion_vectors();
-        ret.radiance = rad_collector()->rt_buffer();
-        ret.output = rad_collector()->output_buffer();
+        ret.radiance = frame_buffer().rt_buffer();
+        ret.output = frame_buffer().output_buffer();
         return ret;
     }
 

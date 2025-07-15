@@ -70,9 +70,6 @@ public:
         frame_buffer().prepare_motion_vectors();
     }
 
-    [[nodiscard]] RadianceCollector *rad_collector() noexcept { return scene().rad_collector(); }
-    [[nodiscard]] const RadianceCollector *rad_collector() const noexcept { return scene().rad_collector(); }
-
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override {
         direct_->render_UI(widgets);
         indirect_->render_UI(widgets);
@@ -121,7 +118,8 @@ public:
             Float3 direct = direct_->radiance()->read(dispatch_id()).xyz() * di;
             Float3 indirect = indirect_->radiance()->read(dispatch_id()).xyz() * ii;
             Float3 L = direct + indirect;
-            camera->rad_collector()->add_sample(dispatch_idx().xy(), L, frame_index);
+//            camera->rad_collector()->add_sample(dispatch_idx().xy(), L, frame_index);
+            frame_buffer().add_sample(dispatch_idx().xy(), L, frame_index);
         };
         combine_ = device().compile(kernel, "combine");
     }
@@ -134,10 +132,10 @@ public:
         ret.gbuffer = frame_buffer().cur_gbuffer_view(frame_index_);
         ret.prev_gbuffer = frame_buffer().prev_gbuffer_view(frame_index_);
         ret.motion_vec = frame_buffer().motion_vectors();
-        ret.radiance = rad_collector()->rt_buffer();
+        ret.radiance =  frame_buffer().rt_buffer();
         ret.albedo = frame_buffer().albedo();
         ret.emission = frame_buffer().emission();
-        ret.output = rad_collector()->output_buffer();
+        ret.output =  frame_buffer().output_buffer();
         return ret;
     }
 
