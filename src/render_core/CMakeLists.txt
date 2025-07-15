@@ -1,4 +1,3 @@
-add_subdirectory(radiancecollectors)
 add_subdirectory(filters)
 add_subdirectory(samplers)
 add_subdirectory(lights)
@@ -29,7 +28,6 @@ target_link_libraries(vision-plugins INTERFACE
         vision-lightsampler
         vision-sensor
         vision-light
-        vision-radiancecollector
         vision-rasterizer
         vision-framebuffer
         vision-shadernode

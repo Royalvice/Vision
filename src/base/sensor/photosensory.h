@@ -11,7 +11,6 @@
 #include "math/transform.h"
 #include "base/scattering/medium.h"
 #include "filter.h"
-#include "radiance_collector.h"
 #include "hotfix/hotfix.h"
 
 namespace vision {

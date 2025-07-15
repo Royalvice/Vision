@@ -7,6 +7,7 @@
 #include "dsl/dsl.h"
 #include "node.h"
 #include "sensor/sensor.h"
+#include "sensor/tonemapper.h"
 #include "scattering/interaction.h"
 #include "visualizer.h"
 
