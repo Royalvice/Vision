@@ -20,6 +20,7 @@ FrameBuffer::FrameBuffer(const vision::FrameBufferDesc &desc)
       exposure_(desc["exposure"].as_float(1.f)),
       accumulation_(uint(desc["accumulation"].as_bool(true))) {
     visualizer_->init();
+    update_screen_window();
     resize(resolution_);
 }
 

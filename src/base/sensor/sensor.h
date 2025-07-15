@@ -35,7 +35,6 @@ protected:
 
 protected:
     void update_raster() noexcept;
-    void update_resolution_(uint2 res) noexcept;
     [[nodiscard]] virtual RayVar generate_ray_in_local_space(const SensorSample &ss) const noexcept;
 
 public:
@@ -47,13 +46,13 @@ public:
                            fov_y_,raster_to_screen_,camera_to_screen_,tan_fov_y_over_2_,
                            c2w_,prev_w2s_, raster_to_sensor_,prev_s2r_,prev_pos_)
     void init(const SensorDesc &desc) noexcept;
+    void update_resolution(uint2 res) noexcept;
     void update_mat(float4x4 m) noexcept;
     void set_mat(float4x4 m) noexcept;
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
     virtual void before_render() noexcept {}
     virtual void after_render() noexcept;
     void store_prev_data() noexcept;
-    void update_resolution(uint2 res) noexcept;
     void set_sensitivity(float v) noexcept { sensitivity_ = v; }
     [[nodiscard]] Float3 prev_raster_coord(Float3 pos) const noexcept;
     [[nodiscard]] Float3 raster_coord(Float3 pos) const noexcept;
@@ -76,7 +75,6 @@ public:
     [[nodiscard]] Float linear_depth(const Float3 &world_pos) const noexcept;
     void move(float3 delta) noexcept { position_ += delta; }
 
-    void set_resolution(ocarina::uint2 res) noexcept override;
     void set_yaw(decltype(yaw_) yaw) noexcept { yaw_ = yaw; }
     void update_yaw(float val) noexcept { set_yaw(yaw_ + val); }
     void set_pitch(float pitch) noexcept {

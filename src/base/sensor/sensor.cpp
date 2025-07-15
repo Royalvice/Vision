@@ -13,7 +13,7 @@ static float4x4 origin_matrix;
 Sensor::Sensor(const SensorDesc &desc)
     : Photosensory(desc) {
     init(desc);
-    update_resolution_(rad_collector_->resolution());
+    update_resolution(rad_collector_->resolution());
 }
 
 void Sensor::init(const SensorDesc &desc) noexcept {
@@ -55,13 +55,8 @@ RayVar Sensor::generate_ray_in_local_space(const vision::SensorSample &ss) const
     return ray;
 }
 
-void Sensor::set_resolution(ocarina::uint2 res) noexcept {
-    Photosensory::set_resolution(res);
-    update_resolution_(res);
-}
-
-void Sensor::update_resolution_(uint2 res) noexcept {
-    Box2f scrn = rad_collector()->screen_window();
+void Sensor::update_resolution(uint2 res) noexcept {
+    Box2f scrn = frame_buffer().screen_window();
     float2 span = scrn.span();
     float4x4 screen_to_raster = transform::scale(res.x, res.y, 1u) *
                                 transform::scale(1 / span.x, 1 / -span.y, 1.f) *
@@ -85,11 +80,6 @@ void Sensor::update_mat(float4x4 m) noexcept {
 void Sensor::set_mat(ocarina::float4x4 m) noexcept {
     c2w_ = m;
     position_ = make_float3(m[3]);
-}
-
-void Sensor::update_resolution(ocarina::uint2 res) noexcept {
-    rad_collector()->update_resolution(res);
-    update_resolution_(res);
 }
 
 void Sensor::after_render() noexcept {
