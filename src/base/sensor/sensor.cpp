@@ -13,7 +13,7 @@ static float4x4 origin_matrix;
 Sensor::Sensor(const SensorDesc &desc)
     : Photosensory(desc) {
     init(desc);
-    update_resolution(rad_collector_->resolution());
+    update_resolution(frame_buffer().resolution());
 }
 
 void Sensor::init(const SensorDesc &desc) noexcept {

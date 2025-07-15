@@ -31,16 +31,15 @@ public:
 
 protected:
     TFilter filter_{};
-    HotfixSlot<SP<RadianceCollector>> rad_collector_{};
     EncodedData<uint> medium_id_{InvalidUI32};
 
 public:
     Photosensory() = default;
     explicit Photosensory(const SensorDesc &desc);
     void update_runtime_object(const vision::IObjectConstructor *constructor) noexcept override;
-    OC_ENCODABLE_FUNC(EncodedObject, filter_, rad_collector_)
-    VS_HOTFIX_MAKE_RESTORE(Node, filter_, rad_collector_, medium_id_, datas_)
-    VS_MAKE_GUI_STATUS_FUNC(Node, filter_, rad_collector_)
+    OC_ENCODABLE_FUNC(EncodedObject, filter_)
+    VS_HOTFIX_MAKE_RESTORE(Node, filter_, medium_id_, datas_)
+    VS_MAKE_GUI_STATUS_FUNC(Node, filter_)
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
     void prepare() noexcept override;
@@ -49,8 +48,6 @@ public:
     }
     [[nodiscard]] auto &filter() noexcept { return filter_; }
     [[nodiscard]] auto &filter() const noexcept { return filter_; }
-    [[nodiscard]] auto rad_collector() noexcept { return rad_collector_.get(); }
-    [[nodiscard]] auto rad_collector() const noexcept { return rad_collector_.get(); }
     [[nodiscard]] virtual RayState generate_ray(const SensorSample &ss) const noexcept = 0;
 };
 

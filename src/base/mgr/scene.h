@@ -70,8 +70,6 @@ public:
     [[nodiscard]] auto &material_registry() noexcept { return *material_registry_; }
     [[nodiscard]] const auto &medium_registry() const noexcept { return *medium_registry_; }
     [[nodiscard]] auto &medium_registry() noexcept { return *medium_registry_; }
-    [[nodiscard]] auto rad_collector() noexcept { return sensor()->rad_collector(); }
-    [[nodiscard]] auto rad_collector() const noexcept { return sensor()->rad_collector(); }
     [[nodiscard]] const auto &materials() const noexcept { return material_registry().elements(); }
     [[nodiscard]] auto &materials() noexcept { return material_registry().elements(); }
     [[nodiscard]] const auto &mediums() const noexcept { return medium_registry_->elements(); }

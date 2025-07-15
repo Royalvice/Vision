@@ -103,7 +103,7 @@ protected:
     Shader<void(Buffer<float4>, Buffer<float4>)> tone_mapping_;
 
 protected:
-    string cur_view_{final_result_old};
+    string cur_view_{final_result};
     ScreenBuffer::manager_type screen_buffers_;
     Shader<void(Buffer<float4>, Buffer<float4>)> gamma_correct_;
 
@@ -205,9 +205,11 @@ public:
     [[nodiscard]] Float4 apply_exposure(const Float4 &input) const noexcept;
     void update_screen_window() noexcept;
     OC_MAKE_MEMBER_GETTER(screen_window, )
+    OC_MAKE_MEMBER_GETTER(tone_mapper, &)
     void update_runtime_object(const IObjectConstructor *constructor) noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
+    [[nodiscard]] bool enable_accumulation() const noexcept { return accumulation_.hv(); }
     OC_MAKE_MEMBER_GETTER(visualizer, &)
     OC_MAKE_MEMBER_GETTER(window_buffer, &)
     void fill_window_buffer(const Buffer<float4> &input) noexcept;
@@ -245,6 +247,8 @@ public:
     void compile_gamma() noexcept;
     void compile_accumulation() noexcept;
     void compile_tone_mapping() noexcept;
+    [[nodiscard]] auto& output_buffer() noexcept { return output_buffer_->super(); }
+    [[nodiscard]] const auto& output_buffer() const noexcept { return output_buffer_->super(); }
     void compute_gradient(PixelGeometryVar &center_data,
                           const BufferVar<PixelGeometry> &gbuffer) const noexcept;
     [[nodiscard]] CommandList gamma_correct(BufferView<float4> input,

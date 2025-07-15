@@ -16,7 +16,7 @@ BakePipeline::BakePipeline(const PipelineDesc &desc)
 void BakePipeline::init_scene(const vision::SceneDesc &scene_desc) {
     scene_.init(scene_desc);
     init_postprocessor(scene_desc.denoiser_desc);
-    postprocessor_.set_tone_mapper(scene_.sensor()->rad_collector()->tone_mapper());
+    postprocessor_.set_tone_mapper(frame_buffer_->tone_mapper());
 }
 
 void BakePipeline::init_postprocessor(const DenoiserDesc &desc) {
@@ -51,7 +51,7 @@ void BakePipeline::preprocess() noexcept {
     std::for_each(baked_shapes_.begin(), baked_shapes_.end(), [&](BakedShape &baked_shape) {
         Mesh *mesh = baked_shape.shape()->mesh().get();
         if (mesh->has_lightmap_uv()) {
-            return ;
+            return;
         }
         UnwrapperResult unwrap_result;
         if (baked_shape.has_uv_cache()) {
@@ -83,7 +83,7 @@ void BakePipeline::compile_displayer() noexcept {
 
         Var hit = geometry().trace_closest(rs.ray);
         $if(hit->is_miss()) {
-            camera->rad_collector()->add_sample(pixel, L, frame_index);
+            frame_buffer_->add_sample(pixel, L, frame_index);
             $return();
         };
 
@@ -96,13 +96,13 @@ void BakePipeline::compile_displayer() noexcept {
                 L = make_float3(0.f);
             };
         };
-        camera->rad_collector()->add_sample(pixel, L, frame_index);
+        frame_buffer_->add_sample(pixel, L, frame_index);
     };
     display_shader_ = device().compile(kernel, "display");
 }
 
 void BakePipeline::bake_all() noexcept {
-    Baker baker{baker_stats_, Rasterizer (_desc.rasterizer_desc)};
+    Baker baker{baker_stats_, Rasterizer(_desc.rasterizer_desc)};
     baker.allocate();
     baker.compile();
     baker_stats_.set_model_num(baked_shapes_.size());
