@@ -169,7 +169,7 @@ public:                                                                    \
     VS_MAKE_BUFFER(RegistrableManaged<float4>, albedo, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, normal, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, rt_buffer, 1)
-    VS_MAKE_BUFFER(RegistrableManaged<Ray>, rays, 1)
+    VS_MAKE_BUFFER(RegistrableBuffer<Ray>, rays, 1)
     VS_MAKE_DOUBLE_BUFFER(RegistrableBuffer<PixelGeometry>, gbuffer)
     /// used for editor
     VS_MAKE_BUFFER(RegistrableManaged<TriangleHit>, hit_buffer, 1)
