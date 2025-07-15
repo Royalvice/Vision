@@ -362,6 +362,7 @@ void FrameBuffer::fill_window_buffer(const Buffer<ocarina::float4> &input) noexc
 
 void FrameBuffer::resize(ocarina::uint2 res) noexcept {
     window_buffer_.resize(res.x * res.y, make_float4(0.f));
+    resolution_ = res;
 }
 
 void FrameBuffer::update_resolution(ocarina::uint2 res) noexcept {
@@ -372,6 +373,9 @@ void FrameBuffer::update_resolution(ocarina::uint2 res) noexcept {
     reset_hit_bsdfs();
     reset_motion_vectors();
     reset_hit_buffer();
+    reset_rt_buffer();
+    reset_view_buffer();
+    update_screen_window();
     reset_buffer(view_buffer_, "FrameBuffer::view_buffer_");
     for (auto &it : screen_buffers_) {
         it.second->update_resolution(res, device());
