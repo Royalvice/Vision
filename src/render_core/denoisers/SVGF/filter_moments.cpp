@@ -71,7 +71,7 @@ FilterMomentsParam FilterMoments::construct_param(RealTimeDenoiseInput &input) c
     FilterMomentsParam param;
     param.svgf_buffer = svgf_->cur_svgf_buffer(input.frame_index).descriptor();
     param.gbuffer = input.gbuffer.descriptor();
-    param.history_buffer = svgf_->history.proxy();
+    param.history_buffer = svgf_->history.descriptor();
     param.sigma_rt = svgf_->sigma_rt();
     param.sigma_normal = svgf_->sigma_normal();
     param.radius = svgf_->moments_filter_radius();

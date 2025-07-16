@@ -131,6 +131,7 @@ void FrameBuffer::compile_compute_geom() noexcept {
         auto &albedo_buffer = param.albedo_buffer;
         auto &emission_buffer = param.emission_buffer;
         auto &normal_buffer = param.normal_buffer;
+        auto &rays = param.rays;
         RenderEnv render_env;
         render_env.initial(sampler, frame_index, spectrum());
         Uint2 pixel = dispatch_idx().xy();
@@ -142,6 +143,7 @@ void FrameBuffer::compile_compute_geom() noexcept {
         SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
         RayState rs = camera->generate_ray(ss);
         TriangleHitVar hit = pipeline()->trace_closest(rs.ray);
+        rays.write(dispatch_id(), rs.ray);
 
         Float2 motion_vec = make_float2(0.f);
 
@@ -272,6 +274,7 @@ CommandList FrameBuffer::compute_geom(uint frame_index, BufferView<PixelGeometry
     param.albedo_buffer = albedo.descriptor();
     param.emission_buffer = emission.descriptor();
     param.normal_buffer = normal.descriptor();
+    param.rays = rays().descriptor();
     ret << compute_geom_(param).dispatch(resolution());
     return ret;
 }

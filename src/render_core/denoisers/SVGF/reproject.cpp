@@ -161,7 +161,7 @@ ReprojectParam Reproject::construct_param(RealTimeDenoiseInput &input) const noe
     ReprojectParam param;
     param.gbuffer = input.gbuffer.descriptor();
     param.prev_gbuffer = input.prev_gbuffer.descriptor();
-    param.history_buffer = svgf_->history.proxy();
+    param.history_buffer = svgf_->history.descriptor();
     param.motion_vectors = input.motion_vec.descriptor();
     param.alpha = svgf_->alpha();
     param.moments_alpha = svgf_->moments_alpha();

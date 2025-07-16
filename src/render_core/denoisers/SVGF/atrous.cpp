@@ -95,7 +95,7 @@ AtrousParam AtrousFilter::construct_param(RealTimeDenoiseInput &input, uint step
     AtrousParam param;
     param.svgf_buffer = svgf_->cur_svgf_buffer(input.frame_index).descriptor();
     param.gbuffer = input.gbuffer.descriptor();
-    param.history_buffer = svgf_->history.proxy();
+    param.history_buffer = svgf_->history.descriptor();
     param.sigma_rt = svgf_->sigma_rt();
     param.sigma_normal = svgf_->sigma_normal();
     param.step_size = step_width;

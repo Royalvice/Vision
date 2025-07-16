@@ -90,11 +90,12 @@ struct GBufferParam {
     BufferDesc<float4> albedo_buffer;
     BufferDesc<float4> emission_buffer;
     BufferDesc<float4> normal_buffer;
+    BufferDesc<Ray> rays;
 };
 }// namespace vision
 
 OC_PARAM_STRUCT(vision, GBufferParam, frame_index, gbuffer, motion_vectors,
-                albedo_buffer,emission_buffer,normal_buffer) {};
+                albedo_buffer,emission_buffer,normal_buffer,rays) {};
 
 namespace vision {
 struct GradParam {
@@ -112,13 +113,8 @@ public:
     static constexpr auto final_result = "FrameBuffer::final_result";
 
 protected:
-    using gbuffer_signature = void(uint, Buffer<PixelGeometry>, Buffer<float2>,
-                                   Buffer<float4>, Buffer<float4>, Buffer<float4>);
     Shader<void(GBufferParam)> compute_geom_;
-
-    using grad_signature = void(uint, Buffer<PixelGeometry>);
     Shader<void(GradParam)> compute_grad_;
-
     Shader<void(Buffer<TriangleHit>, uint)> compute_hit_;
     Shader<void(Buffer<float4>, Buffer<float4>, uint)> accumulate_;
     Shader<void(Buffer<float4>, Buffer<float4>)> tone_mapping_;
