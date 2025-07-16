@@ -114,7 +114,7 @@ public:
 protected:
     using gbuffer_signature = void(uint, Buffer<PixelGeometry>, Buffer<float2>,
                                    Buffer<float4>, Buffer<float4>, Buffer<float4>);
-    Shader<gbuffer_signature> compute_geom_;
+    Shader<void(GBufferParam)> compute_geom_;
 
     using grad_signature = void(uint, Buffer<PixelGeometry>);
     Shader<void(GradParam)> compute_grad_;

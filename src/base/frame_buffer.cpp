@@ -124,8 +124,13 @@ void FrameBuffer::compile_compute_geom() noexcept {
     TSensor &camera = scene().sensor();
     TSampler &sampler = scene().sampler();
     TLightSampler &light_sampler = scene().light_sampler();
-    Kernel kernel = [&](Uint frame_index, BufferVar<PixelGeometry> gbuffer, BufferVar<float2> motion_vectors,
-                        BufferVar<float4> albedo_buffer, BufferVar<float4> emission_buffer, BufferVar<float4> normal_buffer) {
+    Kernel kernel = [&](Var<GBufferParam> param) {
+        auto &frame_index = param.frame_index;
+        auto &gbuffer = param.gbuffer;
+        auto &motion_vectors = param.motion_vectors;
+        auto &albedo_buffer = param.albedo_buffer;
+        auto &emission_buffer = param.emission_buffer;
+        auto &normal_buffer = param.normal_buffer;
         RenderEnv render_env;
         render_env.initial(sampler, frame_index, spectrum());
         Uint2 pixel = dispatch_idx().xy();
@@ -260,7 +265,14 @@ CommandList FrameBuffer::compute_hit(uint frame_index) const noexcept {
 CommandList FrameBuffer::compute_geom(uint frame_index, BufferView<PixelGeometry> gbuffer, BufferView<float2> motion_vectors,
                                       BufferView<float4> albedo, BufferView<float4> emission, BufferView<float4> normal) const noexcept {
     CommandList ret;
-    ret << compute_geom_(frame_index, gbuffer, motion_vectors, albedo, emission, normal).dispatch(resolution());
+    GBufferParam param;
+    param.frame_index = frame_index;
+    param.gbuffer = gbuffer.descriptor();
+    param.motion_vectors = motion_vectors.descriptor();
+    param.albedo_buffer = albedo.descriptor();
+    param.emission_buffer = emission.descriptor();
+    param.normal_buffer = normal.descriptor();
+    ret << compute_geom_(param).dispatch(resolution());
     return ret;
 }
 
