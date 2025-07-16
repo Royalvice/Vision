@@ -3,7 +3,7 @@
 //
 
 #include "direct.h"
-#include "base/integrator.h"
+#include "base/integral/integrator.h"
 
 namespace vision {
 

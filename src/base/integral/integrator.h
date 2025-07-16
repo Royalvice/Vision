@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include "node.h"
-#include "encoded_object.h"
+#include "base/node.h"
+#include "base/encoded_object.h"
 #include "rhi/common.h"
 #include "base/scattering/interaction.h"
 #include "base/denoiser.h"
 #include "base/illumination/lightsampler.h"
 #include "base/scattering/material.h"
-#include "sampler.h"
+#include "base/sampler.h"
 #include "math/warp.h"
 
 namespace vision {

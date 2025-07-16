@@ -3,7 +3,7 @@
 //
 
 #include "indirect.h"
-#include "base/integrator.h"
+#include "base/integral/integrator.h"
 
 namespace vision {
 ReSTIRGI::ReSTIRGI(IlluminationIntegrator *integrator,

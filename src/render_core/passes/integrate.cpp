@@ -4,7 +4,7 @@
 
 #include "render_graph/pass.h"
 #include "base/mgr/global.h"
-#include "base/integrator.h"
+#include "base/integral/integrator.h"
 #include "base/mgr/pipeline.h"
 
 namespace vision {
