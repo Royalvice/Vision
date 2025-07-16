@@ -159,15 +159,15 @@ void Reproject::compile() noexcept {
 
 ReprojectParam Reproject::construct_param(RealTimeDenoiseInput &input) const noexcept {
     ReprojectParam param;
-    param.gbuffer = input.gbuffer.proxy();
-    param.prev_gbuffer = input.prev_gbuffer.proxy();
+    param.gbuffer = input.gbuffer.descriptor();
+    param.prev_gbuffer = input.prev_gbuffer.descriptor();
     param.history_buffer = svgf_->history.proxy();
-    param.motion_vectors = input.motion_vec.proxy();
+    param.motion_vectors = input.motion_vec.descriptor();
     param.alpha = svgf_->alpha();
     param.moments_alpha = svgf_->moments_alpha();
     param.history_limit = svgf_->history_limit();
-    param.cur_buffer = svgf_->cur_svgf_buffer(input.frame_index).proxy();
-    param.prev_buffer = svgf_->prev_svgf_buffer(input.frame_index).proxy();
+    param.cur_buffer = svgf_->cur_svgf_buffer(input.frame_index).descriptor();
+    param.prev_buffer = svgf_->prev_svgf_buffer(input.frame_index).descriptor();
     return param;
 }
 

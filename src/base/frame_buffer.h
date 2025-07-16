@@ -80,10 +80,35 @@ public:
     [[nodiscard]] Super &super() { return *this; }
     void update_resolution(uint2 res, Device &device) noexcept;
 };
+}// namespace vision
+
+namespace vision {
+struct GBufferParam {
+    uint frame_index{};
+    BufferDesc<PixelGeometry> gbuffer;
+    BufferDesc<float2> motion_vectors;
+    BufferDesc<float4> albedo_buffer;
+    BufferDesc<float4> emission_buffer;
+    BufferDesc<float4> normal_buffer;
+};
+}// namespace vision
+
+OC_PARAM_STRUCT(vision, GBufferParam, frame_index, gbuffer, motion_vectors,
+                albedo_buffer,emission_buffer,normal_buffer) {};
+
+namespace vision {
+struct GradParam {
+    uint frame_index{};
+    BufferDesc<PixelGeometry> gbuffer;
+};
+}// namespace vision
+
+OC_PARAM_STRUCT(vision, GradParam, frame_index, gbuffer) {};
+
+namespace vision {
 
 class FrameBuffer : public Node, public EncodedObject, public Observer {
 public:
-    static constexpr auto final_result_old = "FrameBuffer::final_result_old";
     static constexpr auto final_result = "FrameBuffer::final_result";
 
 protected:
@@ -92,7 +117,7 @@ protected:
     Shader<gbuffer_signature> compute_geom_;
 
     using grad_signature = void(uint, Buffer<PixelGeometry>);
-    Shader<grad_signature> compute_grad_;
+    Shader<void(GradParam)> compute_grad_;
 
     Shader<void(Buffer<TriangleHit>, uint)> compute_hit_;
     Shader<void(Buffer<float4>, Buffer<float4>, uint)> accumulate_;

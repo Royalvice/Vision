@@ -219,7 +219,8 @@ void FrameBuffer::compute_gradient(PixelGeometryVar &center_data,
 }
 
 void FrameBuffer::compile_compute_grad() noexcept {
-    Kernel kernel = [&](Uint frame_index, BufferVar<PixelGeometry> gbuffer) {
+    Kernel kernel = [&](Var<GradParam> param) {
+        auto &gbuffer = param.gbuffer;
         PixelGeometryVar center_data = gbuffer.read(dispatch_id());
         compute_gradient(center_data, gbuffer);
         gbuffer.write(dispatch_id(), center_data);
@@ -265,7 +266,10 @@ CommandList FrameBuffer::compute_geom(uint frame_index, BufferView<PixelGeometry
 
 CommandList FrameBuffer::compute_grad(uint frame_index, BufferView<vision::PixelGeometry> gbuffer) const noexcept {
     CommandList ret;
-    ret << compute_grad_(frame_index, gbuffer).dispatch(resolution());
+    GradParam param;
+    param.gbuffer = gbuffer.descriptor();
+    param.frame_index = frame_index;
+    ret << compute_grad_(param).dispatch(resolution());
     return ret;
 }
 
