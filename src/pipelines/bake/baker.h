@@ -20,7 +20,7 @@ private:
     BatchMesh batch_mesh_;
     DilateFilter dilate_filter_{};
     Rasterizer rasterizer_{};
-    Shader<void(uint, Buffer<Triangle>, Buffer<Vertex>, Buffer<uint4>, Buffer<float4>)> _baker;
+    Shader<void(uint, Buffer<Triangle>, Buffer<Vertex>, Buffer<uint4>, Buffer<float4>)> baker_;
 
 private:
     void _compile_bake() noexcept;

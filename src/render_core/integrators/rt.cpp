@@ -2,7 +2,7 @@
 // Created by Zero on 2023/9/11.
 //
 
-#include "base/integrator.h"
+#include "base/integral/integrator.h"
 #include "base/mgr/pipeline.h"
 #include "math/warp.h"
 #include "base/color/spectrum.h"
@@ -118,7 +118,6 @@ public:
             Float3 direct = direct_->radiance()->read(dispatch_id()).xyz() * di;
             Float3 indirect = indirect_->radiance()->read(dispatch_id()).xyz() * ii;
             Float3 L = direct + indirect;
-//            camera->rad_collector()->add_sample(dispatch_idx().xy(), L, frame_index);
             frame_buffer().add_sample(dispatch_idx().xy(), L, frame_index);
         };
         combine_ = device().compile(kernel, "combine");

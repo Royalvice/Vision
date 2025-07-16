@@ -36,10 +36,10 @@ void Modulator::compile() noexcept {
 CommandList Modulator::demodulate(vision::RealTimeDenoiseInput &input) noexcept {
     CommandList ret;
     ModulatorParam param;
-    param.albedo_buffer = input.albedo.proxy();
-    param.emission_buffer = input.emission.proxy();
-    param.svgf_buffer = svgf_->cur_svgf_buffer(input.frame_index).proxy();
-    param.radiance_buffer = input.radiance.proxy();
+    param.albedo_buffer = input.albedo.descriptor();
+    param.emission_buffer = input.emission.descriptor();
+    param.svgf_buffer = svgf_->cur_svgf_buffer(input.frame_index).descriptor();
+    param.radiance_buffer = input.radiance.descriptor();
     ret << demodulate_(param).dispatch(input.resolution);
     return ret;
 }
@@ -47,10 +47,10 @@ CommandList Modulator::demodulate(vision::RealTimeDenoiseInput &input) noexcept 
 CommandList Modulator::modulate(vision::RealTimeDenoiseInput &input) noexcept {
     CommandList ret;
     ModulatorParam param;
-    param.albedo_buffer = input.albedo.proxy();
-    param.emission_buffer = input.emission.proxy();
-    param.svgf_buffer = svgf_->cur_svgf_buffer(input.frame_index).proxy();
-    param.radiance_buffer = input.output.proxy();
+    param.albedo_buffer = input.albedo.descriptor();
+    param.emission_buffer = input.emission.descriptor();
+    param.svgf_buffer = svgf_->cur_svgf_buffer(input.frame_index).descriptor();
+    param.radiance_buffer = input.output.descriptor();
     ret << modulate_(param).dispatch(input.resolution);
     return ret;
 }

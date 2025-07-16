@@ -28,6 +28,7 @@ void FrameBuffer::prepare() noexcept {
     prepare_view_buffer();
     prepare_screen_buffer(output_buffer_);
     prepare_rt_buffer();
+    prepare_rays();
 }
 
 void FrameBuffer::update_runtime_object(const vision::IObjectConstructor *constructor) noexcept {
@@ -123,8 +124,14 @@ void FrameBuffer::compile_compute_geom() noexcept {
     TSensor &camera = scene().sensor();
     TSampler &sampler = scene().sampler();
     TLightSampler &light_sampler = scene().light_sampler();
-    Kernel kernel = [&](Uint frame_index, BufferVar<PixelGeometry> gbuffer, BufferVar<float2> motion_vectors,
-                        BufferVar<float4> albedo_buffer, BufferVar<float4> emission_buffer, BufferVar<float4> normal_buffer) {
+    Kernel kernel = [&](Var<GBufferParam> param) {
+        auto &frame_index = param.frame_index;
+        auto &gbuffer = param.gbuffer;
+        auto &motion_vectors = param.motion_vectors;
+        auto &albedo_buffer = param.albedo_buffer;
+        auto &emission_buffer = param.emission_buffer;
+        auto &normal_buffer = param.normal_buffer;
+        auto &rays = param.rays;
         RenderEnv render_env;
         render_env.initial(sampler, frame_index, spectrum());
         Uint2 pixel = dispatch_idx().xy();
@@ -136,6 +143,7 @@ void FrameBuffer::compile_compute_geom() noexcept {
         SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
         RayState rs = camera->generate_ray(ss);
         TriangleHitVar hit = pipeline()->trace_closest(rs.ray);
+        rays.write(dispatch_id(), rs.ray);
 
         Float2 motion_vec = make_float2(0.f);
 
@@ -218,7 +226,8 @@ void FrameBuffer::compute_gradient(PixelGeometryVar &center_data,
 }
 
 void FrameBuffer::compile_compute_grad() noexcept {
-    Kernel kernel = [&](Uint frame_index, BufferVar<PixelGeometry> gbuffer) {
+    Kernel kernel = [&](Var<GradParam> param) {
+        auto &gbuffer = param.gbuffer;
         PixelGeometryVar center_data = gbuffer.read(dispatch_id());
         compute_gradient(center_data, gbuffer);
         gbuffer.write(dispatch_id(), center_data);
@@ -258,13 +267,24 @@ CommandList FrameBuffer::compute_hit(uint frame_index) const noexcept {
 CommandList FrameBuffer::compute_geom(uint frame_index, BufferView<PixelGeometry> gbuffer, BufferView<float2> motion_vectors,
                                       BufferView<float4> albedo, BufferView<float4> emission, BufferView<float4> normal) const noexcept {
     CommandList ret;
-    ret << compute_geom_(frame_index, gbuffer, motion_vectors, albedo, emission, normal).dispatch(resolution());
+    GBufferParam param;
+    param.frame_index = frame_index;
+    param.gbuffer = gbuffer.descriptor();
+    param.motion_vectors = motion_vectors.descriptor();
+    param.albedo_buffer = albedo.descriptor();
+    param.emission_buffer = emission.descriptor();
+    param.normal_buffer = normal.descriptor();
+    param.rays = rays().descriptor();
+    ret << compute_geom_(param).dispatch(resolution());
     return ret;
 }
 
 CommandList FrameBuffer::compute_grad(uint frame_index, BufferView<vision::PixelGeometry> gbuffer) const noexcept {
     CommandList ret;
-    ret << compute_grad_(frame_index, gbuffer).dispatch(resolution());
+    GradParam param;
+    param.gbuffer = gbuffer.descriptor();
+    param.frame_index = frame_index;
+    ret << compute_grad_(param).dispatch(resolution());
     return ret;
 }
 
@@ -375,6 +395,7 @@ void FrameBuffer::update_resolution(ocarina::uint2 res) noexcept {
     reset_albedo();
     reset_normal();
     reset_rt_buffer();
+    reset_rays();
     reset_gbuffer();
     reset_hit_buffer();
     reset_view_buffer();

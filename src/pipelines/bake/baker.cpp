@@ -106,7 +106,7 @@ void Baker::_compile_bake() noexcept {
         radiance.write(dispatch_id(), result);
     };
 
-    _baker = device().compile(kernel, "baker");
+    baker_ = device().compile(kernel, "baker");
 }
 
 void Baker::compile() noexcept {
@@ -132,7 +132,7 @@ void Baker::_baking() noexcept {
         TSampler &sampler = scene().sampler();
         for (uint i = 0; i < sampler->sample_per_pixel(); ++i) {
             baker_stats_.set_sample_index(i);
-            stream() << _baker(i, batch_mesh_.triangles(),
+            stream() << baker_(i, batch_mesh_.triangles(),
                                batch_mesh_.vertices(),
                                batch_mesh_.pixels(),
                                radiance_)

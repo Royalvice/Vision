@@ -2,7 +2,7 @@
 // Created by Zero on 2023/6/14.
 //
 
-#include "base/integrator.h"
+#include "base/integral/integrator.h"
 #include "base/mgr/pipeline.h"
 #include "math/warp.h"
 #include "base/color/spectrum.h"

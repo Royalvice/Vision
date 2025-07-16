@@ -9,7 +9,7 @@
 #include "base/sensor/sensor.h"
 #include "base/sampler.h"
 #include "base/shape.h"
-#include "base/integrator.h"
+#include "base/integral/integrator.h"
 #include "base/illumination/lightsampler.h"
 #include "base/scattering/material.h"
 #include "base/scattering/medium.h"
