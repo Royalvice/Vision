@@ -264,37 +264,42 @@ CommandList FrameBuffer::compute_hit(uint frame_index) const noexcept {
     return ret;
 }
 
-CommandList FrameBuffer::compute_geom(uint frame_index, BufferView<PixelGeometry> gbuffer, BufferView<float2> motion_vectors,
-                                      BufferView<float4> albedo, BufferView<float4> emission, BufferView<float4> normal) const noexcept {
+CommandList FrameBuffer::compute_geom(const vision::GBufferParam &param) const noexcept {
     CommandList ret;
-    GBufferParam param;
-    param.frame_index = frame_index;
-    param.gbuffer = gbuffer.descriptor();
-    param.motion_vectors = motion_vectors.descriptor();
-    param.albedo_buffer = albedo.descriptor();
-    param.emission_buffer = emission.descriptor();
-    param.normal_buffer = normal.descriptor();
-    param.rays = rays().descriptor();
     ret << compute_geom_(param).dispatch(resolution());
     return ret;
 }
 
-CommandList FrameBuffer::compute_grad(uint frame_index, BufferView<vision::PixelGeometry> gbuffer) const noexcept {
+CommandList FrameBuffer::compute_GBuffer(const GBufferParam &param,
+                                         const GradParam &grad_param) const noexcept {
     CommandList ret;
-    GradParam param;
-    param.gbuffer = gbuffer.descriptor();
-    param.frame_index = frame_index;
-    ret << compute_grad_(param).dispatch(resolution());
+    ret << compute_geom(param);
+    ret << compute_grad(grad_param);
     return ret;
 }
 
-CommandList FrameBuffer::compute_GBuffer(uint frame_index, BufferView<PixelGeometry> gbuffer,
-                                         BufferView<float2> motion_vectors,
-                                         BufferView<float4> albedo, BufferView<float4> emission,
-                                         BufferView<float4> normal) const noexcept {
+CommandList FrameBuffer::compute_GBuffer(uint frame_index) const noexcept {
+    GBufferParam param;
+
+    auto gbuffer = cur_gbuffer_view(frame_index).descriptor();
+
+    param.frame_index = frame_index;
+    param.gbuffer = gbuffer;
+    param.motion_vectors = motion_vectors().descriptor();
+    param.albedo_buffer = albedo().descriptor();
+    param.normal_buffer = normal().descriptor();
+    param.emission_buffer = emission().descriptor();
+    param.rays = rays().descriptor();
+
+    GradParam grad_param;
+    grad_param.frame_index = frame_index;
+    grad_param.gbuffer = gbuffer;
+    return compute_GBuffer(param, grad_param);
+}
+
+CommandList FrameBuffer::compute_grad(const vision::GradParam &param) const noexcept {
     CommandList ret;
-    ret << compute_geom(frame_index, gbuffer, motion_vectors, albedo, emission, normal);
-    ret << compute_grad(frame_index, gbuffer);
+    ret << compute_grad_(param).dispatch(resolution());
     return ret;
 }
 

@@ -100,11 +100,11 @@ public:
         path_tracing_ = device().compile(kernel, "real_time_pt");
     }
 
-    [[nodiscard]] CommandList compute_GBuffer() const noexcept {
-        return frame_buffer().compute_GBuffer(frame_index_, frame_buffer().cur_gbuffer_view(frame_index_),
-                                              frame_buffer().motion_vectors(), frame_buffer().albedo(),
-                                              frame_buffer().emission(), frame_buffer().normal());
-    }
+//    [[nodiscard]] CommandList compute_GBuffer() const noexcept {
+//        return frame_buffer().compute_GBuffer(frame_index_, frame_buffer().cur_gbuffer_view(frame_index_),
+//                                              frame_buffer().motion_vectors(), frame_buffer().albedo(),
+//                                              frame_buffer().emission(), frame_buffer().normal());
+//    }
 
     void compile() noexcept override {
         direct_->compile();
@@ -142,7 +142,7 @@ public:
         const Pipeline *rp = pipeline();
         Stream &stream = rp->stream();
         stream << frame_buffer().compute_hit(frame_index_);
-        stream << compute_GBuffer();
+        stream << frame_buffer().compute_GBuffer(frame_index_);
         stream << direct_->dispatch(frame_index_);
         //        stream << path_tracing_(frame_index_,
         //                                frame_buffer().cur_surfaces(frame_index_))

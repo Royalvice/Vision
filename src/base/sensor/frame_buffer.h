@@ -269,13 +269,10 @@ public:
     [[nodiscard]] CommandList gamma_correct(BufferView<float4> input,
                                             BufferView<float4> output) const noexcept;
     [[nodiscard]] CommandList gamma_correct() const noexcept;
-    [[nodiscard]] virtual CommandList compute_GBuffer(uint frame_index, BufferView<PixelGeometry> gbuffer,
-                                                      BufferView<float2> motion_vectors, BufferView<float4> albedo,
-                                                      BufferView<float4> emission, BufferView<float4> normal) const noexcept;
-    [[nodiscard]] virtual CommandList compute_geom(uint frame_index, BufferView<PixelGeometry> gbuffer,
-                                                   BufferView<float2> motion_vectors, BufferView<float4> albedo,
-                                                   BufferView<float4> emission, BufferView<float4> normal) const noexcept;
-    [[nodiscard]] virtual CommandList compute_grad(uint frame_index, BufferView<PixelGeometry> gbuffer) const noexcept;
+    [[nodiscard]] virtual CommandList compute_geom(const GBufferParam &param) const noexcept;
+    [[nodiscard]] virtual CommandList compute_GBuffer(const GBufferParam &param, const GradParam &grad_param) const noexcept;
+    [[nodiscard]] virtual CommandList compute_GBuffer(uint frame_index) const noexcept;
+    [[nodiscard]] virtual CommandList compute_grad(const GradParam &param) const noexcept;
     [[nodiscard]] virtual CommandList compute_hit(uint frame_index) const noexcept;
     [[nodiscard]] CommandList accumulate(BufferView<float4> input, BufferView<float4> output,
                                          uint frame_index) const noexcept;
