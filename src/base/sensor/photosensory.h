@@ -7,7 +7,7 @@
 #include "math/basic_types.h"
 #include "base/node.h"
 #include "base/encoded_object.h"
-#include "base/sample.h"
+#include "base/scattering/sample.h"
 #include "math/transform.h"
 #include "base/scattering/medium.h"
 #include "filter.h"

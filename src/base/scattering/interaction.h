@@ -7,7 +7,7 @@
 #include "math/basic_types.h"
 #include "dsl/dsl.h"
 #include "math/geometry.h"
-#include "base/sample.h"
+#include "base/scattering/sample.h"
 #include "math/optics.h"
 
 namespace vision {
