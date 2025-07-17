@@ -7,7 +7,7 @@ target_link_libraries(vision-base PUBLIC
         vision-hotfix-all
         vision-UI
         vision-ext
-        vision-core)
+        ocarina-include)
 
 target_compile_definitions(vision-base PRIVATE VISION_BASE_EXPORT_DLL=1)
 set_target_properties(vision-base PROPERTIES

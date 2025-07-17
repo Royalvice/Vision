@@ -7,7 +7,7 @@
 #include "rhi/common.h"
 #include "util/image.h"
 #include "util/file_manager.h"
-#include "core/node_desc.h"
+#include "base/node_desc.h"
 #include "base/node.h"
 
 using namespace vision;

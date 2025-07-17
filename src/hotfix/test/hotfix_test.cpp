@@ -3,7 +3,7 @@
 //
 
 #include "hotfix_test.h"
-#include "core/vs_header.h"
+#include "base/vs_header.h"
 #include "hotfix/hotfix.h"
 #include "test.h"
 #include "hotfix/module_interface.h"

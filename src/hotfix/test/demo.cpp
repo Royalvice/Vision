@@ -3,7 +3,7 @@
 //
 
 #include "demo.h"
-#include "core/vs_header.h"
+#include "base/vs_header.h"
 #include "hotfix/hotfix.h"
 #include "hotfix/module_interface.h"
 #include <random>
