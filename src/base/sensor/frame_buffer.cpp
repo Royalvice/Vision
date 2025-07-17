@@ -25,6 +25,11 @@ FrameBuffer::FrameBuffer(const vision::FrameBufferDesc &desc)
 }
 
 void FrameBuffer::prepare() noexcept {
+    encode_data();
+    datas().reset_device_buffer_immediately(device());
+    datas().register_self();
+    datas().upload_immediately();
+
     prepare_view_buffer();
     prepare_screen_buffer(output_buffer_);
     prepare_rt_buffer();
@@ -55,6 +60,7 @@ void FrameBuffer::render_sub_UI(ocarina::Widgets *widgets) noexcept {
             cur_view_ = buffer.name();
         }
     };
+    changed_ |= widgets->drag_float("exposure", &exposure_.hv(), 0.01f, 0.f, 10.f);
     for (auto iter = screen_buffers_.begin();
          iter != screen_buffers_.end(); ++iter) {
         show_buffer(*iter->second);
@@ -98,6 +104,13 @@ void FrameBuffer::compile_accumulation() noexcept {
         output.write(dispatch_id(), val);
     };
     accumulate_ = device().compile(kernel, "RGBFilm-accumulation");
+}
+
+void FrameBuffer::update_device_data() noexcept {
+    if (has_changed()) {
+        update_data();
+        EncodedObject::upload_immediately();
+    }
 }
 
 void FrameBuffer::compile_tone_mapping() noexcept {

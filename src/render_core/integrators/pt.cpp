@@ -57,6 +57,7 @@ public:
             RenderEnv render_env;
             sampler->load_data();
             camera->load_data();
+            frame_buffer().load_data();
             load_data();
             if (inspector_->on()) {
                 $if(inspector_->is_convergence(frame_index)) {
