@@ -29,6 +29,9 @@ public:
         inspector_->prepare();
         frame_buffer().prepare_hit_buffer();
         frame_buffer().prepare_gbuffer();
+        frame_buffer().prepare_albedo();
+        frame_buffer().prepare_emission();
+        frame_buffer().prepare_normal();
         frame_buffer().prepare_motion_vectors();
     }
     VS_HOTFIX_MAKE_RESTORE(IlluminationIntegrator, inspector_)
@@ -67,8 +70,7 @@ public:
             Float scatter_pdf = 1e16f;
             RayState rs = camera->generate_ray(ss);
             Float3 L = Li(rs, scatter_pdf, *max_depth_, spectrum()->one(), max_depth_.hv() < 2, {}, render_env) * ss.filter_weight;
-//            add_sample(dispatch_idx().xy(), L, frame_index);
-            frame_buffer().add_sample(dispatch_idx().xy(), L, frame_index);
+            add_sample(dispatch_idx().xy(), L, frame_index);
         };
         shader_ = device().compile(kernel, "path tracing integrator");
     }
@@ -92,6 +94,7 @@ public:
         if (frame_index_ == 0) {
             stream << inspector_->reset();
         }
+        stream << frame_buffer().compute_GBuffer(frame_index_);
         stream << shader_(frame_index_).dispatch(rp->resolution());
         RealTimeDenoiseInput input = denoise_input();
         increase_frame_index();
