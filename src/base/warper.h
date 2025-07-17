@@ -6,7 +6,7 @@
 
 #include "dsl/dsl.h"
 #include "node.h"
-#include "core/node_desc.h"
+#include "base/import/node_desc.h"
 
 namespace vision {
 

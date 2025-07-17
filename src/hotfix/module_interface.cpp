@@ -3,7 +3,7 @@
 //
 
 #include "module_interface.h"
-#include "core/vs_header.h"
+#include "base/vs_header.h"
 #include "object.h"
 
 namespace vision::inline hotfix {

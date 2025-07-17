@@ -93,7 +93,6 @@ void SensorDesc::init(const ParameterSet &ps) noexcept {
     set_parameter(ps.value("param"));
     transform_desc.init(parameter_.value("transform"));
     filter_desc.init(parameter_.value("filter"));
-    radiance_collector_desc.init(parameter_.value("radiance_collector"));
     if (parameter_.contains("medium")) {
         medium.name = parameter_["medium"].as_string();
     }
@@ -330,14 +329,6 @@ void LightSamplerDesc::init(const ParameterSet &ps) noexcept {
         light_desc.init(data);
         light_descs.push_back(light_desc);
     }
-}
-
-void RadianceCollectorDesc::init(const ParameterSet &ps) noexcept {
-    NodeDesc::init(ps);
-    sub_type = ps["type"].as_string("normal");
-    ParameterSet param = ps.value("param", DataWrap::object());
-    set_parameter(param);
-    tone_mapper.init(parameter_.value("tone_mapper", DataWrap::object()));
 }
 
 void WarperDesc::init(const ParameterSet &ps) noexcept {

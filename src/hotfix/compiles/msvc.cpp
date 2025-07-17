@@ -3,7 +3,7 @@
 //
 
 #include "hotfix/compiler.h"
-#include "core/vs_header.h"
+#include "base/vs_header.h"
 #include "hotfix/build_system.h"
 #include "hotfix/cmd_process.h"
 

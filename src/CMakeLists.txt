@@ -24,7 +24,6 @@ endfunction()
 
 add_subdirectory(ocarina)
 add_subdirectory(ext)
-add_subdirectory(core)
 add_subdirectory(UI)
 add_subdirectory(base)
 add_subdirectory(math)
@@ -43,7 +42,6 @@ endif ()
 
 add_library(vision-main INTERFACE)
 target_link_libraries(vision-main INTERFACE
-        vision-core
         vision-base
         vision-importer
         vision-pipeline

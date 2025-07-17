@@ -2,7 +2,7 @@
 // Created by Zero on 2024/8/13.
 //
 
-#include "core/vs_header.h"
+#include "base/vs_header.h"
 #include "hotfix/build_rules.h"
 #include "hotfix/hotfix.h"
 

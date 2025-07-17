@@ -9,7 +9,7 @@
 #include "shape.h"
 #include "base/mgr/pipeline.h"
 #include "mgr/global.h"
-#include "core/json_util.h"
+//#include "base/import/json_util.h"
 
 namespace vision {
 
@@ -113,4 +113,4 @@ public:
 
 using Rasterizer = TObject<RasterizerImpl>;
 
-}// namespace vision
+}// namespace

@@ -3,8 +3,8 @@
 //
 
 #include <iostream>
-#include "core/cli_parser.h"
-#include "core/scene_desc.h"
+#include "base/cli_parser.h"
+#include "base/import/scene_desc.h"
 #include "core/stl.h"
 #include "base/mgr/pipeline.h"
 #include "util/file_manager.h"
@@ -15,7 +15,7 @@
 #include "GUI/window.h"
 #include "math/basic_types.h"
 #include "base/mgr/global.h"
-#include "base/importer.h"
+#include "base/import/importer.h"
 #include "rhi/stats.h"
 
 using namespace ocarina;

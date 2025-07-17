@@ -342,20 +342,10 @@ public:
     void init(const ParameterSet &ps) noexcept override;
 };
 
-struct RadianceCollectorDesc : public NodeDesc {
-public:
-    ToneMapperDesc tone_mapper;
-
-public:
-    VISION_DESC_COMMON(RadianceCollector)
-    void init(const ParameterSet &ps) noexcept override;
-};
-
 struct SensorDesc : public NodeDesc {
 public:
     TransformDesc transform_desc;
     FilterDesc filter_desc;
-    RadianceCollectorDesc radiance_collector_desc;
     NameID medium;
 
 public:

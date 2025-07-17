@@ -10,7 +10,7 @@
 #include "dsl/dsl.h"
 #include "UI/GUI.h"
 #include "hotfix/hotfix.h"
-#include "sensor/sensor.h"
+#include "sensor.h"
 
 namespace vision {
 

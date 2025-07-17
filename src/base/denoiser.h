@@ -7,7 +7,7 @@
 #include "dsl/dsl.h"
 #include "node.h"
 #include "GUI/widgets.h"
-#include "frame_buffer.h"
+#include "sensor/frame_buffer.h"
 
 namespace vision {
 

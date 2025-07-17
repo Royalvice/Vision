@@ -5,10 +5,10 @@
 #pragma once
 
 #include "dsl/dsl.h"
-#include "node.h"
-#include "sensor/sensor.h"
-#include "sensor/tonemapper.h"
-#include "scattering/interaction.h"
+#include "base/node.h"
+#include "sensor.h"
+#include "tonemapper.h"
+#include "base/scattering/interaction.h"
 #include "visualizer.h"
 
 namespace vision {

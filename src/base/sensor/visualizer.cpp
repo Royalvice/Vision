@@ -4,7 +4,7 @@
 
 #include "visualizer.h"
 #include "base/sensor/sensor.h"
-#include "mgr/pipeline.h"
+#include "base/mgr/pipeline.h"
 #include "math/util.h"
 
 namespace vision {
