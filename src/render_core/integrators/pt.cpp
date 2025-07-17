@@ -66,10 +66,11 @@ public:
             }
             render_env.initial(sampler, frame_index, spectrum());
             sampler->start(pixel, frame_index, 0);
-            SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
+            RayDataVar ray_data = frame_buffer().rays().read(dispatch_id());
+//            SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
             Float scatter_pdf = 1e16f;
-            RayState rs = camera->generate_ray(ss);
-            Float3 L = Li(rs, scatter_pdf, *max_depth_, spectrum()->one(), max_depth_.hv() < 2, {}, render_env) * ss.filter_weight;
+            RayState rs = ray_data->to_ray_state();
+            Float3 L = Li(rs, scatter_pdf, *max_depth_, spectrum()->one(), max_depth_.hv() < 2, {}, render_env);
             add_sample(dispatch_idx().xy(), L, frame_index);
         };
         shader_ = device().compile(kernel, "path tracing integrator");
