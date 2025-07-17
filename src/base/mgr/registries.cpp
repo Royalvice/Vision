@@ -4,7 +4,7 @@
 
 #include "registries.h"
 #include "pipeline.h"
-#include "base/scene_desc.h"
+#include "base/import/scene_desc.h"
 
 namespace vision {
 

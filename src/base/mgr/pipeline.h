@@ -9,7 +9,7 @@
 #include "geometry.h"
 #include "util/image.h"
 #include "image_pool.h"
-#include "base/frame_buffer.h"
+#include "base/sensor/frame_buffer.h"
 #include "postprocessor.h"
 #include "UI/GUI.h"
 

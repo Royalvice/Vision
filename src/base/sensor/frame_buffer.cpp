@@ -3,7 +3,7 @@
 //
 
 #include "frame_buffer.h"
-#include "mgr/pipeline.h"
+#include "base/mgr/pipeline.h"
 
 namespace vision {
 

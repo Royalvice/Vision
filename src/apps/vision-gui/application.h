@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include "base/cli_parser.h"
-#include "base/scene_desc.h"
+#include "base/import/scene_desc.h"
 #include "core/stl.h"
 #include "base/mgr/pipeline.h"
 #include "util/file_manager.h"

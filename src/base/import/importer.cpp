@@ -3,8 +3,8 @@
 //
 
 #include "importer.h"
-#include "mgr/scene.h"
-#include "mgr/global.h"
+#include "base/mgr/scene.h"
+#include "base/mgr/global.h"
 
 namespace vision {
 

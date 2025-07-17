@@ -5,7 +5,7 @@
 #pragma once
 
 #include "rhi/common.h"
-#include "base/node_desc.h"
+#include "base/import/node_desc.h"
 #include "util/image.h"
 
 namespace vision {

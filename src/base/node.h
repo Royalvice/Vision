@@ -8,7 +8,7 @@
 #include "core/stl.h"
 #include "UI/GUI.h"
 #include "GUI/widgets.h"
-#include "node_desc.h"
+#include "base/import/node_desc.h"
 #include "util/file_manager.h"
 #include "hotfix/hotfix.h"
 

@@ -6,7 +6,7 @@
 
 #include "core/stl.h"
 #include "dsl/dsl.h"
-#include "base/parameter_set.h"
+#include "base/import/parameter_set.h"
 #include "base/scattering/interaction.h"
 #include "base/encoded_object.h"
 #include "base/mgr/pipeline.h"

@@ -8,7 +8,7 @@
 #include "hotfix/hotfix.h"
 #include "dsl/dsl.h"
 #include "UI/GUI.h"
-#include "base/parameter_set.h"
+#include "base/import/parameter_set.h"
 #include "base/mgr/global.h"
 
 namespace vision {

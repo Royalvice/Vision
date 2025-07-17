@@ -2,7 +2,7 @@
 // Created by Zero on 14/07/2025.
 //
 
-#include "base/frame_buffer.h"
+#include "base/sensor/frame_buffer.h"
 #include "rhi/resources/shader.h"
 #include "base/mgr/scene.h"
 #include "base/mgr/pipeline.h"
