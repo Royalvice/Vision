@@ -143,7 +143,9 @@ void FrameBuffer::compile_compute_geom() noexcept {
         SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
         RayState rs = camera->generate_ray(ss);
         TriangleHitVar hit = pipeline()->trace_closest(rs.ray);
-        rays.write(dispatch_id(), rs.ray);
+        RayDataVar ray_data;
+        ray_data->from_ray_state(rs);
+        rays.write(dispatch_id(), ray_data);
 
         Float2 motion_vec = make_float2(0.f);
 
