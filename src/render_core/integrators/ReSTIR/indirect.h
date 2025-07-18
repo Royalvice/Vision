@@ -41,6 +41,8 @@ private:
     SP<ScreenBuffer> radiance_{make_shared<ScreenBuffer>("ReSTIRGI::radiance_")};
     RegistrableBuffer<GIReservoir> reservoirs_{pipeline()->bindless_array()};
     RegistrableBuffer<GISample> samples_{pipeline()->bindless_array()};
+    uint sample_num_{1u};
+    float ratio_{2};
 
     /**
      * initial sample
@@ -61,7 +63,7 @@ protected:
 public:
     ReSTIRGI() = default;
     ReSTIRGI(IlluminationIntegrator *integrator, const ParameterSet &desc);
-    VS_HOTFIX_MAKE_RESTORE(ReSTIR, radiance_, reservoirs_, samples_,
+    VS_HOTFIX_MAKE_RESTORE(ReSTIR, radiance_, reservoirs_, samples_, sample_num_, ratio_,
                            initial_samples_, temporal_pass_, spatial_shading_)
     OC_MAKE_MEMBER_GETTER(open, )
     OC_MAKE_MEMBER_GETTER(radiance, &)
