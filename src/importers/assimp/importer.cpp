@@ -30,7 +30,6 @@ public:
         PipelineDesc desc;
         desc.sub_type = "fixed";
         SP<Pipeline> ret = Node::create_shared<Pipeline>(desc);
-        Global::instance().set_pipeline(ret.get());
         SceneDesc scene_desc;
         scene_desc.init(DataWrap::object());
         Scene &scene = ret->scene();

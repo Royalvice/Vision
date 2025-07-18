@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "dsl/dsl.h"
-#include "base/sample.h"
+#include "base/scattering/sample.h"
 #include "microfacet.h"
 #include "math/optics.h"
 #include "fresnel.h"

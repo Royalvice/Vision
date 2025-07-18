@@ -16,7 +16,8 @@
 namespace vision {
 using namespace ocarina;
 class Spectrum;
-class Pipeline : public Node, public Observer {
+class EncodedObject;
+class Pipeline : public Node, public Observer, public enable_shared_from_this<Pipeline> {
 public:
     using Desc = PipelineDesc;
 
@@ -41,6 +42,7 @@ protected:
     /// node for show detail
     mutable GUI *cur_node_{nullptr};
     mutable vector<UP<ShaderBase>> shaders_;
+    vector<EncodedObject *> encoded_objects;
 
 protected:
     [[nodiscard]] auto &integrator() noexcept { return scene().integrator(); }
@@ -52,6 +54,7 @@ public:
 public:
     explicit Pipeline(const PipelineDesc &desc);
     void init() noexcept;
+    void initialize_(const vision::NodeDesc &node_desc) noexcept override;
     [[nodiscard]] const Device &device() const noexcept { return *device_; }
     [[nodiscard]] Device &device() noexcept { return *device_; }
     [[nodiscard]] Scene &scene() noexcept { return scene_; }
@@ -59,6 +62,8 @@ public:
     [[nodiscard]] auto frame_buffer() const noexcept { return frame_buffer_.get(); }
     [[nodiscard]] auto frame_buffer() noexcept { return frame_buffer_.get(); }
     void on_touch(uint2 pos) noexcept;
+    void register_encoded_object(EncodedObject *object) noexcept;
+    void deregister_encoded_object(EncodedObject *object) noexcept;
     [[nodiscard]] bool has_changed() noexcept override;
     void reset_status() noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
@@ -91,7 +96,7 @@ public:
     virtual void commit_command() noexcept;
     virtual void before_render() noexcept;
     virtual void after_render() noexcept;
-    virtual void upload_data() noexcept { scene_.upload_data(); }
+    virtual void upload_data() noexcept;
     [[nodiscard]] virtual float4 *final_picture(const OutputDesc &desc) noexcept;
     [[nodiscard]] virtual uint2 resolution() const noexcept { return frame_buffer_->resolution(); }
     [[nodiscard]] uint pixel_num() const noexcept { return frame_buffer_->pixel_num(); }
@@ -104,8 +109,8 @@ public:
             buffer_var.write(dispatch_id(), value);
         };
         using shader_t = decltype(device().compile(kernel, desc));
-        static shader_t* shader = [&]{
-            UP<shader_t> uptr = make_unique<shader_t >(device().compile(kernel, desc));
+        static shader_t *shader = [&] {
+            UP<shader_t> uptr = make_unique<shader_t>(device().compile(kernel, desc));
             auto ret = static_cast<shader_t *>(uptr.get());
             shaders_.push_back(std::move(uptr));
             return ret;

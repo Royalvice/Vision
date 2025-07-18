@@ -3,8 +3,21 @@
 //
 
 #include "encoded_object.h"
+#include "base/mgr/global.h"
+#include "base/mgr/pipeline.h"
 
 namespace vision {
+using namespace ocarina;
+EncodedObject::EncodedObject() {
+    Global::instance().pipeline()->register_encoded_object(this);
+}
+
+EncodedObject::~EncodedObject() {
+    Pipeline *rp = Global::instance().pipeline();
+    if (rp) {
+        rp->deregister_encoded_object(this);
+    }
+}
 
 void EncodedObject::encode_data() noexcept {
     auto size = aligned_size();

@@ -195,8 +195,6 @@ void Scene::prepare_materials() {
 }
 
 void Scene::upload_data() noexcept {
-    sensor_->update_device_data();
-    integrator_->update_device_data();
     light_sampler_->update_device_data();
     medium_registry().upload_device_data();
     material_registry_->upload_device_data();

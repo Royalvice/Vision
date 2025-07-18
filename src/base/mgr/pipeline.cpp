@@ -16,7 +16,11 @@ Pipeline::Pipeline(const vision::PipelineDesc &desc)
       geometry_(this),
       stream_(device().create_stream()),
       bindless_array_(device().create_bindless_array()) {
-    Global::instance().set_pipeline(this);
+}
+
+void Pipeline::initialize_(const vision::NodeDesc &node_desc) noexcept {
+    const Desc &desc = static_cast<const Desc &>(node_desc);
+    Global::instance().set_pipeline(shared_from_this());
     Env::printer().init(device());
     Env::debugger().init(device());
     Env::set_code_obfuscation(desc["obfuscation"].as_bool(false));
@@ -25,7 +29,6 @@ Pipeline::Pipeline(const vision::PipelineDesc &desc)
 }
 
 void Pipeline::init() noexcept {
-
 }
 
 void Pipeline::prepare() noexcept {
@@ -48,6 +51,19 @@ void Pipeline::on_touch(ocarina::uint2 pos) noexcept {
     TriangleHit hit = buffer[index];
 
     scene_.mark_selected(hit);
+}
+
+void Pipeline::register_encoded_object(vision::EncodedObject *object) noexcept {
+    if (std::find(encoded_objects.cbegin(), encoded_objects.cend(), object) != encoded_objects.cend()) {
+        return;
+    }
+    encoded_objects.push_back(object);
+}
+
+void Pipeline::deregister_encoded_object(vision::EncodedObject *object) noexcept {
+    erase_if(encoded_objects, [&](const EncodedObject *iter) -> bool {
+        return object == iter;
+    });
 }
 
 bool Pipeline::has_changed() noexcept {
@@ -292,6 +308,13 @@ void Pipeline::after_render() noexcept {
     Env::debugger().reset_range();
     scene().sensor()->after_render();
     frame_buffer_->after_render();
+}
+
+void Pipeline::upload_data() noexcept {
+    scene_.upload_data();
+    for (EncodedObject *object : encoded_objects) {
+        object->update_device_data();
+    }
 }
 
 void Pipeline::commit_command() noexcept {

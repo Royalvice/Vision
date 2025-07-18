@@ -99,7 +99,7 @@ public:
         update_raster();
     }
     void update_fov_y(float val) noexcept { set_fov_y(fov_y() + val); }
-    virtual void update_device_data() noexcept;
+    void update_device_data() noexcept override;
     void prepare() noexcept override;
     [[nodiscard]] float4x4 camera_to_world() const noexcept;
     [[nodiscard]] float4x4 camera_to_world_rotation() const noexcept;

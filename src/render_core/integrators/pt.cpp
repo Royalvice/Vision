@@ -29,6 +29,9 @@ public:
         inspector_->prepare();
         frame_buffer().prepare_hit_buffer();
         frame_buffer().prepare_gbuffer();
+        frame_buffer().prepare_albedo();
+        frame_buffer().prepare_emission();
+        frame_buffer().prepare_normal();
         frame_buffer().prepare_motion_vectors();
     }
     VS_HOTFIX_MAKE_RESTORE(IlluminationIntegrator, inspector_)
@@ -54,6 +57,7 @@ public:
             RenderEnv render_env;
             sampler->load_data();
             camera->load_data();
+            frame_buffer().load_data();
             load_data();
             if (inspector_->on()) {
                 $if(inspector_->is_convergence(frame_index)) {
@@ -63,12 +67,12 @@ public:
             }
             render_env.initial(sampler, frame_index, spectrum());
             sampler->start(pixel, frame_index, 0);
-            SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
+            RayDataVar ray_data = frame_buffer().rays().read(dispatch_id());
+//            SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
             Float scatter_pdf = 1e16f;
-            RayState rs = camera->generate_ray(ss);
-            Float3 L = Li(rs, scatter_pdf, *max_depth_, spectrum()->one(), max_depth_.hv() < 2, {}, render_env) * ss.filter_weight;
-//            add_sample(dispatch_idx().xy(), L, frame_index);
-            frame_buffer().add_sample(dispatch_idx().xy(), L, frame_index);
+            RayState rs = ray_data->to_ray_state();
+            Float3 L = Li(rs, scatter_pdf, *max_depth_, spectrum()->one(), max_depth_.hv() < 2, {}, render_env);
+            add_sample(dispatch_idx().xy(), L, frame_index);
         };
         shader_ = device().compile(kernel, "path tracing integrator");
     }
@@ -92,6 +96,7 @@ public:
         if (frame_index_ == 0) {
             stream << inspector_->reset();
         }
+        stream << frame_buffer().compute_GBuffer(frame_index_);
         stream << shader_(frame_index_).dispatch(rp->resolution());
         RealTimeDenoiseInput input = denoise_input();
         increase_frame_index();

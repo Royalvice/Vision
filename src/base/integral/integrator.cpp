@@ -79,6 +79,34 @@ void IlluminationIntegrator::update_device_data() noexcept {
     }
 }
 
+void IlluminationIntegrator::compile_path_tracing() noexcept {
+    TSensor &camera = scene().sensor();
+    TSampler &sampler = scene().sampler();
+    Kernel kernel = [&](PTParamVar param) {
+        Env::instance().clear_global_vars();
+        Uint2 pixel = dispatch_idx().xy();
+        RenderEnv render_env;
+        sampler->load_data();
+        camera->load_data();
+        load_data();
+        const Uint &frame_index = param.frame_index;
+        render_env.initial(sampler, frame_index, spectrum());
+        sampler->start(pixel, frame_index, 0);
+        RayDataVar ray_data = param.rays.read(dispatch_id());
+        RayState rs = ray_data->to_ray_state();
+        Float scatter_pdf = 1e16f;
+        Float3 L = Li(rs, scatter_pdf, *max_depth_, spectrum()->one(), max_depth_.hv() < 2, {}, render_env);
+        param.colors.write(dispatch_id(), make_float4(L, 1.f));
+    };
+    path_tracing_ = device().compile(kernel, "path_tracing");
+}
+
+CommandList IlluminationIntegrator::path_tracing(const PTParam &param, uint2 res) const noexcept {
+    CommandList ret;
+    ret << path_tracing_(param).dispatch(res);
+    return ret;
+}
+
 bool IlluminationIntegrator::render_UI(ocarina::Widgets *widgets) noexcept {
     bool open = widgets->use_folding_header(
         ocarina::format("{} integrator", impl_type().data()),

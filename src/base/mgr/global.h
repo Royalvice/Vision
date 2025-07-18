@@ -16,13 +16,13 @@ class Global {
     ~Global();
 
 private:
-    Pipeline *pipeline_{nullptr};
+    weak_ptr<Pipeline> pipeline_{};
     Device *device_{nullptr};
     fs::path scene_path_;
 
 public:
     OC_MAKE_INSTANCE_FUNC_DECL(Global)
-    void set_pipeline(Pipeline *pipeline);
+    void set_pipeline(SP<Pipeline> pipeline);
     [[nodiscard]] Pipeline *pipeline();
     [[nodiscard]] ImagePool &image_pool() {
         return ImagePool::instance();

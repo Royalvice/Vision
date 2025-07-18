@@ -15,11 +15,12 @@ Global::~Global() {
     ImagePool::destroy_instance();
 }
 
-void Global::set_pipeline(vision::Pipeline *pipeline) { pipeline_ = pipeline; }
+void Global::set_pipeline(SP<Pipeline> pipeline) {
+    pipeline_ = pipeline;
+}
 
 Pipeline *Global::pipeline() {
-    OC_ASSERT(pipeline_);
-    return pipeline_;
+    return pipeline_.lock().get();
 }
 
 BindlessArray &Global::bindless_array() {

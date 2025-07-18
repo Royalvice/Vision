@@ -23,7 +23,7 @@ protected:
     RegistrableManaged<buffer_ty> datas_{Global::instance().bindless_array()};
 
 protected:
-    EncodedObject() = default;
+    EncodedObject();
 
 public:
     [[nodiscard]] RegistrableManaged<buffer_ty> &datas() noexcept { return datas_; }
@@ -46,6 +46,8 @@ public:
      */
     virtual void update_data() noexcept;
 
+    virtual void update_device_data() noexcept = 0;
+
     /**
      * load data from device memory
      * tips: Called on the device side code
@@ -54,6 +56,7 @@ public:
     virtual void upload_immediately() noexcept;
     [[nodiscard]] virtual BufferUploadCommand *upload_sync() noexcept;
     [[nodiscard]] virtual BufferUploadCommand *upload() noexcept;
+    virtual ~EncodedObject();
 };
 
 }// namespace vision

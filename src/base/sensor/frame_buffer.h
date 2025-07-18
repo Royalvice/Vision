@@ -82,6 +82,40 @@ public:
 };
 }// namespace vision
 
+
+namespace vision {
+struct RayData {
+    float4 org_ior{};
+    float4 dir_medium{};
+};
+}
+// clang-format off
+OC_STRUCT(vision, RayData, org_ior,dir_medium) {
+    [[nodiscard]] Float3 origin() const noexcept { return org_ior.xyz(); }
+    void set_origin(const Float3 &val) noexcept { org_ior.xyz() = val; }
+    [[nodiscard]] Float3 direction() const noexcept { return dir_medium.xyz(); }
+    void set_direction(const Float3 &val) noexcept { dir_medium.xyz() = val; }
+    [[nodiscard]] Float ior() const noexcept { return org_ior.w; }
+    void set_ior(const Float &ior) noexcept { org_ior.w = ior; }
+    [[nodiscard]] Bool in_medium() const noexcept { return medium_id() != InvalidUI32; }
+    [[nodiscard]] Uint medium_id() const noexcept { return as<uint>(dir_medium.w); }
+    void set_medium(const Uint &id) noexcept { dir_medium.w = as<float>(id); }
+    [[nodiscard]] RayVar to_ray() const noexcept { return ocarina::make_ray(origin(), direction()); }
+    void from_ray(const RayVar &ray) noexcept {
+        set_origin(ray->origin());
+        set_direction(ray->direction());
+    }
+    [[nodiscard]] vision::RayState to_ray_state() const noexcept {
+        return {.ray = to_ray(), .ior = ior(), .medium = medium_id()};
+    }
+    void from_ray_state(const vision::RayState &rs) noexcept {
+        from_ray(rs.ray);
+        set_ior(rs.ior);
+        set_medium(rs.medium);
+    }
+};
+// clang-format on
+
 namespace vision {
 struct GBufferParam {
     uint frame_index{};
@@ -90,12 +124,12 @@ struct GBufferParam {
     BufferDesc<float4> albedo_buffer;
     BufferDesc<float4> emission_buffer;
     BufferDesc<float4> normal_buffer;
-    BufferDesc<Ray> rays;
+    BufferDesc<RayData> rays;
 };
 }// namespace vision
 
 OC_PARAM_STRUCT(vision, GBufferParam, frame_index, gbuffer, motion_vectors,
-                albedo_buffer,emission_buffer,normal_buffer,rays) {};
+                albedo_buffer, emission_buffer, normal_buffer, rays){};
 
 namespace vision {
 struct GradParam {
@@ -104,7 +138,7 @@ struct GradParam {
 };
 }// namespace vision
 
-OC_PARAM_STRUCT(vision, GradParam, frame_index, gbuffer) {};
+OC_PARAM_STRUCT(vision, GradParam, frame_index, gbuffer){};
 
 namespace vision {
 
@@ -190,7 +224,7 @@ public:                                                                    \
     VS_MAKE_BUFFER(RegistrableManaged<float4>, albedo, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, normal, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, rt_buffer, 1)
-    VS_MAKE_BUFFER(RegistrableBuffer<Ray>, rays, 1)
+    VS_MAKE_BUFFER(RegistrableBuffer<RayData>, rays, 1)
     VS_MAKE_DOUBLE_BUFFER(RegistrableBuffer<PixelGeometry>, gbuffer)
     /// used for editor
     VS_MAKE_BUFFER(RegistrableManaged<TriangleHit>, hit_buffer, 1)
@@ -262,20 +296,18 @@ public:
     void compile_gamma() noexcept;
     void compile_accumulation() noexcept;
     void compile_tone_mapping() noexcept;
-    [[nodiscard]] auto& output_buffer() noexcept { return output_buffer_->super(); }
-    [[nodiscard]] const auto& output_buffer() const noexcept { return output_buffer_->super(); }
+    void update_device_data() noexcept override;
+    [[nodiscard]] auto &output_buffer() noexcept { return output_buffer_->super(); }
+    [[nodiscard]] const auto &output_buffer() const noexcept { return output_buffer_->super(); }
     void compute_gradient(PixelGeometryVar &center_data,
                           const BufferVar<PixelGeometry> &gbuffer) const noexcept;
     [[nodiscard]] CommandList gamma_correct(BufferView<float4> input,
                                             BufferView<float4> output) const noexcept;
     [[nodiscard]] CommandList gamma_correct() const noexcept;
-    [[nodiscard]] virtual CommandList compute_GBuffer(uint frame_index, BufferView<PixelGeometry> gbuffer,
-                                                      BufferView<float2> motion_vectors, BufferView<float4> albedo,
-                                                      BufferView<float4> emission, BufferView<float4> normal) const noexcept;
-    [[nodiscard]] virtual CommandList compute_geom(uint frame_index, BufferView<PixelGeometry> gbuffer,
-                                                   BufferView<float2> motion_vectors, BufferView<float4> albedo,
-                                                   BufferView<float4> emission, BufferView<float4> normal) const noexcept;
-    [[nodiscard]] virtual CommandList compute_grad(uint frame_index, BufferView<PixelGeometry> gbuffer) const noexcept;
+    [[nodiscard]] virtual CommandList compute_geom(const GBufferParam &param) const noexcept;
+    [[nodiscard]] virtual CommandList compute_GBuffer(const GBufferParam &param, const GradParam &grad_param) const noexcept;
+    [[nodiscard]] virtual CommandList compute_GBuffer(uint frame_index) const noexcept;
+    [[nodiscard]] virtual CommandList compute_grad(const GradParam &param) const noexcept;
     [[nodiscard]] virtual CommandList compute_hit(uint frame_index) const noexcept;
     [[nodiscard]] CommandList accumulate(BufferView<float4> input, BufferView<float4> output,
                                          uint frame_index) const noexcept;
