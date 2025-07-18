@@ -105,10 +105,11 @@ struct PTParam {
     uint frame_index{};
     BufferDesc<RayData> rays{};
     BufferDesc<float4> colors{};
+//    uint dimension{};
 };
 }// namespace vision
 
-OC_STRUCT(vision, PTParam, frame_index, rays, colors){};
+OC_PARAM_STRUCT(vision, PTParam, frame_index, rays, colors){};
 
 namespace vision {
 

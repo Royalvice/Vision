@@ -151,7 +151,7 @@ protected:
     Shader<void(GradParam)> compute_grad_;
     Shader<void(Buffer<TriangleHit>, uint)> compute_hit_;
     Shader<void(Buffer<float4>, Buffer<float4>, uint)> accumulate_;
-    Shader<void(Buffer<float4>, Buffer<float4>)> tone_mapping_;
+    Shader<void(Buffer<float4>, Buffer<float4>, float)> tone_mapping_;
 
 protected:
     string cur_view_{final_result};
@@ -224,6 +224,7 @@ public:                                                                    \
     VS_MAKE_BUFFER(RegistrableManaged<float4>, albedo, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, normal, 1)
     VS_MAKE_BUFFER(RegistrableManaged<float4>, rt_buffer, 1)
+    VS_MAKE_BUFFER(RegistrableManaged<float4>, accumulation_buffer, 1)
     VS_MAKE_BUFFER(RegistrableBuffer<RayData>, rays, 1)
     VS_MAKE_DOUBLE_BUFFER(RegistrableBuffer<PixelGeometry>, gbuffer)
     /// used for editor
@@ -252,6 +253,8 @@ public:
     OC_ENCODABLE_FUNC(EncodedObject, accumulation_, tone_mapper_, exposure_)
     void prepare() noexcept override;
     [[nodiscard]] Float4 apply_exposure(const Float4 &input) const noexcept;
+    [[nodiscard]] Float4 apply_exposure(const Float &exposure,
+                                        const Float4 &input) const noexcept;
     void update_screen_window() noexcept;
     OC_MAKE_MEMBER_GETTER(screen_window, )
     OC_MAKE_MEMBER_GETTER(tone_mapper, &)

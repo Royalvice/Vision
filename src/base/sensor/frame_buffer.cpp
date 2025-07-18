@@ -67,8 +67,12 @@ void FrameBuffer::render_sub_UI(ocarina::Widgets *widgets) noexcept {
     }
 }
 
-Float4 FrameBuffer::apply_exposure(const ocarina::Float4 &input) const noexcept {
-    return 1.f - exp(-input * *exposure_);
+Float4 FrameBuffer::apply_exposure(const Float &exposure, const Float4 &input) const noexcept {
+    return 1.f - exp(-input * exposure);
+}
+
+Float4 FrameBuffer::apply_exposure(const Float4 &input) const noexcept {
+    return apply_exposure(*exposure_, input);
 }
 
 void FrameBuffer::update_screen_window() noexcept {
@@ -101,7 +105,6 @@ void FrameBuffer::compile_accumulation() noexcept {
         Float4 val = input.read(dispatch_id());
         Float a = 1.f / (frame_index + 1);
         val = lerp(make_float4(a), accum_prev, val);
-        val = apply_exposure(val);
         output.write(dispatch_id(), val);
     };
     accumulate_ = device().compile(kernel, "RGBFilm-accumulation");
@@ -115,8 +118,9 @@ void FrameBuffer::update_device_data() noexcept {
 }
 
 void FrameBuffer::compile_tone_mapping() noexcept {
-    Kernel kernel = [&](BufferVar<float4> input, BufferVar<float4> output) {
+    Kernel kernel = [&](BufferVar<float4> input, BufferVar<float4> output, Float exposure) {
         Float4 val = input.read(dispatch_id());
+        val = apply_exposure(exposure, val);
         val = tone_mapper_->apply(val);
         val.w = 1.f;
         output.write(dispatch_id(), val);
@@ -149,6 +153,7 @@ void FrameBuffer::compile_compute_geom() noexcept {
         RenderEnv render_env;
         render_env.initial(sampler, frame_index, spectrum());
         Uint2 pixel = dispatch_idx().xy();
+        sampler->load_data();
         sampler->start(pixel, frame_index, 0);
         camera->load_data();
 
@@ -273,6 +278,7 @@ void FrameBuffer::compile() noexcept {
     compile_compute_grad();
     compile_compute_hit();
     compile_accumulation();
+    compile_tone_mapping();
 }
 
 CommandList FrameBuffer::compute_hit(uint frame_index) const noexcept {
@@ -339,11 +345,11 @@ CommandList FrameBuffer::accumulate(BufferView<float4> input, BufferView<float4>
     return ret;
 }
 
-CommandList FrameBuffer::tone_mapping(BufferView<ocarina::float4> input,
-                                      BufferView<ocarina::float4> output) const noexcept {
+CommandList FrameBuffer::tone_mapping(BufferView<float4> input,
+                                      BufferView<float4> output) const noexcept {
     CommandList ret;
     ret << tone_mapping_(input,
-                         output)
+                         output, exposure_.hv())
                .dispatch(resolution());
     return ret;
 }
@@ -417,6 +423,7 @@ void FrameBuffer::update_resolution(ocarina::uint2 res) noexcept {
     reset_albedo();
     reset_normal();
     reset_rt_buffer();
+    reset_accumulation_buffer();
     reset_rays();
     reset_gbuffer();
     reset_hit_buffer();

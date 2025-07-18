@@ -87,11 +87,10 @@ void IlluminationIntegrator::compile_path_tracing() noexcept {
         Uint2 pixel = dispatch_idx().xy();
         RenderEnv render_env;
         sampler->load_data();
-        camera->load_data();
         load_data();
         const Uint &frame_index = param.frame_index;
         render_env.initial(sampler, frame_index, spectrum());
-        sampler->start(pixel, frame_index, 0);
+        sampler->start(pixel, frame_index, 1);
         RayDataVar ray_data = param.rays.read(dispatch_id());
         RayState rs = ray_data->to_ray_state();
         Float scatter_pdf = 1e16f;
