@@ -1874,9 +1874,9 @@
             "obfuscation" : false,
             "valid_check" : false,
             "frame_buffer" : {
-                "accumulation": 0,
                 "type" : "normal",
                 "param" : {
+                    "accumulation": false,
                     "resolution" : [
                         1920,
                         1080
