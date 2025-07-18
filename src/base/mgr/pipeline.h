@@ -17,7 +17,7 @@ namespace vision {
 using namespace ocarina;
 class Spectrum;
 class EncodedObject;
-class Pipeline : public Node, public Observer {
+class Pipeline : public Node, public Observer, public enable_shared_from_this<Pipeline> {
 public:
     using Desc = PipelineDesc;
 
@@ -54,6 +54,7 @@ public:
 public:
     explicit Pipeline(const PipelineDesc &desc);
     void init() noexcept;
+    void initialize_(const vision::NodeDesc &node_desc) noexcept override;
     [[nodiscard]] const Device &device() const noexcept { return *device_; }
     [[nodiscard]] Device &device() noexcept { return *device_; }
     [[nodiscard]] Scene &scene() noexcept { return scene_; }

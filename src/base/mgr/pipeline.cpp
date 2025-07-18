@@ -16,6 +16,10 @@ Pipeline::Pipeline(const vision::PipelineDesc &desc)
       geometry_(this),
       stream_(device().create_stream()),
       bindless_array_(device().create_bindless_array()) {
+}
+
+void Pipeline::initialize_(const vision::NodeDesc &node_desc) noexcept {
+    const Desc &desc = static_cast<const Desc &>(node_desc);
     Global::instance().set_pipeline(this);
     Env::printer().init(device());
     Env::debugger().init(device());
