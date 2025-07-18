@@ -79,7 +79,7 @@ namespace vision {
            cond2 && cur_surface.hit->is_hit() && another_surface.hit->is_hit();
 }
 
-class ReSTIR : public EncodedObject, public Context, public RenderEnv, public GUI, public RuntimeObject {
+class ReSTIR : public Context, public RenderEnv, public GUI, public RuntimeObject {
 protected:
     SpatialResamplingParam spatial_{};
     TemporalResamplingParam temporal_{};

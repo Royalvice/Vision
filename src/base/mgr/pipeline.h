@@ -12,10 +12,12 @@
 #include "base/sensor/frame_buffer.h"
 #include "postprocessor.h"
 #include "UI/GUI.h"
+//#include "base/encoded_object.h"
 
 namespace vision {
 using namespace ocarina;
 class Spectrum;
+class EncodedObject;
 class Pipeline : public Node, public Observer {
 public:
     using Desc = PipelineDesc;
@@ -41,6 +43,7 @@ protected:
     /// node for show detail
     mutable GUI *cur_node_{nullptr};
     mutable vector<UP<ShaderBase>> shaders_;
+    vector<EncodedObject *> encoded_objects;
 
 protected:
     [[nodiscard]] auto &integrator() noexcept { return scene().integrator(); }
@@ -59,6 +62,8 @@ public:
     [[nodiscard]] auto frame_buffer() const noexcept { return frame_buffer_.get(); }
     [[nodiscard]] auto frame_buffer() noexcept { return frame_buffer_.get(); }
     void on_touch(uint2 pos) noexcept;
+    void register_encoded_object(EncodedObject *object) noexcept;
+    void degister_encoded_object(EncodedObject *object) noexcept;
     [[nodiscard]] bool has_changed() noexcept override;
     void reset_status() noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;

@@ -71,7 +71,7 @@ public:
         cur_render_time_ = ms;
         render_time_ += ms;
     }
-    virtual void update_device_data() noexcept {}
+    void update_device_data() noexcept override {}
     virtual void invalidation() const noexcept;
     virtual void render() const noexcept {}
 };

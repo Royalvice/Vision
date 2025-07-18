@@ -3,8 +3,19 @@
 //
 
 #include "encoded_object.h"
+//#include "base/mgr/global.h"
+//#include "base/mgr/pipeline.h"
+
 
 namespace vision {
+
+//EncodedObject::EncodedObject() {
+////    Global::instance().pipeline()->register_encoded_object(this);
+//}
+//
+//EncodedObject::~EncodedObject() {
+//
+//}
 
 void EncodedObject::encode_data() noexcept {
     auto size = aligned_size();

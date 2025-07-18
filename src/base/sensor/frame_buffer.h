@@ -296,7 +296,7 @@ public:
     void compile_gamma() noexcept;
     void compile_accumulation() noexcept;
     void compile_tone_mapping() noexcept;
-    void update_device_data() noexcept;
+    void update_device_data() noexcept override;
     [[nodiscard]] auto &output_buffer() noexcept { return output_buffer_->super(); }
     [[nodiscard]] const auto &output_buffer() const noexcept { return output_buffer_->super(); }
     void compute_gradient(PixelGeometryVar &center_data,
