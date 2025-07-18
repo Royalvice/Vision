@@ -20,7 +20,7 @@ Pipeline::Pipeline(const vision::PipelineDesc &desc)
 
 void Pipeline::initialize_(const vision::NodeDesc &node_desc) noexcept {
     const Desc &desc = static_cast<const Desc &>(node_desc);
-    Global::instance().set_pipeline(this);
+    Global::instance().set_pipeline(shared_from_this());
     Env::printer().init(device());
     Env::debugger().init(device());
     Env::set_code_obfuscation(desc["obfuscation"].as_bool(false));

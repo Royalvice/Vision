@@ -6,7 +6,6 @@
 #include "base/mgr/global.h"
 #include "base/mgr/pipeline.h"
 
-
 namespace vision {
 using namespace ocarina;
 EncodedObject::EncodedObject() {
@@ -14,7 +13,10 @@ EncodedObject::EncodedObject() {
 }
 
 EncodedObject::~EncodedObject() {
-//    Global::instance().pipeline()->deregister_encoded_object(this);
+    Pipeline *rp = Global::instance().pipeline();
+    if (rp) {
+        rp->deregister_encoded_object(this);
+    }
 }
 
 void EncodedObject::encode_data() noexcept {
