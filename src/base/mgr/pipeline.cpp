@@ -310,6 +310,13 @@ void Pipeline::after_render() noexcept {
     frame_buffer_->after_render();
 }
 
+void Pipeline::upload_data() noexcept {
+    scene_.upload_data();
+    for (EncodedObject *object : encoded_objects) {
+        object->update_device_data();
+    }
+}
+
 void Pipeline::commit_command() noexcept {
     stream_ << frame_buffer_->gamma_correct();
     stream_ << synchronize();

@@ -96,7 +96,7 @@ public:
     virtual void commit_command() noexcept;
     virtual void before_render() noexcept;
     virtual void after_render() noexcept;
-    virtual void upload_data() noexcept { scene_.upload_data(); }
+    virtual void upload_data() noexcept;
     [[nodiscard]] virtual float4 *final_picture(const OutputDesc &desc) noexcept;
     [[nodiscard]] virtual uint2 resolution() const noexcept { return frame_buffer_->resolution(); }
     [[nodiscard]] uint pixel_num() const noexcept { return frame_buffer_->pixel_num(); }
