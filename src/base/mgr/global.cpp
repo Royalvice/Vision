@@ -15,7 +15,9 @@ Global::~Global() {
     ImagePool::destroy_instance();
 }
 
-void Global::set_pipeline(vision::Pipeline *pipeline) { pipeline_ = pipeline; }
+void Global::set_pipeline(vision::Pipeline *pipeline) {
+    pipeline_ = pipeline;
+}
 
 Pipeline *Global::pipeline() {
     OC_ASSERT(pipeline_);

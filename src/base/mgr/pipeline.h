@@ -12,7 +12,6 @@
 #include "base/sensor/frame_buffer.h"
 #include "postprocessor.h"
 #include "UI/GUI.h"
-//#include "base/encoded_object.h"
 
 namespace vision {
 using namespace ocarina;
@@ -63,7 +62,7 @@ public:
     [[nodiscard]] auto frame_buffer() noexcept { return frame_buffer_.get(); }
     void on_touch(uint2 pos) noexcept;
     void register_encoded_object(EncodedObject *object) noexcept;
-    void degister_encoded_object(EncodedObject *object) noexcept;
+    void deregister_encoded_object(EncodedObject *object) noexcept;
     [[nodiscard]] bool has_changed() noexcept override;
     void reset_status() noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
@@ -109,8 +108,8 @@ public:
             buffer_var.write(dispatch_id(), value);
         };
         using shader_t = decltype(device().compile(kernel, desc));
-        static shader_t* shader = [&]{
-            UP<shader_t> uptr = make_unique<shader_t >(device().compile(kernel, desc));
+        static shader_t *shader = [&] {
+            UP<shader_t> uptr = make_unique<shader_t>(device().compile(kernel, desc));
             auto ret = static_cast<shader_t *>(uptr.get());
             shaders_.push_back(std::move(uptr));
             return ret;

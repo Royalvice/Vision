@@ -23,7 +23,7 @@ protected:
     RegistrableManaged<buffer_ty> datas_{Global::instance().bindless_array()};
 
 protected:
-//    EncodedObject();
+    EncodedObject();
 
 public:
     [[nodiscard]] RegistrableManaged<buffer_ty> &datas() noexcept { return datas_; }
@@ -56,7 +56,7 @@ public:
     virtual void upload_immediately() noexcept;
     [[nodiscard]] virtual BufferUploadCommand *upload_sync() noexcept;
     [[nodiscard]] virtual BufferUploadCommand *upload() noexcept;
-//    virtual ~EncodedObject();
+    virtual ~EncodedObject();
 };
 
 }// namespace vision

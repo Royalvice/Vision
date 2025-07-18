@@ -50,16 +50,16 @@ void Pipeline::on_touch(ocarina::uint2 pos) noexcept {
 }
 
 void Pipeline::register_encoded_object(vision::EncodedObject *object) noexcept {
-//    if (std::find(encoded_objects.cbegin(), encoded_objects.cend(), object) != encoded_objects.cend()) {
-//        return;
-//    }
-//    encoded_objects.push_back(object);
+    if (std::find(encoded_objects.cbegin(), encoded_objects.cend(), object) != encoded_objects.cend()) {
+        return;
+    }
+    encoded_objects.push_back(object);
 }
 
-void Pipeline::degister_encoded_object(vision::EncodedObject *object) noexcept {
-//    erase_if(encoded_objects, [&](const EncodedObject *iter) -> bool {
-//        return object == iter;
-//    });
+void Pipeline::deregister_encoded_object(vision::EncodedObject *object) noexcept {
+    erase_if(encoded_objects, [&](const EncodedObject *iter) -> bool {
+        return object == iter;
+    });
 }
 
 bool Pipeline::has_changed() noexcept {
