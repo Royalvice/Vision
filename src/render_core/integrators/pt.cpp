@@ -33,6 +33,7 @@ public:
         frame_buffer().prepare_emission();
         frame_buffer().prepare_normal();
         frame_buffer().prepare_motion_vectors();
+        frame_buffer().prepare_accumulation_buffer();
     }
     VS_HOTFIX_MAKE_RESTORE(IlluminationIntegrator, inspector_)
     OC_ENCODABLE_FUNC(IlluminationIntegrator, inspector_)
@@ -41,6 +42,7 @@ public:
         std::tuple tp = {addressof(inspector_)};
         HotfixSystem::replace_objects(constructor, tp);
     }
+    
     void add_sample(const Uint2 &pixel, Float3 val, const Uint &frame_index) noexcept {
         val = frame_buffer().add_sample(pixel, val, frame_index);
         if (inspector_->on()) {
@@ -67,14 +69,15 @@ public:
             }
             render_env.initial(sampler, frame_index, spectrum());
             sampler->start(pixel, frame_index, 0);
-            RayDataVar ray_data = frame_buffer().rays().read(dispatch_id());
-//            SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
+            SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
             Float scatter_pdf = 1e16f;
-            RayState rs = ray_data->to_ray_state();
+            RayState rs = camera->generate_ray(ss);
             Float3 L = Li(rs, scatter_pdf, *max_depth_, spectrum()->one(), max_depth_.hv() < 2, {}, render_env);
             add_sample(dispatch_idx().xy(), L, frame_index);
         };
         shader_ = device().compile(kernel, "path tracing integrator");
+
+        compile_path_tracing();
     }
 
     RealTimeDenoiseInput denoise_input() const noexcept {
@@ -97,7 +100,17 @@ public:
             stream << inspector_->reset();
         }
         stream << frame_buffer().compute_GBuffer(frame_index_);
-        stream << shader_(frame_index_).dispatch(rp->resolution());
+        PTParam param;
+        param.frame_index = frame_index_;
+        param.rays = frame_buffer().rays().descriptor();
+        param.colors = frame_buffer().rt_buffer().descriptor();
+        stream << path_tracing(param, frame_buffer().resolution());
+        stream << frame_buffer().accumulate(frame_buffer().rt_buffer(),
+                                            frame_buffer().accumulation_buffer(),
+                                            frame_index_);
+        stream << frame_buffer().tone_mapping(frame_buffer().accumulation_buffer(),
+                                              frame_buffer().output_buffer());
+//                stream << shader_(frame_index_).dispatch(rp->resolution());
         RealTimeDenoiseInput input = denoise_input();
         increase_frame_index();
     }
