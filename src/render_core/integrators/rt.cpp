@@ -75,37 +75,10 @@ public:
         indirect_->render_UI(widgets);
     }
 
-    void compile_path_tracing() noexcept {
-        TSampler &sampler = scene().sampler();
-        TSensor &camera = scene().sensor();
-        Kernel kernel = [&](Uint frame_index, BufferVar<SurfaceData> surfaces) {
-            SurfaceDataVar surface = surfaces.read(dispatch_id());
-            $if(!surface->near_specular()) {
-                specular_buffer_->write(dispatch_id(), make_float4(0.f));
-                $return();
-            };
-            load_data();
-            sampler->load_data();
-            camera->load_data();
-            Uint2 pixel = dispatch_idx().xy();
-            sampler->start(pixel, frame_index, 5);
-            RenderEnv render_env;
-            render_env.initial(sampler, frame_index, spectrum());
-            SensorSample ss = sampler->sensor_sample(pixel, camera->filter());
-            Float scatter_pdf = 1e16f;
-            RayState rs = camera->generate_ray(ss);
-            Float3 L = Li(rs, scatter_pdf, spectrum()->one(), {}, render_env) * ss.filter_weight;
-            specular_buffer_->write(dispatch_id(), make_float4(L, 1.f));
-        };
-        path_tracing_ = device().compile(kernel, "real_time_pt");
-    }
-
     void compile() noexcept override {
         direct_->compile();
         indirect_->compile();
         denoiser_->compile();
-        //        compile_path_tracing();
-
         TSensor &camera = scene().sensor();
         Kernel kernel = [&](Uint frame_index, Float di, Float ii) {
             camera->load_data();
@@ -135,7 +108,6 @@ public:
     void render() const noexcept override {
         const Pipeline *rp = pipeline();
         Stream &stream = rp->stream();
-        stream << frame_buffer().compute_hit(frame_index_);
         stream << frame_buffer().compute_GBuffer(frame_index_);
         stream << direct_->dispatch(frame_index_);
         stream << indirect_->dispatch(frame_index_);

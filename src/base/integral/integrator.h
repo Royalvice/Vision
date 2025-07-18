@@ -98,6 +98,19 @@ public:
     [[nodiscard]] SampledWavelengths &sampled_wavelengths() const noexcept { return *swl_; }
     void initial(TSampler &sampler, const Uint &frame_index, const TSpectrum &spectrum) noexcept;
 };
+}// namespace vision
+
+namespace vision {
+struct PTParam {
+    uint frame_index{};
+    BufferDesc<RayData> rays{};
+    BufferDesc<float4> colors{};
+};
+}// namespace vision
+
+OC_STRUCT(vision, PTParam, frame_index, rays, colors){};
+
+namespace vision {
 
 enum MISMode {
     EBoth = 0,
@@ -117,6 +130,7 @@ protected:
     /// Material computation is separated from access memory
     bool separate_{false};
     SP<Denoiser> denoiser_{};
+    ocarina::Shader<void(PTParam)> path_tracing_;
 
 public:
     IlluminationIntegrator() = default;
@@ -143,6 +157,8 @@ public:
         return weight;
     };
 
+    void compile_path_tracing() noexcept;
+    [[nodiscard]] CommandList path_tracing(const PTParam &param, uint2 res) const noexcept;
     template<typename... Args>
     [[nodiscard]] SampledSpectrum direct_light_mis(Args &&...args) const noexcept {
         switch (mis_mode_) {
