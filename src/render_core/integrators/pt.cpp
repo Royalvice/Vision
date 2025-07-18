@@ -42,6 +42,7 @@ public:
         std::tuple tp = {addressof(inspector_)};
         HotfixSystem::replace_objects(constructor, tp);
     }
+    
     void add_sample(const Uint2 &pixel, Float3 val, const Uint &frame_index) noexcept {
         val = frame_buffer().add_sample(pixel, val, frame_index);
         if (inspector_->on()) {

@@ -61,6 +61,7 @@ void FrameBuffer::render_sub_UI(ocarina::Widgets *widgets) noexcept {
         }
     };
     changed_ |= widgets->drag_float("exposure", &exposure_.hv(), 0.01f, 0.f, 10.f);
+    tone_mapper_->render_UI(widgets);
     for (auto iter = screen_buffers_.begin();
          iter != screen_buffers_.end(); ++iter) {
         show_buffer(*iter->second);

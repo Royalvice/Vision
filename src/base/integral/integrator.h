@@ -103,13 +103,13 @@ public:
 namespace vision {
 struct PTParam {
     uint frame_index{};
+    uint dimension_index{1u};
     BufferDesc<RayData> rays{};
     BufferDesc<float4> colors{};
-//    uint dimension{};
 };
 }// namespace vision
 
-OC_PARAM_STRUCT(vision, PTParam, frame_index, rays, colors){};
+OC_PARAM_STRUCT(vision, PTParam, frame_index, dimension_index, rays, colors){};
 
 namespace vision {
 

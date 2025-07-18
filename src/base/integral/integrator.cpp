@@ -90,7 +90,7 @@ void IlluminationIntegrator::compile_path_tracing() noexcept {
         load_data();
         const Uint &frame_index = param.frame_index;
         render_env.initial(sampler, frame_index, spectrum());
-        sampler->start(pixel, frame_index, 1);
+        sampler->start(pixel, frame_index, param.dimension_index);
         RayDataVar ray_data = param.rays.read(dispatch_id());
         RayState rs = ray_data->to_ray_state();
         Float scatter_pdf = 1e16f;
