@@ -101,6 +101,7 @@ void FrameBuffer::compile_accumulation() noexcept {
         Float4 val = input.read(dispatch_id());
         Float a = 1.f / (frame_index + 1);
         val = lerp(make_float4(a), accum_prev, val);
+        val = apply_exposure(val);
         output.write(dispatch_id(), val);
     };
     accumulate_ = device().compile(kernel, "RGBFilm-accumulation");
@@ -271,6 +272,7 @@ void FrameBuffer::compile() noexcept {
     compile_compute_geom();
     compile_compute_grad();
     compile_compute_hit();
+    compile_accumulation();
 }
 
 CommandList FrameBuffer::compute_hit(uint frame_index) const noexcept {
