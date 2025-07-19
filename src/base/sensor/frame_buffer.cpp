@@ -38,7 +38,7 @@ void FrameBuffer::prepare() noexcept {
 }
 
 void FrameBuffer::update_runtime_object(const vision::IObjectConstructor *constructor) noexcept {
-    std::tuple tp = {addressof(visualizer_), addressof(tone_mapper_.impl())};
+    std::tuple tp = {addressof(visualizer_), addressof(tone_mapper_.impl()), addressof(upsampler_)};
     HotfixSystem::replace_objects(constructor, tp);
 }
 

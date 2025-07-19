@@ -262,6 +262,7 @@ public:
     void update_screen_window() noexcept;
     OC_MAKE_MEMBER_GETTER(screen_window, )
     OC_MAKE_MEMBER_GETTER(tone_mapper, &)
+    OC_MAKE_MEMBER_GETTER(upsampler, )
     void update_runtime_object(const IObjectConstructor *constructor) noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
