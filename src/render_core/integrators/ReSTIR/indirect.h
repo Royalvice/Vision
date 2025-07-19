@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "reservoir.h"
+#include "base/sensor/super_res.h"
 
 namespace vision {
 struct GIParam {

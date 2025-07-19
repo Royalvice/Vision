@@ -148,8 +148,22 @@ void SlotDesc::init(const ParameterSet &ps) noexcept {
     }
 }
 
-void MaterialDesc::init(const ParameterSet &ps) noexcept {
+void SuperResDesc::init(const vision::ParameterSet &ps) noexcept {
     NodeDesc::init(ps);
+    sub_type = ps["type"].as_string("bilateral");
+    ParameterSet param = ps.value("param", DataWrap::object());
+    set_parameter(param);
+}
+
+void RadianceCacheDesc::init(const vision::ParameterSet &ps) noexcept {
+    NodeDesc::init(ps);
+    sub_type = ps["type"].as_string("sharc");
+    ParameterSet param = ps.value("param", DataWrap::object());
+    set_parameter(param);
+}
+
+void MaterialDesc::init(const ParameterSet &ps) noexcept {
+    vision::GraphDesc::init(ps);
     init_node_map(ps.value("node_tab"));
     sub_type = ps["type"].as_string("diffuse");
     if (sub_type == "mix" || sub_type == "add") {

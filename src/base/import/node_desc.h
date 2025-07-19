@@ -248,6 +248,18 @@ template<typename T>
     return AttrDesc::slot(key, default_value, tag);
 }
 
+struct SuperResDesc : public NodeDesc {
+public:
+    VISION_DESC_COMMON(SuperRes)
+    void init(const ParameterSet &ps) noexcept override;
+};
+
+struct RadianceCacheDesc : public NodeDesc {
+public:
+    VISION_DESC_COMMON(RadianceCache)
+    void init(const ParameterSet &ps) noexcept override;
+};
+
 struct ImporterDesc : public NodeDesc {
 public:
     VISION_DESC_COMMON(Importer)
