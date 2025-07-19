@@ -8,7 +8,9 @@
 namespace vision {
 ReSTIRGI::ReSTIRGI(IlluminationIntegrator *integrator,
                    const vision::ParameterSet &desc)
-    : ReSTIR(integrator, desc) {
+    : ReSTIR(integrator, desc),
+    sample_num_(desc["sample_num"].as_uint(1u)),
+    ratio_(desc["ratio"].as_float(2.f)){
 }
 
 Float ReSTIRGI::Jacobian_det(Float3 cur_pos, Float3 neighbor_pos,

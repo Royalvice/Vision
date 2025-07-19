@@ -1258,6 +1258,8 @@
 					"radius": 0,
 					"history_limit": 10
 				},
+				"sample_num": 2,
+				"ratio": 2,
 				"correct_mode" : 0,
 //				"open": false,
 				"pairwise": true
