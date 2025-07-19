@@ -10,6 +10,7 @@
 #include "tonemapper.h"
 #include "base/scattering/interaction.h"
 #include "visualizer.h"
+#include "upsampler.h"
 
 namespace vision {
 using namespace ocarina;
@@ -166,6 +167,7 @@ protected:
     Box2f screen_window_;
     EncodedData<uint> accumulation_;
     TToneMapper tone_mapper_{};
+    SP<Upsampler> upsampler_{};
     EncodedData<float> exposure_{};
 
 #define VS_MAKE_BUFFER(Type, buffer_name, count)                           \
@@ -247,10 +249,12 @@ public:
     VS_HOTFIX_MAKE_RESTORE(Node, cur_view_, gbuffer_, surfaces_, surface_exts_, hit_bsdfs_,
                            motion_vectors_, hit_buffer_, screen_buffers_, gamma_correct_,
                            view_buffer_, visualizer_, window_buffer_, rt_buffer_, output_buffer_,
+                           tone_mapper_, upsampler_,
                            /// shaders
                            compute_geom_, compute_grad_, compute_hit_,
                            accumulate_, tone_mapping_)
     OC_ENCODABLE_FUNC(EncodedObject, accumulation_, tone_mapper_, exposure_)
+    VS_MAKE_GUI_STATUS_FUNC(Node, upsampler_, tone_mapper_)
     void prepare() noexcept override;
     [[nodiscard]] Float4 apply_exposure(const Float4 &input) const noexcept;
     [[nodiscard]] Float4 apply_exposure(const Float &exposure,

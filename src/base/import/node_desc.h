@@ -294,6 +294,7 @@ public:
 struct FrameBufferDesc : public NodeDesc {
 public:
     ToneMapperDesc tone_mapper;
+    UpsamplerDesc upsampler_desc;
 
 public:
     VISION_DESC_COMMON(FrameBuffer)

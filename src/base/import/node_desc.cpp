@@ -246,6 +246,7 @@ void FrameBufferDesc::init(const vision::ParameterSet &ps) noexcept {
     ParameterSet param = ps.value("param", DataWrap::object());
     set_parameter(param);
     tone_mapper.init(parameter_.value("tone_mapper", DataWrap::object()));
+    upsampler_desc.init(parameter_.value("upsampler", DataWrap::object()));
 }
 
 void PipelineDesc::init(const vision::ParameterSet &ps) noexcept {
