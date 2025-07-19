@@ -17,12 +17,15 @@ add_subdirectory(rasterizer)
 add_subdirectory(pass)
 add_subdirectory(framebuffer)
 add_subdirectory(upsampler)
+add_subdirectory(radiancecache)
 
 add_library(vision-plugins INTERFACE)
 target_link_libraries(vision-plugins INTERFACE
         vision-filter
         vision-shape
         vision-tonemapper
+        vision-radiancecache
+        vision-upsampler
         vision-denoiser
         vision-uvunwrapper
         vision-pass

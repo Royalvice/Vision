@@ -6,6 +6,7 @@
 
 #include "dsl/dsl.h"
 #include "base/node.h"
+#include "hotfix/hotfix.h"
 
 namespace vision {
 struct UpsamplingParam {
