@@ -10,7 +10,7 @@ ReSTIRGI::ReSTIRGI(IntegratorPtr integrator,
                    const vision::ParameterSet &desc)
     : ReSTIR(integrator, desc),
     sample_num_(desc["sample_num"].as_uint(1u)),
-    ratio_(desc["ratio"].as_float(2.f)){
+    ratio_(desc["ratio"].as_uint(2u)){
 }
 
 Float ReSTIRGI::Jacobian_det(Float3 cur_pos, Float3 neighbor_pos,
@@ -42,7 +42,7 @@ void ReSTIRGI::render_sub_UI(ocarina::Widgets *widgets) noexcept {
     changed_ |= widgets->check_box("temporal", &temporal_.open);
     changed_ |= widgets->drag_uint("max age", &max_age_, 1, 0, 100);
     changed_ |= widgets->drag_float("diffuse factor threshold", &diff_factor_, 0, 1);
-    widgets->drag_float("resolution ratio", &ratio_, 0.05, 1, 3);
+    widgets->slider_uint("resolution ratio", &ratio_, 1, 4);
     widgets->button_click("resize", [&] {
 
     });
