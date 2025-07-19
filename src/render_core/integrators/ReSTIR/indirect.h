@@ -62,7 +62,7 @@ protected:
 
 public:
     ReSTIRGI() = default;
-    ReSTIRGI(IlluminationIntegrator *integrator, const ParameterSet &desc);
+    ReSTIRGI(IntegratorPtr integrator, const ParameterSet &desc);
     VS_HOTFIX_MAKE_RESTORE(ReSTIR, radiance_, reservoirs_, samples_, sample_num_, ratio_,
                            initial_samples_, temporal_pass_, spatial_shading_)
     OC_MAKE_MEMBER_GETTER(open, )

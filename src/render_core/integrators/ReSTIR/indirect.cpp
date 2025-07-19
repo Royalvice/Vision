@@ -6,7 +6,7 @@
 #include "base/integral/integrator.h"
 
 namespace vision {
-ReSTIRGI::ReSTIRGI(IlluminationIntegrator *integrator,
+ReSTIRGI::ReSTIRGI(IntegratorPtr integrator,
                    const vision::ParameterSet &desc)
     : ReSTIR(integrator, desc),
     sample_num_(desc["sample_num"].as_uint(1u)),
@@ -42,7 +42,10 @@ void ReSTIRGI::render_sub_UI(ocarina::Widgets *widgets) noexcept {
     changed_ |= widgets->check_box("temporal", &temporal_.open);
     changed_ |= widgets->drag_uint("max age", &max_age_, 1, 0, 100);
     changed_ |= widgets->drag_float("diffuse factor threshold", &diff_factor_, 0, 1);
+    widgets->drag_float("resolution ratio", &ratio_, 0.05, 1, 3);
+    widgets->button_click("resize", [&] {
 
+    });
     if (temporal_.open) {
         changed_ |= widgets->input_uint_limit("history", &temporal_.limit, 0, 50, 1, 3);
         changed_ |= widgets->input_float_limit("temporal theta",
@@ -72,7 +75,7 @@ GISampleVar ReSTIRGI::init_sample(const Interaction &it, const SensorSample &ss,
     RayState ray_state = RayState::create(ray);
     Float3 throughput = hit_bsdf->safe_throughput();
     GISampleVar sample;
-    Float3 L = integrator_->Li(ray_state, hit_bsdf.pdf,
+    Float3 L = integrator()->Li(ray_state, hit_bsdf.pdf,
                                SampledSpectrum(throughput),
                                sp_it, *this) /
                throughput;
@@ -94,7 +97,7 @@ void ReSTIRGI::compile_initial_samples() noexcept {
         };
         camera->load_data();
         sampler()->load_data();
-        integrator_->load_data();
+        integrator()->load_data();
         Uint2 pixel = dispatch_idx().xy();
         sampler()->start(pixel, frame_index, 0);
         SensorSample ss = sampler()->sensor_sample(pixel, camera->filter());
