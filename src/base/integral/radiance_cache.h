@@ -19,7 +19,10 @@ class RenderEnv;
 class RadianceCache : public Node {
 private:
 public:
+    using Desc = RadianceCacheDesc;
     RadianceCache() = default;
+    explicit RadianceCache(const Desc &desc)
+        : Node(desc) {}
 };
 
 }// namespace vision
