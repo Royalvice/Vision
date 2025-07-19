@@ -39,10 +39,11 @@ class RayTracingIntegrator;
 class ReSTIRGI : public ReSTIR {
 private:
     SP<ScreenBuffer> radiance_{make_shared<ScreenBuffer>("ReSTIRGI::radiance_")};
+    RegistrableBuffer<float4> rt_buffer_;
     RegistrableBuffer<GIReservoir> reservoirs_{pipeline()->bindless_array()};
     RegistrableBuffer<GISample> samples_{pipeline()->bindless_array()};
     uint sample_num_{1u};
-    float ratio_{2};
+    uint ratio_{2u};
 
     /**
      * initial sample
