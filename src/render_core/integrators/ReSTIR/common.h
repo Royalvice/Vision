@@ -86,11 +86,12 @@ protected:
     bool open_{true};
     uint max_age_{};
     float diff_factor_{0.3f};
-    IlluminationIntegrator *integrator_{};
+    using IntegratorPtr = weak_ptr<IlluminationIntegrator>;
+    IntegratorPtr integrator_{};
 
 public:
     ReSTIR() = default;
-    explicit ReSTIR(IlluminationIntegrator *integrator, const ParameterSet &desc)
+    explicit ReSTIR(IntegratorPtr integrator, const ParameterSet &desc)
         : integrator_(integrator),
           spatial_(desc["spatial"]),
           temporal_(desc["temporal"]),
@@ -99,8 +100,9 @@ public:
           max_age_(desc["max_age"].as_uint(30)) {}
     VS_HOTFIX_MAKE_RESTORE(RuntimeObject, spatial_, temporal_, open_,
                            max_age_, diff_factor_, integrator_)
-    OC_MAKE_MEMBER_SETTER(integrator)
     OC_MAKE_MEMBER_GETTER(open, )
+    [[nodiscard]] IlluminationIntegrator *integrator() noexcept { return integrator_.lock().get(); }
+    [[nodiscard]] const IlluminationIntegrator *integrator() const noexcept { return integrator_.lock().get(); }
     virtual void update_resolution(uint2 res) noexcept {}
     [[nodiscard]] Uint checkerboard_value() const noexcept {
         return frame_buffer().checkerboard_value(dispatch_idx().xy());

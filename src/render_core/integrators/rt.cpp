@@ -24,10 +24,14 @@ private:
 public:
     RealTimeIntegrator() = default;
     explicit RealTimeIntegrator(const IntegratorDesc &desc)
-        : IlluminationIntegrator(desc),
-          direct_(make_shared<ReSTIRDI>(this, desc["direct"])),
-          indirect_(make_shared<ReSTIRGI>(this, desc["indirect"])) {
+        : IlluminationIntegrator(desc) {
         max_depth_ = max_depth_.hv() - 1;
+    }
+
+    void initialize_(const vision::NodeDesc &node_desc) noexcept override {
+        const Desc &desc = static_cast<const Desc &>(node_desc);
+        direct_ = make_shared<ReSTIRDI>(shared_from_this(), desc["direct"]);
+        indirect_ = make_shared<ReSTIRGI>(shared_from_this(), desc["indirect"]);
     }
 
     VS_MAKE_GUI_STATUS_FUNC(IlluminationIntegrator, direct_, indirect_)
@@ -36,8 +40,8 @@ public:
         IlluminationIntegrator::restore(old_obj);
         VS_HOTFIX_MOVE_ATTRS(direct_, indirect_, specular_buffer_,
                              combine_, path_tracing_, denoiser_)
-        direct_->set_integrator(this);
-        indirect_->set_integrator(this);
+        direct_->set_integrator(shared_from_this());
+        indirect_->set_integrator(shared_from_this());
     }
 
     void update_resolution(ocarina::uint2 res) noexcept override {
@@ -98,10 +102,10 @@ public:
         ret.gbuffer = frame_buffer().cur_gbuffer_view(frame_index_);
         ret.prev_gbuffer = frame_buffer().prev_gbuffer_view(frame_index_);
         ret.motion_vec = frame_buffer().motion_vectors();
-        ret.radiance =  frame_buffer().rt_buffer();
+        ret.radiance = frame_buffer().rt_buffer();
         ret.albedo = frame_buffer().albedo();
         ret.emission = frame_buffer().emission();
-        ret.output =  frame_buffer().output_buffer();
+        ret.output = frame_buffer().output_buffer();
         return ret;
     }
 

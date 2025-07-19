@@ -7,7 +7,7 @@
 
 namespace vision {
 
-ReSTIRDI::ReSTIRDI(IlluminationIntegrator *integrator, const ParameterSet &desc)
+ReSTIRDI::ReSTIRDI(IntegratorPtr integrator, const ParameterSet &desc)
     : ReSTIR(integrator, desc),
       M_light_(desc["M_light"].as_uint(10)),
       M_bsdf_(desc["M_bsdf"].as_uint(1)),
@@ -202,7 +202,7 @@ DIReservoirVar ReSTIRDI::RIS(const Bool &hit, const Interaction &it, const Var<D
     };
 
     $if(hit) {
-        if (integrator_->separate()) {
+        if (integrator()->separate()) {
             MaterialEvaluator bsdf(it, swl);
             scene().materials().dispatch(it.material_id(), [&](const Material *material) {
                 material->build_evaluator(bsdf, it, swl);

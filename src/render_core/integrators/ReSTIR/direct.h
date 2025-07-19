@@ -70,7 +70,7 @@ protected:
 
 public:
     ReSTIRDI() = default;
-    ReSTIRDI(IlluminationIntegrator *integrator, const ParameterSet &desc);
+    ReSTIRDI(IntegratorPtr integrator, const ParameterSet &desc);
     VS_HOTFIX_MAKE_RESTORE(ReSTIR, M_light_, M_bsdf_, debias_, pairwise_, reweight_, max_recursion_,
                            radiance_, reservoirs_, shader0_, shader1_)
     OC_MAKE_MEMBER_GETTER(open, )
