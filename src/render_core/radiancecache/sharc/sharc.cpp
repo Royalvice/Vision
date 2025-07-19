@@ -16,3 +16,5 @@ public:
 };
 
 }// namespace vision
+
+VS_MAKE_CLASS_CREATOR_HOTFIX(vision, SpatialHashRadianceCache)

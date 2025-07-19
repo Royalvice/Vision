@@ -368,6 +368,7 @@ public:
 struct IntegratorDesc : public NodeDesc {
 public:
     DenoiserDesc denoiser_desc;
+    RadianceCacheDesc cache_desc;
 
 public:
     VISION_DESC_COMMON(Integrator)

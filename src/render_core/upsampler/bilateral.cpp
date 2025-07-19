@@ -9,7 +9,7 @@ namespace vision {
 class BilateralUpsampler : public Upsampler {
 public:
     BilateralUpsampler() = default;
-    BilateralUpsampler(const Desc &desc)
+    explicit BilateralUpsampler(const Desc &desc)
         : Upsampler(desc) {}
     VS_MAKE_PLUGIN_NAME_FUNC
     [[nodiscard]] CommandList apply(const vision::UpsamplingParam &param) const noexcept override {

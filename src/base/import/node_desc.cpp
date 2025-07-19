@@ -107,6 +107,8 @@ void IntegratorDesc::init(const ParameterSet &ps) noexcept {
         denoiser_param.set_value("type", "svgf");
     }
     denoiser_desc.init(denoiser_param);
+    ParameterSet cache_param = parameter_.value("cache");
+    cache_desc.init(cache_param);
 }
 
 namespace detail {
