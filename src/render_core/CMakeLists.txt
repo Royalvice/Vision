@@ -1,27 +1,31 @@
-add_subdirectory(filters)
-add_subdirectory(samplers)
-add_subdirectory(lights)
-add_subdirectory(lightsamplers)
-add_subdirectory(integrators)
-add_subdirectory(materials)
-add_subdirectory(mediums)
-add_subdirectory(sensors)
-add_subdirectory(shadernodes)
-add_subdirectory(shapes)
-add_subdirectory(warpers)
-add_subdirectory(spectra)
-add_subdirectory(tonemappers)
-add_subdirectory(denoisers)
-add_subdirectory(uvunwrappers)
-add_subdirectory(rasterizers)
-add_subdirectory(passes)
-add_subdirectory(framebuffers)
+add_subdirectory(filter)
+add_subdirectory(sampler)
+add_subdirectory(light)
+add_subdirectory(lightsampler)
+add_subdirectory(integrator)
+add_subdirectory(material)
+add_subdirectory(medium)
+add_subdirectory(sensor)
+add_subdirectory(shadernode)
+add_subdirectory(shape)
+add_subdirectory(warper)
+add_subdirectory(spectrum)
+add_subdirectory(tonemapper)
+add_subdirectory(denoiser)
+add_subdirectory(uvunwrapper)
+add_subdirectory(rasterizer)
+add_subdirectory(pass)
+add_subdirectory(framebuffer)
+add_subdirectory(upsampler)
+add_subdirectory(radiancecache)
 
 add_library(vision-plugins INTERFACE)
 target_link_libraries(vision-plugins INTERFACE
         vision-filter
         vision-shape
         vision-tonemapper
+        vision-radiancecache
+        vision-upsampler
         vision-denoiser
         vision-uvunwrapper
         vision-pass
