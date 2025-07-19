@@ -3,6 +3,7 @@
 //
 
 #include "base/integral/integrator.h"
+#include "base/integral/radiance_cache.h"
 #include "base/mgr/pipeline.h"
 #include "math/warp.h"
 #include "base/color/spectrum.h"
@@ -20,11 +21,12 @@ private:
     SP<ScreenBuffer> specular_buffer_{make_shared<ScreenBuffer>("RealTimeIntegrator::specular_buffer_")};
     Shader<void(uint, float, float)> combine_;
     Shader<void(uint, Buffer<SurfaceData>)> path_tracing_;
+    SP<RadianceCache> cache_;
 
 public:
     RealTimeIntegrator() = default;
     explicit RealTimeIntegrator(const IntegratorDesc &desc)
-        : IlluminationIntegrator(desc) {
+        : IlluminationIntegrator(desc), cache_(Node::create_shared<RadianceCache>(desc.cache_desc)) {
         max_depth_ = max_depth_.hv() - 1;
     }
 
@@ -50,7 +52,7 @@ public:
     }
 
     void update_runtime_object(const vision::IObjectConstructor *constructor) noexcept override {
-        std::tuple tp = {addressof(direct_), addressof(indirect_)};
+        std::tuple tp = {addressof(direct_), addressof(indirect_), addressof(cache_)};
         HotfixSystem::replace_objects(constructor, tp);
     }
 
