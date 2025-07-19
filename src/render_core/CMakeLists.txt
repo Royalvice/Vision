@@ -16,6 +16,7 @@ add_subdirectory(uvunwrapper)
 add_subdirectory(rasterizer)
 add_subdirectory(pass)
 add_subdirectory(framebuffer)
+add_subdirectory(upsampler)
 
 add_library(vision-plugins INTERFACE)
 target_link_libraries(vision-plugins INTERFACE

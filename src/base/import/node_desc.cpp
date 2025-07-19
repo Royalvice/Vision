@@ -148,7 +148,7 @@ void SlotDesc::init(const ParameterSet &ps) noexcept {
     }
 }
 
-void SuperResDesc::init(const vision::ParameterSet &ps) noexcept {
+void UpsamplerDesc::init(const vision::ParameterSet &ps) noexcept {
     NodeDesc::init(ps);
     sub_type = ps["type"].as_string("bilateral");
     ParameterSet param = ps.value("param", DataWrap::object());

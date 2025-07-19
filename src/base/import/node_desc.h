@@ -248,9 +248,9 @@ template<typename T>
     return AttrDesc::slot(key, default_value, tag);
 }
 
-struct SuperResDesc : public NodeDesc {
+struct UpsamplerDesc : public NodeDesc {
 public:
-    VISION_DESC_COMMON(SuperRes)
+    VISION_DESC_COMMON(Upsampler)
     void init(const ParameterSet &ps) noexcept override;
 };
 
