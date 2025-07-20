@@ -6,6 +6,7 @@
 
 #include "core/stl.h"
 #include "dsl/dsl.h"
+#include "constant.h"
 
 namespace vision {
 
