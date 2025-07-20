@@ -109,6 +109,7 @@ public:
     explicit Light(const LightDesc &desc, LightType light_type);
     VS_HOTFIX_MAKE_RESTORE(Node, scale_, switch_, color_, strength_, index_)
     OC_ENCODABLE_FUNC(Encodable, scale_, color_, strength_, switch_)
+    virtual void initialize_slots(const Desc &desc) noexcept;
     [[nodiscard]] uint64_t compute_topology_hash() const noexcept override {
         return color_.topology_hash();
     }

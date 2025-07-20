@@ -120,6 +120,7 @@ func_tab = {
 def export(exporter, object, node_tab=None):
     node_tab = {} if node_tab is None else node_tab
     ret = func_tab[object.data.type](exporter, object, node_tab)
+    ret["node_tab"] = node_tab
     return ret
 
 def export_environment(exporter):
@@ -144,6 +145,9 @@ def export_environment(exporter):
                         "yaw" :180
                     }
                 },
-            }
+            },
+            "node_tab" : node_tab,
         }
+        print("wocaonimabi")
+        # ret["node_tab"] = node_tab
         return ret

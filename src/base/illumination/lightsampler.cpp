@@ -13,7 +13,7 @@ LightSampler::LightSampler(const LightSamplerDesc &desc)
       env_separate_(desc["env_separate"].as_bool(false)),
       env_prob_(ocarina::clamp(desc["env_prob"].as_float(0.5f), 0.01f, 0.99f)) {
     for (const LightDesc &light_desc : desc.light_descs) {
-        TLight light = TLight(light_desc);
+        TLight light = create_light(light_desc);
         if (light->match(LightType::Area)) {
             TObject<IAreaLight> emission = dynamic_object_cast<IAreaLight>(light);
             emission->instance()->set_emission(emission);
@@ -320,7 +320,7 @@ void LightSampler::dispatch_environment(const std::function<void(const Environme
         }
     };
     if (lights_.mode() == PolymorphicMode::EInstance) {
-        lights_.dispatch_instance(env_index(),lambda);
+        lights_.dispatch_instance(env_index(), lambda);
     } else {
         uint type_index = lights_.topology_index(env_light());
         dispatch_light(type_index, 0, lambda);

@@ -10,7 +10,83 @@
         "param": {
             "env_prob": 0.5,
             "env_separate": false,
-            "lights": []
+            "lights": [
+                {
+                    "type": "area",
+                    "param": {
+                        "color": {
+                            "channels": "xyz",
+                            "node": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        },
+                        "scale": 10.0,
+                        "width": 17.1048583984375,
+                        "height": 17.1048583984375,
+                        "o2w": {
+                            "type": "matrix4x4",
+                            "param": {
+                                "matrix4x4": [
+                                    [
+                                        1.0,
+                                        0.0,
+                                        0.0,
+                                        0.0
+                                    ],
+                                    [
+                                        0.0,
+                                        -1.0,
+                                        4.371138828673793e-08,
+                                        0.0
+                                    ],
+                                    [
+                                        0.0,
+                                        -4.371138828673793e-08,
+                                        -1.0,
+                                        0.0
+                                    ],
+                                    [
+                                        0.0,
+                                        51.0,
+                                        0.0,
+                                        1.0
+                                    ]
+                                ]
+                            }
+                        }
+                    },
+                    "node_tab": {}
+                }
+//                {
+//                    "type": "spherical",
+//                    "param": {
+//                        "color": {
+//                            "channels": "xyz",
+//                            "output_key": "Color",
+//                            "node": "<bpy_struct, ShaderNodeTexEnvironment(\"Environment Texture\") at 0x00000221165A9620>"
+//                        },
+//                        "scale": 2.8999998569488525,
+//                        "o2w": {
+//                            "type": "Euler",
+//                            "param": {
+//                                "yaw": 180
+//                            }
+//                        }
+//                    },
+//                    "node_tab": {
+//                        "<bpy_struct, ShaderNodeTexEnvironment(\"Environment Texture\") at 0x00000221165A9620>": {
+//                            "type": "image",
+//                            "param": {
+//                                "fn": "textures/spruit_sunrise_2k.hdr",
+//                                "vector": null,
+//                                "color_space": "linear"
+//                            }
+//                        }
+//                    }
+//                }
+            ]
         }
     },
     "spectrum": {
@@ -394,7 +470,7 @@
     },
     "materials": [
         {
-            "type": "principled_bsdf",
+            "type": "diffuse",
             "param": {
                 "color": {
                     "channels": "xyz",
@@ -402,166 +478,14 @@
                         "type": "number",
                         "param": {
                             "value": [
-                                0.800000011920929,
-                                0.800000011920929,
-                                0.800000011920929
+                                0.7250000238418579,
+                                0.7099999785423279,
+                                0.6800000071525574
                             ]
                         }
                     }
                 },
                 "roughness": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 0.5
-                        }
-                    }
-                },
-                "ior": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 1.5
-                        }
-                    }
-                },
-                "metallic": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 0.0
-                        }
-                    }
-                },
-                "spec_tint": {
-                    "channels": "xyz",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": [
-                                1.0,
-                                1.0,
-                                1.0
-                            ]
-                        }
-                    }
-                },
-                "anisotropic": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 0.0
-                        }
-                    }
-                },
-                "normal": null,
-                "sheen_weight": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 0.0
-                        }
-                    }
-                },
-                "sheen_roughness": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 0.5
-                        }
-                    }
-                },
-                "sheen_tint": {
-                    "channels": "xyz",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": [
-                                1.0,
-                                1.0,
-                                1.0
-                            ]
-                        }
-                    }
-                },
-                "coat_weight": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 0.0
-                        }
-                    }
-                },
-                "coat_roughness": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 0.029999999329447746
-                        }
-                    }
-                },
-                "coat_ior": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 1.5
-                        }
-                    }
-                },
-                "coat_tint": {
-                    "channels": "xyz",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": [
-                                1.0,
-                                1.0,
-                                1.0
-                            ]
-                        }
-                    }
-                },
-                "subsurface_weight": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 1.0
-                        }
-                    }
-                },
-                "subsurface_radius": {
-                    "channels": "xyz",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": [
-                                3.499999761581421,
-                                3.299999952316284,
-                                3.3999996185302734
-                            ]
-                        }
-                    }
-                },
-                "subsurface_scale": {
-                    "channels": "x",
-                    "node": {
-                        "type": "number",
-                        "param": {
-                            "value": 0.0
-                        }
-                    }
-                },
-                "transmission_weight": {
                     "channels": "x",
                     "node": {
                         "type": "number",
@@ -719,9 +643,40 @@
             "name": "LightBSDF.001"
         },
         {
-            "type": "mix",
+            "type": "principled_bsdf",
             "param": {
-                "frac": {
+                "color": {
+                    "channels": "xyz",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": [
+                                0.800000011920929,
+                                0.800000011920929,
+                                0.800000011920929
+                            ]
+                        }
+                    }
+                },
+                "roughness": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 0.7927272319793701
+                        }
+                    }
+                },
+                "ior": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 1.4500000476837158
+                        }
+                    }
+                },
+                "metallic": {
                     "channels": "x",
                     "node": {
                         "type": "number",
@@ -730,269 +685,147 @@
                         }
                     }
                 },
-                "mat0": {
-                    "type": "mix",
-                    "param": {
-                        "frac": {
-                            "channels": "x",
-                            "node": {
-                                "type": "number",
-                                "param": {
-                                    "value": 1.0
-                                }
-                            }
-                        },
-                        "mat0": {
-                            "type": "diffuse",
-                            "param": {
-                                "color": {
-                                    "channels": "xyz",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": [
-                                                0.800000011920929,
-                                                0.800000011920929,
-                                                0.800000011920929
-                                            ]
-                                        }
-                                    }
-                                },
-                                "roughness": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.0
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "mat1": {
-                            "type": "principled_bsdf",
-                            "param": {
-                                "color": {
-                                    "channels": "xyz",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": [
-                                                0.800000011920929,
-                                                0.800000011920929,
-                                                0.800000011920929
-                                            ]
-                                        }
-                                    }
-                                },
-                                "roughness": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.7927272319793701
-                                        }
-                                    }
-                                },
-                                "ior": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 1.4500000476837158
-                                        }
-                                    }
-                                },
-                                "metallic": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.0
-                                        }
-                                    }
-                                },
-                                "spec_tint": {
-                                    "channels": "xyz",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": [
-                                                1.0,
-                                                1.0,
-                                                1.0
-                                            ]
-                                        }
-                                    }
-                                },
-                                "anisotropic": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.0
-                                        }
-                                    }
-                                },
-                                "normal": {
-                                    "channels": "xyz",
-                                    "output_key": "Normal",
-                                    "node": "<bpy_struct, ShaderNodeNormalMap(\"Normal Map\") at 0x00000178DB8F7760>"
-                                },
-                                "sheen_weight": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.0
-                                        }
-                                    }
-                                },
-                                "sheen_roughness": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.6018181443214417
-                                        }
-                                    }
-                                },
-                                "sheen_tint": {
-                                    "channels": "xyz",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": [
-                                                1.0,
-                                                1.0,
-                                                1.0
-                                            ]
-                                        }
-                                    }
-                                },
-                                "coat_weight": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.0
-                                        }
-                                    }
-                                },
-                                "coat_roughness": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.029999999329447746
-                                        }
-                                    }
-                                },
-                                "coat_ior": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 1.5
-                                        }
-                                    }
-                                },
-                                "coat_tint": {
-                                    "channels": "xyz",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": [
-                                                1.0,
-                                                1.0,
-                                                1.0
-                                            ]
-                                        }
-                                    }
-                                },
-                                "subsurface_weight": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.0
-                                        }
-                                    }
-                                },
-                                "subsurface_radius": {
-                                    "channels": "xyz",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": [
-                                                1.0,
-                                                0.20000000298023224,
-                                                0.10000000149011612
-                                            ]
-                                        }
-                                    }
-                                },
-                                "subsurface_scale": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.05000000074505806
-                                        }
-                                    }
-                                },
-                                "transmission_weight": {
-                                    "channels": "x",
-                                    "node": {
-                                        "type": "number",
-                                        "param": {
-                                            "value": 0.0
-                                        }
-                                    }
-                                }
-                            }
+                "spec_tint": {
+                    "channels": "xyz",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
                         }
                     }
                 },
-                "mat1": {
-                    "type": "mirror",
-                    "param": {
-                        "color": {
-                            "channels": "xyz",
-                            "node": {
-                                "type": "number",
-                                "param": {
-                                    "value": [
-                                        0.800000011920929,
-                                        0.800000011920929,
-                                        0.800000011920929
-                                    ]
-                                }
-                            }
-                        },
-                        "roughness": {
-                            "channels": "x",
-                            "node": {
-                                "type": "number",
-                                "param": {
-                                    "value": 0.395061731338501
-                                }
-                            }
-                        },
-                        "anisotropic": {
-                            "channels": "x",
-                            "node": {
-                                "type": "number",
-                                "param": {
-                                    "value": 0.0
-                                }
-                            }
+                "anisotropic": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 0.0
+                        }
+                    }
+                },
+                "normal": {
+                    "channels": "xyz",
+                    "output_key": "Normal",
+                    "node": "<bpy_struct, ShaderNodeNormalMap(\"Normal Map\") at 0x000002211E7609E0>"
+                },
+                "sheen_weight": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 0.0
+                        }
+                    }
+                },
+                "sheen_roughness": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 0.6018181443214417
+                        }
+                    }
+                },
+                "sheen_tint": {
+                    "channels": "xyz",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                "coat_weight": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 0.0
+                        }
+                    }
+                },
+                "coat_roughness": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 0.029999999329447746
+                        }
+                    }
+                },
+                "coat_ior": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 1.5
+                        }
+                    }
+                },
+                "coat_tint": {
+                    "channels": "xyz",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        }
+                    }
+                },
+                "subsurface_weight": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 0.0
+                        }
+                    }
+                },
+                "subsurface_radius": {
+                    "channels": "xyz",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": [
+                                1.0,
+                                0.20000000298023224,
+                                0.10000000149011612
+                            ]
+                        }
+                    }
+                },
+                "subsurface_scale": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 0.05000000074505806
+                        }
+                    }
+                },
+                "transmission_weight": {
+                    "channels": "x",
+                    "node": {
+                        "type": "number",
+                        "param": {
+                            "value": 0.0
                         }
                     }
                 }
             },
             "node_tab": {
-                "<bpy_struct, ShaderNodeTexImage(\"Image Texture.001\") at 0x00000178DB8F75A0>": {
+                "<bpy_struct, ShaderNodeTexImage(\"Image Texture.001\") at 0x000002211E760820>": {
                     "type": "image",
                     "param": {
                         "fn": "textures/brickwall_normal.jpg",
@@ -1000,21 +833,21 @@
                         "color_space": "srgb"
                     }
                 },
-                "<bpy_struct, ShaderNodeNormalMap(\"Normal Map\") at 0x00000178DB8F7760>": {
+                "<bpy_struct, ShaderNodeNormalMap(\"Normal Map\") at 0x000002211E7609E0>": {
                     "type": "converter",
                     "construct_name": "normal_map",
                     "param": {
                         "color": {
                             "channels": "xyz",
                             "output_key": "Color",
-                            "node": "<bpy_struct, ShaderNodeTexImage(\"Image Texture.001\") at 0x00000178DB8F75A0>"
+                            "node": "<bpy_struct, ShaderNodeTexImage(\"Image Texture.001\") at 0x000002211E760820>"
                         },
                         "strength": {
                             "channels": "x",
                             "node": {
                                 "type": "number",
                                 "param": {
-                                    "value": 0.9000003337860107
+                                    "value": 1.1000003814697266
                                 }
                             }
                         }

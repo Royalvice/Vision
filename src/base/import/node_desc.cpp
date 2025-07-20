@@ -197,7 +197,7 @@ void MediumDesc::init(const ParameterSet &ps) noexcept {
 }
 
 void LightDesc::init(const ParameterSet &ps) noexcept {
-    NodeDesc::init(ps);
+    vision::GraphDesc::init(ps);
     sub_type = ps["type"].as_string("area");
     ParameterSet param = ps.value("param");
     set_parameter(ps.value("param"));
