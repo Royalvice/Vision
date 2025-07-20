@@ -36,6 +36,7 @@ private:
 public:
     explicit FilterMoments(SVGF *svgf)
         : svgf_(svgf) {}
+    VS_HOTFIX_MAKE_RESTORE(RuntimeObject, svgf_, shader_)
     void prepare() noexcept;
     void compile() noexcept;
     [[nodiscard]] FilterMomentsParam construct_param(RealTimeDenoiseInput &input) const noexcept;

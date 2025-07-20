@@ -36,6 +36,7 @@ private:
 public:
     explicit Modulator(SVGF *svgf)
         : svgf_(svgf) {}
+    VS_HOTFIX_MAKE_RESTORE(RuntimeObject, svgf_, modulate_, demodulate_)
     void prepare() noexcept;
     void compile() noexcept;
     [[nodiscard]] CommandList modulate(RealTimeDenoiseInput &input) noexcept;

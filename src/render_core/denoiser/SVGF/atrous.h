@@ -40,6 +40,7 @@ private:
 public:
     explicit AtrousFilter(SVGF *svgf)
         : svgf_(svgf) {}
+    VS_HOTFIX_MAKE_RESTORE(RuntimeObject, svgf_, shader_)
     void prepare() noexcept;
     void compile() noexcept;
     [[nodiscard]] AtrousParam construct_param(RealTimeDenoiseInput &input, uint step_width) const noexcept;
