@@ -29,7 +29,7 @@ private:
     bool switch_{false};
     bool moment_filter_switch_{true};
     bool reproject_switch_{true};
-    uint N;
+    uint N{};
     float alpha_{0.05f};
     float moments_alpha_{0.2f};
     uint history_limit_{32};
@@ -49,6 +49,7 @@ public:
           moments_filter_radius_(desc["moments_filter_radius"].as_int(3)),
           sigma_rt_(desc["sigma_rt"].as_float(10.f)),
           sigma_normal_(desc["sigma_normal"].as_float(30.f)) {}
+    VS_HOTFIX_MAKE_RESTORE(Denoiser, svgf_data, history,reproject_, filter_moments_,atrous_,modulator_)
     VS_MAKE_PLUGIN_NAME_FUNC
     OC_MAKE_MEMBER_GETTER(alpha, )
     OC_MAKE_MEMBER_GETTER(moments_alpha, )

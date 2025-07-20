@@ -130,7 +130,7 @@ protected:
 
     /// Material computation is separated from access memory
     bool separate_{false};
-    SP<Denoiser> denoiser_{};
+    HotfixSlot<SP<Denoiser>> denoiser_{};
     ocarina::Shader<void(PTParam)> path_tracing_;
 
 public:
