@@ -27,7 +27,7 @@ namespace vision::svgf {
 
 class SVGF;
 
-class FilterMoments : public Context {
+class FilterMoments : public Context, public RuntimeObject {
 private:
     SVGF *svgf_{nullptr};
     using signature = void(FilterMomentsParam);

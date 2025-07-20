@@ -30,7 +30,7 @@ using namespace ocarina;
 
 class SVGF;
 
-class AtrousFilter : public Context {
+class AtrousFilter : public Context, public RuntimeObject {
 private:
     SVGF *svgf_{nullptr};
 

@@ -35,7 +35,7 @@ namespace vision::svgf {
 
 class SVGF;
 
-class Reproject : public Context {
+class Reproject : public Context, public RuntimeObject {
 private:
     SVGF *svgf_{nullptr};
     using signature = void(ReprojectParam);

@@ -20,10 +20,10 @@ public:
     Buffer<float> history;
 
 private:
-    Reproject reproject_{this};
-    FilterMoments filter_moments_{this};
-    AtrousFilter atrous_{this};
-    Modulator modulator_{this};
+    HotfixSlot<SP<Reproject>> reproject_{};
+    HotfixSlot<SP<FilterMoments>> filter_moments_{};
+    HotfixSlot<SP<AtrousFilter>> atrous_{};
+    HotfixSlot<SP<Modulator>> modulator_{};
 
 private:
     struct Params {
@@ -38,7 +38,7 @@ private:
         float sigma_rt_{10.f};
         float sigma_normal_{128.f};
         Params() = default;
-        Params(const DenoiserDesc &desc)
+        explicit Params(const DenoiserDesc &desc)
             : N(desc["N"].as_uint(3)),
               alpha_(desc["alpha"].as_float(0.05f)),
               moments_alpha_(desc["moments_alpha"].as_float(0.2f)),
@@ -55,7 +55,11 @@ public:
         : Denoiser(desc),
           svgf_data(pipeline()->bindless_array()),
           params_(desc) {}
-    VS_HOTFIX_MAKE_RESTORE(Denoiser, svgf_data, history, reproject_, filter_moments_, atrous_, modulator_, params_)
+
+    void initialize_(const vision::NodeDesc &node_desc) noexcept override;
+
+    VS_HOTFIX_MAKE_RESTORE(Denoiser, svgf_data, history, reproject_,
+                           filter_moments_, atrous_, modulator_, params_)
     VS_MAKE_PLUGIN_NAME_FUNC
 
 #define VS_MAKE_MEMBER_GETTER(member, modifier)                                             \

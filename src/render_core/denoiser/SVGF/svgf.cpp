@@ -20,6 +20,13 @@ void SVGF::prepare_buffers() {
     svgf_data.register_view(rp->pixel_num(), rp->pixel_num());
 }
 
+void SVGF::initialize_(const vision::NodeDesc &node_desc) noexcept {
+    reproject_ = make_shared<Reproject>(this);
+    filter_moments_ = make_shared<FilterMoments>(this);
+    atrous_ = make_shared<AtrousFilter>(this);
+    modulator_ = make_shared<Modulator>(this);
+}
+
 void SVGF::render_sub_UI(ocarina::Widgets *widgets) noexcept {
     changed_ |= widgets->check_box("turn on", addressof(params_.switch_));
     changed_ |= widgets->check_box("reproject", addressof(params_.reproject_switch_));
@@ -68,34 +75,34 @@ Float SVGF::cal_weight(const Float &cur_depth, const Float &neighbor_depth, cons
 
 void SVGF::prepare() noexcept {
     prepare_buffers();
-    reproject_.prepare();
-    filter_moments_.prepare();
-    atrous_.prepare();
-    modulator_.prepare();
+    reproject_->prepare();
+    filter_moments_->prepare();
+    atrous_->prepare();
+    modulator_->prepare();
 }
 
 void SVGF::compile() noexcept {
-    reproject_.compile();
-    filter_moments_.compile();
-    atrous_.compile();
-    modulator_.compile();
+    reproject_->compile();
+    filter_moments_->compile();
+    atrous_->compile();
+    modulator_->compile();
 }
 
 CommandList SVGF::dispatch(vision::RealTimeDenoiseInput &input) noexcept {
     CommandList ret;
     if (params_.switch_) {
-        ret << modulator_.demodulate(input);
+        ret << modulator_->demodulate(input);
         if (params_.reproject_switch_) {
-            ret << reproject_.dispatch(input);
+            ret << reproject_->dispatch(input);
         }
         if (params_.moment_filter_switch_) {
-            ret << filter_moments_.dispatch(input);
+            ret << filter_moments_->dispatch(input);
         }
         for (int i = 0; i < params_.N; ++i) {
             uint step_width = 1 << i;
-            ret << atrous_.dispatch(input, step_width);
+            ret << atrous_->dispatch(input, step_width);
         }
-        ret << modulator_.modulate(input);
+        ret << modulator_->modulate(input);
     }
     return ret;
 }
