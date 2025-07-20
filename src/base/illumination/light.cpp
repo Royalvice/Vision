@@ -9,14 +9,11 @@ namespace vision {
 
 Light::Light(const LightDesc &desc, LightType light_type)
     : Node(desc), type_(light_type),
-      scale_(desc["scale"].as_float(1.f)) {
-
-}
+      scale_(desc["scale"].as_float(1.f)) {}
 
 void Light::initialize_slots(const vision::Light::Desc &desc) noexcept {
-    strength_.set(ShaderNodeSlot::create_slot(desc.strength));
     VS_INIT_SLOT(color, make_float3(0.5f), Albedo);
-//    color_.set(ShaderNodeSlot::create_slot(desc.color));
+    VS_INIT_SLOT(strength, make_float3(0.5f), Albedo);
     float factor = color_->normalize();
     scale_ = scale_.hv() * factor;
 }
