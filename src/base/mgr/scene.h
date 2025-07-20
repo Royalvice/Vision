@@ -99,7 +99,7 @@ public:
     template<typename T = Light>
     TObject<T, LightDesc> load_light(const LightDesc &desc) {
         OC_ASSERT(light_sampler_);
-        auto ret = TObject<T, LightDesc>(desc);
+        auto ret = LightSampler::create_light<T>(desc);
         light_sampler_->add_light(ret);
         return ret;
     }

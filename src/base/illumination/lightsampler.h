@@ -41,6 +41,13 @@ protected:
 public:
     LightSampler() = default;
     explicit LightSampler(const LightSamplerDesc &desc);
+    template<typename T = Light>
+    static TObject<T, LightDesc> create_light(const LightDesc &desc) noexcept {
+        auto ret = TObject<T, LightDesc>(desc);
+        ret->set_is_root(true);
+        ret->initialize_slots(desc);
+        return ret;
+    }
     VS_HOTFIX_MAKE_RESTORE(Node, lights_, env_light_, env_separate_, env_prob_)
     void prepare() noexcept override;
     void update_device_data() noexcept;

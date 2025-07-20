@@ -294,6 +294,7 @@ public:
 struct FrameBufferDesc : public NodeDesc {
 public:
     ToneMapperDesc tone_mapper;
+    UpsamplerDesc upsampler_desc;
 
 public:
     VISION_DESC_COMMON(FrameBuffer)
@@ -324,13 +325,12 @@ public:
     void init(const ParameterSet &ps) noexcept override;
 };
 
-struct LightDesc : public NodeDesc {
+struct LightDesc : public GraphDesc {
 public:
-    SlotDesc color{Illumination, 3};
-    SlotDesc strength{Number, 1};
     TransformDesc o2w;
 
-    VISION_DESC_COMMON(Light)
+    LightDesc() : GraphDesc("Light") {}
+    explicit LightDesc(string name) : GraphDesc("Light", std::move(name)) {}
     void init(const ParameterSet &ps) noexcept override;
     [[nodiscard]] bool valid() const noexcept {
         return !sub_type.empty();

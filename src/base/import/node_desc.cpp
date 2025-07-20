@@ -197,12 +197,10 @@ void MediumDesc::init(const ParameterSet &ps) noexcept {
 }
 
 void LightDesc::init(const ParameterSet &ps) noexcept {
-    NodeDesc::init(ps);
+    vision::GraphDesc::init(ps);
     sub_type = ps["type"].as_string("area");
     ParameterSet param = ps.value("param");
     set_parameter(ps.value("param"));
-    color.init(param.value("color"));
-    strength.init(param.value("scale"));
     o2w.init(param.value("o2w", DataWrap()));
 }
 
@@ -246,6 +244,7 @@ void FrameBufferDesc::init(const vision::ParameterSet &ps) noexcept {
     ParameterSet param = ps.value("param", DataWrap::object());
     set_parameter(param);
     tone_mapper.init(parameter_.value("tone_mapper", DataWrap::object()));
+    upsampler_desc.init(parameter_.value("upsampler", DataWrap::object()));
 }
 
 void PipelineDesc::init(const vision::ParameterSet &ps) noexcept {

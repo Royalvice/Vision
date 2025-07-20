@@ -28,7 +28,7 @@ public:
     Upsampler() = default;
     explicit Upsampler(const Desc &desc)
         : Node(desc) {}
-
+    virtual void compile() noexcept = 0;
     [[nodiscard]] virtual CommandList apply(const UpsamplingParam &param) const noexcept = 0;
 };
 
