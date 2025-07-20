@@ -201,8 +201,6 @@ void LightDesc::init(const ParameterSet &ps) noexcept {
     sub_type = ps["type"].as_string("area");
     ParameterSet param = ps.value("param");
     set_parameter(ps.value("param"));
-    color.init(param.value("color"));
-    strength.init(param.value("scale"));
     o2w.init(param.value("o2w", DataWrap()));
 }
 

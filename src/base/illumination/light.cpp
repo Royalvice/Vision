@@ -11,6 +11,11 @@ Light::Light(const LightDesc &desc, LightType light_type)
     : Node(desc), type_(light_type),
       scale_(desc["scale"].as_float(1.f)) {}
 
+void Light::initialize_(const vision::NodeDesc &node_desc) noexcept {
+    VS_CAST_DESC
+    init_node_map(desc.node_map);
+}
+
 void Light::initialize_slots(const vision::Light::Desc &desc) noexcept {
     VS_INIT_SLOT(color, make_float3(0.5f), Albedo);
     VS_INIT_SLOT(strength, make_float3(0.5f), Albedo);
@@ -51,6 +56,7 @@ LightSample IPointLight::sample_wi(const LightSampleContext &p_ref, Float2 u,
     ret.p_light = p_light.pos;
     return ret;
 }
+
 void IPointLight::render_sub_UI(ocarina::Widgets *widgets) noexcept {
     changed_ |= widgets->drag_float3("position", &host_position(),
                                      0.02, 0, 0);

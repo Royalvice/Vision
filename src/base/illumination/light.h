@@ -110,6 +110,7 @@ public:
     VS_HOTFIX_MAKE_RESTORE(Node, scale_, switch_, color_, strength_, index_)
     OC_ENCODABLE_FUNC(Encodable, scale_, color_, strength_, switch_)
     virtual void initialize_slots(const Desc &desc) noexcept;
+    void initialize_(const vision::NodeDesc &node_desc) noexcept override;
     [[nodiscard]] uint64_t compute_topology_hash() const noexcept override {
         return color_.topology_hash();
     }

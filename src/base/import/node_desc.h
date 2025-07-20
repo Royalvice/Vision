@@ -327,13 +327,10 @@ public:
 
 struct LightDesc : public GraphDesc {
 public:
-    SlotDesc color{Illumination, 3};
-    SlotDesc strength{Number, 1};
     TransformDesc o2w;
 
     LightDesc() : GraphDesc("Light") {}
     explicit LightDesc(string name) : GraphDesc("Light", std::move(name)) {}
-//    VISION_DESC_COMMON(Light)
     void init(const ParameterSet &ps) noexcept override;
     [[nodiscard]] bool valid() const noexcept {
         return !sub_type.empty();
