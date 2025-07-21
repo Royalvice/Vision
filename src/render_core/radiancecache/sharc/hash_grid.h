@@ -24,18 +24,20 @@ OC_STRUCT(vision, HashGridParameters, cameraPosition,
 
 namespace vision {
 using namespace ocarina;
-template<EPort p = H>
+template<EPort p = D>
 oc_float<p> HashGridLogBase_impl(const oc_float<p> &x, const oc_float<p> &base) {
     return ocarina::log(x) / ocarina::log(base);
 }
 VS_MAKE_CALLABLE(HashGridLogBase)
 
-//template<EPort p = D>
-uint HashGridGetBaseSlot(uint slot, uint capacity) {
+template<EPort p = D>
+oc_uint<p> HashGridGetBaseSlot_impl(const oc_uint<p> &slot, const oc_uint<p> &capacity) {
     return (slot / HASH_GRID_HASH_MAP_BUCKET_SIZE) * HASH_GRID_HASH_MAP_BUCKET_SIZE;
 }
+VS_MAKE_CALLABLE(HashGridGetBaseSlot)
 
-uint HashGridHashJenkins32(uint a) {
+template<EPort p = D>
+oc_uint<p> HashGridHashJenkins32_impl(oc_uint<p> a) {
     a = (a + 0x7ed55d16) + (a << 12);
     a = (a ^ 0xc761c23c) ^ (a >> 19);
     a = (a + 0x165667b1) + (a << 5);
@@ -44,10 +46,14 @@ uint HashGridHashJenkins32(uint a) {
     a = (a ^ 0xb55a4f09) ^ (a >> 16);
     return a;
 }
+VS_MAKE_CALLABLE(HashGridHashJenkins32)
 
-uint HashGridHash32(uint64_t hashKey) {
-    return HashGridHashJenkins32(uint((hashKey >> 0) & 0xFFFFFFFF)) ^ HashGridHashJenkins32(uint((hashKey >> 32) & 0xFFFFFFFF));
+template<EPort p = H>
+oc_uint<p> HashGridHash32_impl(oc_uint64t<p> hashKey) {
+    return HashGridHashJenkins32<p>(uint((hashKey >> 0) & 0xFFFFFFFF)) ^
+           HashGridHashJenkins32<p>(uint((hashKey >> 32) & 0xFFFFFFFF));
 }
+VS_MAKE_CALLABLE(HashGridHash32)
 
 auto HashGridGetLevel(float3 samplePosition, HashGridParameters gridParameters) {
     const float distance2 = dot(gridParameters.cameraPosition - samplePosition, gridParameters.cameraPosition - samplePosition);
@@ -120,3 +126,9 @@ struct HashMapData {
 
 OC_PARAM_STRUCT(vision, HashMapData, capacity,
                 hashEntriesBuffer, lockBuffer){};
+
+namespace vision {
+
+void HashMapAtomicCompareExchange(HashMapData hashMapData, uint dstOffset, uint64_t compareValue, uint64_t value, uint64_t originalValue) {
+}
+}// namespace vision
