@@ -20,22 +20,29 @@ void SVGF::prepare_buffers() {
     svgf_data.register_view(rp->pixel_num(), rp->pixel_num());
 }
 
+void SVGF::initialize_(const vision::NodeDesc &node_desc) noexcept {
+    reproject_ = make_shared<Reproject>(this);
+    filter_moments_ = make_shared<FilterMoments>(this);
+    atrous_ = make_shared<AtrousFilter>(this);
+    modulator_ = make_shared<Modulator>(this);
+}
+
 void SVGF::render_sub_UI(ocarina::Widgets *widgets) noexcept {
-    changed_ |= widgets->check_box("turn on", addressof(switch_));
-    changed_ |= widgets->check_box("reproject", addressof(reproject_switch_));
-    changed_ |= widgets->check_box("filter moment", addressof(moment_filter_switch_));
-    changed_ |= widgets->input_uint_limit("N", &N, 0, 10);
-    changed_ |= widgets->input_float_limit("alpha", &alpha_, 0,
+    changed_ |= widgets->check_box("turn on", addressof(params_.switch_));
+    changed_ |= widgets->check_box("reproject", addressof(params_.reproject_switch_));
+    changed_ |= widgets->check_box("filter moment", addressof(params_.moment_filter_switch_));
+    changed_ |= widgets->input_uint_limit("N", &params_.N, 0, 10);
+    changed_ |= widgets->input_float_limit("alpha", &params_.alpha_, 0,
                                            1, 0.01, 0.05);
-    changed_ |= widgets->input_float_limit("moments_alpha", &moments_alpha_,
+    changed_ |= widgets->input_float_limit("moments_alpha", &params_.moments_alpha_,
                                            0, 1, 0.01, 0.05);
-    changed_ |= widgets->input_uint_limit("history_limit", &history_limit_,
+    changed_ |= widgets->input_uint_limit("history_limit", &params_.history_limit_,
                                           1, 100, 1, 5);
-    changed_ |= widgets->input_int_limit("moments_filter_radius", &moments_filter_radius_,
+    changed_ |= widgets->input_int_limit("moments_filter_radius", &params_.moments_filter_radius_,
                                          0, 5, 1, 1);
-    changed_ |= widgets->input_float_limit("sigma_rt", &sigma_rt_,
+    changed_ |= widgets->input_float_limit("sigma_rt", &params_.sigma_rt_,
                                            0.01, 1e10, 1, 3);
-    changed_ |= widgets->input_float_limit("sigma_normal", &sigma_normal_,
+    changed_ |= widgets->input_float_limit("sigma_normal", &params_.sigma_normal_,
                                            0.01, 1e10, 1, 3);
 }
 
@@ -68,38 +75,38 @@ Float SVGF::cal_weight(const Float &cur_depth, const Float &neighbor_depth, cons
 
 void SVGF::prepare() noexcept {
     prepare_buffers();
-    reproject_.prepare();
-    filter_moments_.prepare();
-    atrous_.prepare();
-    modulator_.prepare();
+    reproject_->prepare();
+    filter_moments_->prepare();
+    atrous_->prepare();
+    modulator_->prepare();
 }
 
 void SVGF::compile() noexcept {
-    reproject_.compile();
-    filter_moments_.compile();
-    atrous_.compile();
-    modulator_.compile();
+    reproject_->compile();
+    filter_moments_->compile();
+    atrous_->compile();
+    modulator_->compile();
 }
 
 CommandList SVGF::dispatch(vision::RealTimeDenoiseInput &input) noexcept {
     CommandList ret;
-    if (switch_) {
-        ret << modulator_.demodulate(input);
-        if (reproject_switch_) {
-            ret << reproject_.dispatch(input);
+    if (params_.switch_) {
+        ret << modulator_->demodulate(input);
+        if (params_.reproject_switch_) {
+            ret << reproject_->dispatch(input);
         }
-        if (moment_filter_switch_) {
-            ret << filter_moments_.dispatch(input);
+        if (params_.moment_filter_switch_) {
+            ret << filter_moments_->dispatch(input);
         }
-        for (int i = 0; i < N; ++i) {
+        for (int i = 0; i < params_.N; ++i) {
             uint step_width = 1 << i;
-            ret << atrous_.dispatch(input, step_width);
+            ret << atrous_->dispatch(input, step_width);
         }
-        ret << modulator_.modulate(input);
+        ret << modulator_->modulate(input);
     }
     return ret;
 }
 
 }// namespace vision::svgf
 
-VS_MAKE_CLASS_CREATOR_HOTFIX(vision::svgf, SVGF)
+VS_MAKE_CLASS_CREATOR_HOTFIX_DIRECTORY(vision::svgf, SVGF, 1)

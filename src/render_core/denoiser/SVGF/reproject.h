@@ -35,7 +35,7 @@ namespace vision::svgf {
 
 class SVGF;
 
-class Reproject : public Context {
+class Reproject : public Context, public RuntimeObject {
 private:
     SVGF *svgf_{nullptr};
     using signature = void(ReprojectParam);
@@ -45,6 +45,7 @@ public:
     explicit Reproject(SVGF *svgf)
         : svgf_(svgf) {}
     void prepare() noexcept;
+    VS_HOTFIX_MAKE_RESTORE(RuntimeObject, svgf_, shader_)
     [[nodiscard]] Bool is_valid_reproject(const PixelGeometryVar &cur, const PixelGeometryVar &prev) const noexcept;
     [[nodiscard]] ReprojectParam construct_param(vision::RealTimeDenoiseInput &input) const noexcept;
     [[nodiscard]] Bool load_prev_data(const PixelGeometryVar &cur_geom, const BufferVar<PixelGeometry> &prev_gbuffer,

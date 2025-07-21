@@ -1171,7 +1171,7 @@
 		"polymorphic_mode" : 1
 	},
 	"denoiser" : {
-		"type" : "oidn",
+		"type" : "svgf",
 		"param" : {
 			"backend": "GPU"
 		}
@@ -1265,7 +1265,7 @@
 				"pairwise": true
 			},
 			"denoiser" : {
-				"type" : "oidn",
+				"type" : "SVGF",
 				"param" : {
 					"N": 3,
 					"filter": {

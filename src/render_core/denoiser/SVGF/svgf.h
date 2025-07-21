@@ -20,42 +20,60 @@ public:
     Buffer<float> history;
 
 private:
-    Reproject reproject_{this};
-    FilterMoments filter_moments_{this};
-    AtrousFilter atrous_{this};
-    Modulator modulator_{this};
+    HotfixSlot<SP<Reproject>> reproject_{};
+    HotfixSlot<SP<FilterMoments>> filter_moments_{};
+    HotfixSlot<SP<AtrousFilter>> atrous_{};
+    HotfixSlot<SP<Modulator>> modulator_{};
 
 private:
-    bool switch_{false};
-    bool moment_filter_switch_{true};
-    bool reproject_switch_{true};
-    uint N;
-    float alpha_{0.05f};
-    float moments_alpha_{0.2f};
-    uint history_limit_{32};
-    int moments_filter_radius_{3};
-    float sigma_rt_{10.f};
-    float sigma_normal_{128.f};
+    struct Params {
+        bool switch_{false};
+        bool moment_filter_switch_{true};
+        bool reproject_switch_{true};
+        uint N{};
+        float alpha_{0.05f};
+        float moments_alpha_{0.2f};
+        uint history_limit_{32};
+        int moments_filter_radius_{3};
+        float sigma_rt_{10.f};
+        float sigma_normal_{128.f};
+        Params() = default;
+        explicit Params(const DenoiserDesc &desc)
+            : N(desc["N"].as_uint(3)),
+              alpha_(desc["alpha"].as_float(0.05f)),
+              moments_alpha_(desc["moments_alpha"].as_float(0.2f)),
+              history_limit_(desc["history_limit"].as_uint(32)),
+              moments_filter_radius_(desc["moments_filter_radius"].as_int(3)),
+              sigma_rt_(desc["sigma_rt"].as_float(10.f)),
+              sigma_normal_(desc["sigma_normal"].as_float(30.f)) {}
+    };
+    Params params_;
 
 public:
     SVGF() = default;
     explicit SVGF(const DenoiserDesc &desc)
         : Denoiser(desc),
           svgf_data(pipeline()->bindless_array()),
-          N(desc["N"].as_uint(3)),
-          alpha_(desc["alpha"].as_float(0.05f)),
-          moments_alpha_(desc["moments_alpha"].as_float(0.2f)),
-          history_limit_(desc["history_limit"].as_uint(32)),
-          moments_filter_radius_(desc["moments_filter_radius"].as_int(3)),
-          sigma_rt_(desc["sigma_rt"].as_float(10.f)),
-          sigma_normal_(desc["sigma_normal"].as_float(30.f)) {}
+          params_(desc) {}
+
+    void initialize_(const vision::NodeDesc &node_desc) noexcept override;
+
+    VS_HOTFIX_MAKE_RESTORE(Denoiser, svgf_data, history, reproject_,
+                           filter_moments_, atrous_, modulator_, params_)
     VS_MAKE_PLUGIN_NAME_FUNC
-    OC_MAKE_MEMBER_GETTER(alpha, )
-    OC_MAKE_MEMBER_GETTER(moments_alpha, )
-    OC_MAKE_MEMBER_GETTER(moments_filter_radius, )
-    OC_MAKE_MEMBER_GETTER(sigma_rt, )
-    OC_MAKE_MEMBER_GETTER(sigma_normal, )
-    OC_MAKE_MEMBER_GETTER(history_limit, )
+
+#define VS_MAKE_MEMBER_GETTER(member, modifier)                                             \
+    [[nodiscard]] const auto modifier member() const noexcept { return params_.member##_; } \
+    [[nodiscard]] auto modifier member() noexcept { return params_.member##_; }
+
+    VS_MAKE_MEMBER_GETTER(alpha, )
+    VS_MAKE_MEMBER_GETTER(moments_alpha, )
+    VS_MAKE_MEMBER_GETTER(moments_filter_radius, )
+    VS_MAKE_MEMBER_GETTER(sigma_rt, )
+    VS_MAKE_MEMBER_GETTER(sigma_normal, )
+    VS_MAKE_MEMBER_GETTER(history_limit, )
+
+#undef VS_MAKE_MEMBER_GETTER
     void prepare_buffers();
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
     [[nodiscard]] uint svgf_data_base() const noexcept { return svgf_data.index().hv(); }

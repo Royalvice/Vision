@@ -26,7 +26,7 @@ namespace vision::svgf {
 
 class SVGF;
 
-class Modulator : public Context {
+class Modulator : public Context, public RuntimeObject {
 private:
     SVGF *svgf_{nullptr};
     using signature = void(ModulatorParam);
@@ -36,6 +36,7 @@ private:
 public:
     explicit Modulator(SVGF *svgf)
         : svgf_(svgf) {}
+    VS_HOTFIX_MAKE_RESTORE(RuntimeObject, svgf_, modulate_, demodulate_)
     void prepare() noexcept;
     void compile() noexcept;
     [[nodiscard]] CommandList modulate(RealTimeDenoiseInput &input) noexcept;
