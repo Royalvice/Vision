@@ -170,20 +170,23 @@ protected:
     SP<Upsampler> upsampler_{};
     EncodedData<float> exposure_{};
 
-#define VS_MAKE_BUFFER(Type, buffer_name, count)                           \
-protected:                                                                 \
-    Type buffer_name##_;                                                   \
-                                                                           \
-public:                                                                    \
-    OC_MAKE_MEMBER_GETTER(buffer_name, &)                                  \
-    void prepare_##buffer_name() noexcept {                                \
-        init_buffer(buffer_name##_, "FrameBuffer::" #buffer_name, count);  \
-    }                                                                      \
-    void reset_##buffer_name() noexcept {                                  \
-        reset_buffer(buffer_name##_, "FrameBuffer::" #buffer_name, count); \
-    }                                                                      \
-    [[nodiscard]] uint buffer_name##_base() const noexcept {               \
-        return buffer_name##_.index().hv();                                \
+#define VS_MAKE_BUFFER(Type, buffer_name, count)                            \
+protected:                                                                  \
+    Type buffer_name##_;                                                    \
+                                                                            \
+public:                                                                     \
+    OC_MAKE_MEMBER_GETTER(buffer_name, &)                                   \
+    void prepare_##buffer_name() noexcept {                                 \
+        init_buffer(buffer_name##_, "FrameBuffer::" #buffer_name, count);   \
+    }                                                                       \
+    void reset_##buffer_name() noexcept {                                   \
+        reset_buffer(buffer_name##_, "FrameBuffer::" #buffer_name, count);  \
+    }                                                                       \
+    [[nodiscard]] uint buffer_name##_base() const noexcept {                \
+        return buffer_name##_.index().hv();                                 \
+    }                                                                       \
+    [[nodiscard]] ByteBufferView buffer_name##_byte_view() const noexcept { \
+        return ByteBufferView(buffer_name##_.view());                       \
     }
 
 #define VS_MAKE_DOUBLE_BUFFER(Type, buffer_name)                                                                              \
