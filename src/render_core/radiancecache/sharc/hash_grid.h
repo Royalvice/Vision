@@ -86,8 +86,8 @@ template<EPort p = D>
 VS_MAKE_CALLABLE(HashGridCalculatePositionLog)
 
 template<EPort p = D>
-oc_uint64t<p> HashGridComputeSpatialHash_impl(const oc_float3<p> &samplePosition, const oc_float3<p> &sampleNormal,
-                                              const var_t<HashGridParameters, p> &gridParameters) {
+[[nodiscard]] oc_uint64t<p> HashGridComputeSpatialHash_impl(const oc_float3<p> &samplePosition, const oc_float3<p> &sampleNormal,
+                                                            const var_t<HashGridParameters, p> &gridParameters) {
     oc_uint4<p> gridPosition = cast<uint4>(HashGridCalculatePositionLog<p>(samplePosition, gridParameters));
 
     oc_uint64t<p> hashKey = ((cast<uint64_t>(gridPosition.x) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 0)) |
@@ -106,26 +106,29 @@ oc_uint64t<p> HashGridComputeSpatialHash_impl(const oc_float3<p> &samplePosition
 }
 VS_MAKE_CALLABLE(HashGridComputeSpatialHash)
 
-float3 HashGridGetPositionFromKey(const uint64_t hashKey, HashGridParameters gridParameters) {
-    const int signBit = 1 << (HASH_GRID_POSITION_BIT_NUM - 1);
-    const int signMask = ~((1 << HASH_GRID_POSITION_BIT_NUM) - 1);
+template<EPort p = D>
+[[nodiscard]] oc_float3<p> HashGridGetPositionFromKey_impl(const oc_uint64t<p> &hashKey,
+                                                           const var_t<HashGridParameters, p> &gridParameters) {
+    int signBit = 1 << (HASH_GRID_POSITION_BIT_NUM - 1);
+    int signMask = ~((1 << HASH_GRID_POSITION_BIT_NUM) - 1);
 
-    int3 gridPosition;
-    gridPosition.x = int((hashKey >> (HASH_GRID_POSITION_BIT_NUM * 0)) & HASH_GRID_POSITION_BIT_MASK);
-    gridPosition.y = int((hashKey >> (HASH_GRID_POSITION_BIT_NUM * 1)) & HASH_GRID_POSITION_BIT_MASK);
-    gridPosition.z = int((hashKey >> (HASH_GRID_POSITION_BIT_NUM * 2)) & HASH_GRID_POSITION_BIT_MASK);
+    oc_int3<p> gridPosition;
+    gridPosition.x = cast<int>((hashKey >> (HASH_GRID_POSITION_BIT_NUM * 0)) & HASH_GRID_POSITION_BIT_MASK);
+    gridPosition.y = cast<int>((hashKey >> (HASH_GRID_POSITION_BIT_NUM * 1)) & HASH_GRID_POSITION_BIT_MASK);
+    gridPosition.z = cast<int>((hashKey >> (HASH_GRID_POSITION_BIT_NUM * 2)) & HASH_GRID_POSITION_BIT_MASK);
 
     // Fix negative coordinates
-    gridPosition.x = (gridPosition.x & signBit) != 0 ? gridPosition.x | signMask : gridPosition.x;
-    gridPosition.y = (gridPosition.y & signBit) != 0 ? gridPosition.y | signMask : gridPosition.y;
-    gridPosition.z = (gridPosition.z & signBit) != 0 ? gridPosition.z | signMask : gridPosition.z;
+    gridPosition.x = ocarina::select((gridPosition.x & signBit) != 0, gridPosition.x | signMask, gridPosition.x);
+    gridPosition.y = ocarina::select((gridPosition.y & signBit) != 0, gridPosition.y | signMask, gridPosition.y);
+    gridPosition.z = ocarina::select((gridPosition.z & signBit) != 0, gridPosition.z | signMask, gridPosition.z);
 
-    uint gridLevel = uint((hashKey >> HASH_GRID_POSITION_BIT_NUM * 3) & HASH_GRID_LEVEL_BIT_MASK);
-    float voxelSize = HashGridGetVoxelSize<H>(gridLevel, gridParameters);
-    float3 samplePosition = (gridPosition + 0.5f) * voxelSize;
+    oc_uint<p> gridLevel = cast<uint>((hashKey >> HASH_GRID_POSITION_BIT_NUM * 3) & HASH_GRID_LEVEL_BIT_MASK);
+    oc_float<p> voxelSize = HashGridGetVoxelSize<p>(gridLevel, gridParameters);
+    oc_float3<p> samplePosition = (gridPosition + 0.5f) * voxelSize;
 
     return samplePosition;
 }
+VS_MAKE_CALLABLE(HashGridGetPositionFromKey)
 
 }// namespace vision
 
@@ -142,6 +145,8 @@ OC_PARAM_STRUCT(vision, HashMapData, capacity,
 
 namespace vision {
 
-void HashMapAtomicCompareExchange(HashMapData hashMapData, uint dstOffset, uint64_t compareValue, uint64_t value, uint64_t originalValue) {
+void HashMapAtomicCompareExchange(const HashMapDataVar &hashMapData, const Uint &dstOffset, const Uint64t &compareValue,
+                                  const Uint64t &value, Uint64t &originalValue) {
+//    originalValue = ocarina::atomic_exch()
 }
 }// namespace vision
