@@ -170,20 +170,23 @@ protected:
     SP<Upsampler> upsampler_{};
     EncodedData<float> exposure_{};
 
-#define VS_MAKE_BUFFER(Type, buffer_name, count)                           \
-protected:                                                                 \
-    Type buffer_name##_;                                                   \
-                                                                           \
-public:                                                                    \
-    OC_MAKE_MEMBER_GETTER(buffer_name, &)                                  \
-    void prepare_##buffer_name() noexcept {                                \
-        init_buffer(buffer_name##_, "FrameBuffer::" #buffer_name, count);  \
-    }                                                                      \
-    void reset_##buffer_name() noexcept {                                  \
-        reset_buffer(buffer_name##_, "FrameBuffer::" #buffer_name, count); \
-    }                                                                      \
-    [[nodiscard]] uint buffer_name##_base() const noexcept {               \
-        return buffer_name##_.index().hv();                                \
+#define VS_MAKE_BUFFER(Type, buffer_name, count)                            \
+protected:                                                                  \
+    Type buffer_name##_;                                                    \
+                                                                            \
+public:                                                                     \
+    OC_MAKE_MEMBER_GETTER(buffer_name, &)                                   \
+    void prepare_##buffer_name() noexcept {                                 \
+        init_buffer(buffer_name##_, "FrameBuffer::" #buffer_name, count);   \
+    }                                                                       \
+    void reset_##buffer_name() noexcept {                                   \
+        reset_buffer(buffer_name##_, "FrameBuffer::" #buffer_name, count);  \
+    }                                                                       \
+    [[nodiscard]] uint buffer_name##_base() const noexcept {                \
+        return buffer_name##_.index().hv();                                 \
+    }                                                                       \
+    [[nodiscard]] ByteBufferView buffer_name##_byte_view() const noexcept { \
+        return ByteBufferView(buffer_name##_.view());                       \
     }
 
 #define VS_MAKE_DOUBLE_BUFFER(Type, buffer_name)                                                                              \
@@ -259,6 +262,8 @@ public:
     [[nodiscard]] Float4 apply_exposure(const Float4 &input) const noexcept;
     [[nodiscard]] Float4 apply_exposure(const Float &exposure,
                                         const Float4 &input) const noexcept;
+    [[nodiscard]] virtual RayState custom_generate_ray(const Sensor *sensor,
+                                                       const SensorSample &ss) const noexcept = 0;
     void update_screen_window() noexcept;
     OC_MAKE_MEMBER_GETTER(screen_window, )
     OC_MAKE_MEMBER_GETTER(tone_mapper, &)
@@ -277,9 +282,9 @@ public:
     [[nodiscard]] uint pixel_index(uint2 pos) const noexcept;
     [[nodiscard]] BindlessArray &bindless_array() const noexcept;
     [[nodiscard]] const Buffer<float4> &cur_screen_buffer() const noexcept;
-    [[nodiscard]] virtual uint2 launch_dim() const noexcept { return resolution_; }
+    [[nodiscard]] virtual uint2 raytracing_resolution() const noexcept { return resolution_; }
     [[nodiscard]] virtual uint frame_buffer_size() const noexcept {
-        uint2 dim = launch_dim();
+        uint2 dim = raytracing_resolution();
         return dim.x * dim.y;
     }
     void register_(const SP<ScreenBuffer> &buffer) noexcept;

@@ -16,6 +16,9 @@ public:
         : FrameBuffer(desc) {}
     VS_MAKE_PLUGIN_NAME_FUNC
 
+    RayState custom_generate_ray(const vision::Sensor *sensor, const SensorSample &ss) const noexcept override {
+        return sensor->generate_ray(ss);
+    }
 };
 
 }// namespace vision

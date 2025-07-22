@@ -17,7 +17,15 @@ public:
         : FrameBuffer(desc) {}
     VS_MAKE_PLUGIN_NAME_FUNC
 
+    [[nodiscard]] RayState custom_generate_ray(const vision::Sensor *sensor, const SensorSample &ss) const noexcept override {
+        return sensor->generate_ray(ss);
+    }
 
+    [[nodiscard]] uint2 raytracing_resolution() const noexcept override {
+        return {};
+    }
 };
 
 }// namespace vision
+
+VS_MAKE_CLASS_CREATOR_HOTFIX(vision, LightFieldFrameBuffer)
