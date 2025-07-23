@@ -50,8 +50,8 @@ VS_MAKE_CALLABLE(HashGridHashJenkins32)
 
 template<EPort p = D>
 [[nodiscard]] oc_uint<p> HashGridHash32_impl(const oc_uint64t<p> &hashKey) {
-    return HashGridHashJenkins32<p>(uint((hashKey >> 0) & 0xFFFFFFFF)) ^
-           HashGridHashJenkins32<p>(uint((hashKey >> 32) & 0xFFFFFFFF));
+    return HashGridHashJenkins32<p>(cast<uint>((hashKey >> 0) & 0xFFFFFFFF)) ^
+           HashGridHashJenkins32<p>(cast<uint>((hashKey >> 32) & 0xFFFFFFFF));
 }
 VS_MAKE_CALLABLE(HashGridHash32)
 
@@ -144,9 +144,29 @@ OC_PARAM_STRUCT(vision, HashMapData, capacity,
                 hashEntriesBuffer, lockBuffer){};
 
 namespace vision {
-
-void HashMapAtomicCompareExchange(const HashMapDataVar &hashMapData, const Uint &dstOffset, const Uint64t &compareValue,
+using namespace ocarina;
+void HashMapAtomicCompareExchange(HashMapDataVar &hashMapData, const Uint &dstOffset, const Uint64t &compareValue,
                                   const Uint64t &value, Uint64t &originalValue) {
-//    originalValue = ocarina::atomic_exch()
+    originalValue = ocarina::atomic_CAS(hashMapData.hashEntriesBuffer.at(dstOffset), compareValue, value);
 }
+
+[[nodiscard]] Bool HashMapInsert(HashMapDataVar &hashMapData, const Uint64t &hashKey, Uint &cacheIndex) {
+    Bool ret = false;
+    Uint hash = HashGridHash32<D>(hashKey);
+    Uint slot = hash % hashMapData.capacity;
+    Uint64t prevHashGridKey = HASH_GRID_INVALID_HASH_KEY;
+    Uint baseSlot = HashGridGetBaseSlot(slot, hashMapData.capacity);
+
+    $for(bucketOffset, HASH_GRID_HASH_MAP_BUCKET_SIZE) {
+        HashMapAtomicCompareExchange(hashMapData, baseSlot + bucketOffset,
+                                     HASH_GRID_INVALID_HASH_KEY, hashKey, prevHashGridKey);
+        $if(prevHashGridKey == HASH_GRID_INVALID_HASH_KEY || prevHashGridKey == hashKey) {
+            cacheIndex = baseSlot + bucketOffset;
+            ret = true;
+        };
+    };
+    cacheIndex = 0;
+    return ret;
+}
+
 }// namespace vision
