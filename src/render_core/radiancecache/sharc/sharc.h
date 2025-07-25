@@ -41,9 +41,9 @@ OC_STRUCT(vision, SharcHitData, positionWorld,
 namespace vision {
 struct SharcVoxelData {
     uint3 accumulatedRadiance;
-    uint accumulatedSampleNum;
-    uint accumulatedFrameNum;
-    uint staleFrameNum;
+    uint accumulatedSampleNum{};
+    uint accumulatedFrameNum{};
+    uint staleFrameNum{};
 };
 }// namespace vision
 OC_STRUCT(vision, SharcVoxelData, accumulatedRadiance,
@@ -53,11 +53,32 @@ OC_STRUCT(vision, SharcVoxelData, accumulatedRadiance,
 namespace vision {
 struct SharcResolveParameters {
     float3 cameraPositionPrev;
-    uint accumulationFrameNum;
-    uint staleFrameNumMax;
-    uint enableAntiFireflyFilter;
+    uint accumulationFrameNum{};
+    uint staleFrameNumMax{};
+    uint enableAntiFireflyFilter{};
 };
 }// namespace vision
 OC_STRUCT(vision, SharcResolveParameters, cameraPositionPrev,
           accumulationFrameNum, staleFrameNumMax,
           enableAntiFireflyFilter){};
+
+namespace vision {
+template<EPort p = D>
+oc_uint<p> SharcGetSampleNum_impl(const oc_uint<p> &packedData) {
+    return (packedData >> SHARC_SAMPLE_NUM_BIT_OFFSET) & SHARC_SAMPLE_NUM_BIT_MASK;
+}
+VS_MAKE_CALLABLE(SharcGetSampleNum)
+
+template<EPort p = D>
+oc_uint<p> SharcGetStaleFrameNum_impl(const oc_uint<p> &packedData) {
+    return (packedData >> SHARC_STALE_FRAME_NUM_BIT_OFFSET) & SHARC_STALE_FRAME_NUM_BIT_MASK;
+}
+VS_MAKE_CALLABLE(SharcGetStaleFrameNum)
+
+template<EPort p = D>
+oc_uint<p> SharcGetAccumulatedFrameNum_impl(const oc_uint<p> &packedData) {
+    return (packedData >> SHARC_ACCUMULATED_FRAME_NUM_BIT_OFFSET) & SHARC_ACCUMULATED_FRAME_NUM_BIT_MASK;
+}
+VS_MAKE_CALLABLE(SharcGetAccumulatedFrameNum)
+
+}// namespace vision
