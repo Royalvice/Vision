@@ -81,4 +81,22 @@ oc_uint<p> SharcGetAccumulatedFrameNum_impl(const oc_uint<p> &packedData) {
 }
 VS_MAKE_CALLABLE(SharcGetAccumulatedFrameNum)
 
+template<EPort p = D>
+oc_float3<p> SharcResolveAccumulatedRadiance_impl(const oc_uint3<p> &accumulatedRadiance,
+                                                  const oc_uint<p> &accumulatedSampleNum) {
+    return accumulatedRadiance / (accumulatedSampleNum * SHARC_RADIANCE_SCALE);
+}
+VS_MAKE_CALLABLE(SharcResolveAccumulatedRadiance)
+
+template<EPort p = D>
+var_t<SharcVoxelData, p> SharcUnpackVoxelData_impl(const oc_uint4<p> &voxelDataPacked) {
+    var_t<SharcVoxelData, p> voxelData;
+    voxelData.accumulatedRadiance = voxelDataPacked.xyz();
+    voxelData.accumulatedSampleNum = SharcGetSampleNum<p>(voxelDataPacked.w);
+    voxelData.staleFrameNum = SharcGetStaleFrameNum<p>(voxelDataPacked.w);
+    voxelData.accumulatedFrameNum = SharcGetAccumulatedFrameNum<p>(voxelDataPacked.w);
+    return voxelData;
+}
+VS_MAKE_CALLABLE(SharcUnpackVoxelData)
+
 }// namespace vision
