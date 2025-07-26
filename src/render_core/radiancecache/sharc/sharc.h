@@ -99,4 +99,64 @@ var_t<SharcVoxelData, p> SharcUnpackVoxelData_impl(const oc_uint4<p> &voxelDataP
 }
 VS_MAKE_CALLABLE(SharcUnpackVoxelData)
 
+SharcVoxelDataVar SharcGetVoxelData(BufferVar<uint4> &voxelDataBuffer, const Uint &cacheIndex) {
+    SharcVoxelDataVar voxelData;
+    voxelData.accumulatedRadiance = make_uint3(0u);
+    voxelData.accumulatedSampleNum = 0;
+    voxelData.accumulatedFrameNum = 0;
+    voxelData.staleFrameNum = 0;
+    SharcVoxelDataVar ret;
+    $if(cacheIndex == HASH_GRID_INVALID_CACHE_INDEX) {
+        ret = voxelData;
+    }
+    $else {
+        Uint4 voxelDataPacked = voxelDataBuffer.at(cacheIndex);
+        ret = SharcUnpackVoxelData(voxelDataPacked);
+    };
+    return ret;
+}
+
+using HashGridIndex = Uint;
+
+void SharcAddVoxelData(SharcParametersVar &sharcParameters, const HashGridIndex &cacheIndex,
+                       const Float3 &sampleValue, const Float3 &sampleWeight, const Uint &sampleData) {
+    $if(cacheIndex != HASH_GRID_INVALID_CACHE_INDEX) {
+        $if(sharcParameters.enableAntiFireflyFilter) {
+            Float scalarWeight = ocarina::luminance(sampleWeight);
+            scalarWeight = max(scalarWeight, 1.0f);
+
+            const float sampleWeightThreshold = 2.0f;
+
+            $if(scalarWeight > sampleWeightThreshold) {
+                Uint4 voxelDataPackedPrev = sharcParameters.voxelDataBufferPrev[cacheIndex];
+                Uint sampleNumPrev = SharcGetSampleNum(voxelDataPackedPrev.w);
+
+                const uint sampleConfidenceThreshold = 2;
+                $if(sampleNumPrev > SHARC_SAMPLE_NUM_MULTIPLIER * sampleConfidenceThreshold) {
+                    Float lum = luminance(SharcResolveAccumulatedRadiance(voxelDataPackedPrev.xyz(), sampleNumPrev));
+                    Float luminancePrev = max(lum, 1.0f);
+                    Float luminanceCur = max(luminance(sampleValue * sampleWeight), 1.0f);
+                    Float confidenceScale = lerp(1.0f / sampleNumPrev, 5.0f, 10.0f);
+                    sampleWeight *= saturate(confidenceScale * luminancePrev / luminanceCur);
+                }
+                $else {
+                    scalarWeight = pow(scalarWeight, 0.5f);
+                    sampleWeight /= scalarWeight;
+                };
+            };
+        };
+
+        Uint3 scaledRadiance = make_uint3(sampleValue * sampleWeight * SHARC_RADIANCE_SCALE);
+
+        for (uint i = 0; i < 3; ++i) {
+            $if(scaledRadiance[i] != 0) {
+                atomic_add(sharcParameters.voxelDataBuffer[cacheIndex][i], scaledRadiance[i]);
+            };
+        }
+        $if(sampleData != 0) {
+            atomic_add(sharcParameters.voxelDataBuffer[cacheIndex].w, sampleData);
+        };
+    };
+}
+
 }// namespace vision
