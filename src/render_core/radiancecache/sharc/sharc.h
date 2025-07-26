@@ -282,8 +282,45 @@ void SharcCopyHashEntry(const Uint &entryIndex, HashMapDataVar &hashMapData,
             hashMapData.hashEntriesBuffer.write(entryIndex, HASH_GRID_INVALID_HASH_KEY);
             hashMapData.hashEntriesBuffer.write(copyOffset, hashKey);
         };
+        copyOffsetBuffer.write(entryIndex, 0u);
     };
+    impl.set_description("SharcCopyHashEntry");
     impl(entryIndex, hashMapData, copyOffsetBuffer);
+}
+
+template<EPort p = D>
+oc_int<p> SharcGetGridDistance2_impl(const oc_int3<p> &position) {
+    return ocarina::dot(position, position);
+}
+VS_MAKE_CALLABLE(SharcGetGridDistance2)
+
+template<EPort p = D>
+oc_uint64t<p> SharcGetAdjacentLevelHashKey(const oc_uint64t<p> &hashKey, const HashGridParametersVar &gridParameters,
+                                           const oc_float3<p> &cameraPositionPrev) {
+    const int signBit = 1 << (HASH_GRID_POSITION_BIT_NUM - 1);
+    const int signMask = ~((1 << HASH_GRID_POSITION_BIT_NUM) - 1);
+
+    oc_int3<p> gridPosition;
+
+    for (int i = 0; i < 3; ++i) {
+        gridPosition[i] = cast<int>((hashKey >> HASH_GRID_POSITION_BIT_NUM * i) & HASH_GRID_POSITION_BIT_MASK);
+        gridPosition[i] = ocarina::select(((gridPosition[i] & signBit) != 0),
+                                          gridPosition[i] | signMask,
+                                          gridPosition[i]);
+    }
+
+    oc_int<p> level = cast<int>((hashKey >> (HASH_GRID_POSITION_BIT_NUM * 3)) & HASH_GRID_LEVEL_BIT_MASK);
+
+    oc_float<p> voxelSize = HashGridGetVoxelSize<p>(level, gridParameters);
+    oc_int3<p> cameraGridPosition = make_int3(floor((gridParameters.cameraPosition + HASH_GRID_POSITION_OFFSET) / voxelSize));
+    oc_int3<p> cameraVector = cameraGridPosition - gridPosition;
+    oc_int<p> cameraDistance = SharcGetGridDistance2<p>(cameraVector);
+
+    oc_int3<p> cameraGridPositionPrev = make_int3(floor((cameraPositionPrev + HASH_GRID_POSITION_OFFSET) / voxelSize));
+    oc_int3<p> cameraVectorPrev = cameraGridPositionPrev - gridPosition;
+    oc_uint64t<p> modifiedHashGridKey;
+
+    return modifiedHashGridKey;
 }
 
 }// namespace vision
