@@ -17,7 +17,7 @@ static constexpr auto HASH_GRID_LEVEL_BIT_MASK = ((1u << HASH_GRID_LEVEL_BIT_NUM
 static constexpr auto HASH_GRID_NORMAL_BIT_NUM = 3;
 static constexpr auto HASH_GRID_NORMAL_BIT_MASK = ((1u << HASH_GRID_NORMAL_BIT_NUM) - 1);
 static constexpr auto HASH_GRID_HASH_MAP_BUCKET_SIZE = 32;
-static constexpr auto HASH_GRID_INVALID_HASH_KEY = 0;
+static constexpr auto HASH_GRID_INVALID_HASH_KEY = 0ull;
 static constexpr auto HASH_GRID_INVALID_CACHE_INDEX = 0xFFFFFFFF;
 
 static constexpr auto HASH_GRID_USE_NORMALS = 1;// account for the normal data in the hash key;

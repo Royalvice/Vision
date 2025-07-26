@@ -187,7 +187,7 @@ void HashMapAtomicCompareExchange(HashMapDataVar &hashMapData, const Uint &dstOf
         Uint baseSlot = HashGridGetBaseSlot<D>(slot, hashMapData.capacity);
 
         $for(bucketOffset, HASH_GRID_HASH_MAP_BUCKET_SIZE) {
-            Uint64t storedHashKey = hashMapData.hashEntriesBuffer[baseSlot + bucketOffset];
+            Uint64t storedHashKey = hashMapData.hashEntriesBuffer.read(baseSlot + bucketOffset);
             $if(storedHashKey == hashKey) {
                 cacheIndex = baseSlot + bucketOffset;
                 ret = true;
@@ -271,7 +271,7 @@ Float3 HashGridDebugOccupancy(const Uint2 &pixelPosition, const Uint2 &screenSiz
         Float3 ret = make_float3(0.f);
 
         $if(elementIndex < hashMapData.capacity && ((pixelPosition.x % blockSize) < elementSize && (pixelPosition.y % blockSize) < elementSize)) {
-            Uint64t storedHashGridKey = hashMapData.hashEntriesBuffer[elementIndex];
+            Uint64t storedHashGridKey = hashMapData.hashEntriesBuffer.read(elementIndex);
             $if(storedHashGridKey != HASH_GRID_INVALID_HASH_KEY) {
                 ret = make_float3(0.0f, 1.0f, 0.0f);
             };

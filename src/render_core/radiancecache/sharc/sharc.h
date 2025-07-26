@@ -111,7 +111,7 @@ SharcVoxelDataVar SharcGetVoxelData(BufferVar<uint4> &voxelDataBuffer, const Uin
             ret = voxelData;
         }
         $else {
-            Uint4 voxelDataPacked = voxelDataBuffer.at(cacheIndex);
+            Uint4 voxelDataPacked = voxelDataBuffer.read(cacheIndex);
             ret = SharcUnpackVoxelData(voxelDataPacked);
         };
         return ret;
@@ -132,7 +132,7 @@ void SharcAddVoxelData(SharcParametersVar &sharcParameters, const HashGridIndex 
                 const float sampleWeightThreshold = 2.0f;
 
                 $if(scalarWeight > sampleWeightThreshold) {
-                    Uint4 voxelDataPackedPrev = sharcParameters.voxelDataBufferPrev[cacheIndex];
+                    Uint4 voxelDataPackedPrev = sharcParameters.voxelDataBufferPrev.read(cacheIndex);
                     Uint sampleNumPrev = SharcGetSampleNum(voxelDataPackedPrev.w);
 
                     const uint sampleConfidenceThreshold = 2;
@@ -236,18 +236,54 @@ void SharcSetThroughput(SharcStateVar &sharcState, Float3 throughput) {
 }
 
 Bool SharcGetCachedRadiance(SharcParametersVar &sharcParameters, const SharcHitDataVar &sharcHitData,
-                            float3 &radiance, const Bool &debug) {
-    Bool ret = false;
-
-    $if(debug) {
-        radiance = make_float3(0);
+                            Float3 &radiance, const Bool &debug) {
+    static Callable impl = [](SharcParametersVar &sharcParameters, const SharcHitDataVar &sharcHitData,
+                              Float3 &radiance, const Bool &debug) {
+        Bool ret = false;
+        $if(debug) {
+            radiance = make_float3(0);
+        };
+        const Uint sampleThreshold = ocarina::select(debug, 0u, SHARC_SAMPLE_NUM_THRESHOLD);
+        HashGridIndex cacheIndex = HashMapFindEntry(sharcParameters.hashMapData, sharcHitData.positionWorld,
+                                                    sharcHitData.normalWorld, sharcParameters.gridParameters);
+        $if(cacheIndex == HASH_GRID_INVALID_CACHE_INDEX) {
+            $return(ret);
+        };
+        SharcVoxelDataVar voxelData = SharcGetVoxelData(sharcParameters.voxelDataBuffer, cacheIndex);
+        $if(voxelData.accumulatedSampleNum > sampleThreshold) {
+            radiance = SharcResolveAccumulatedRadiance(voxelData.accumulatedRadiance,
+                                                       voxelData.accumulatedSampleNum);
+            ret = true;
+        };
+        return ret;
     };
+    impl.set_description("SharcGetCachedRadiance");
+    return impl(sharcParameters, sharcHitData, radiance, debug);
+}
 
-    const Uint sampleThreshold = ocarina::select(debug, 0u, SHARC_SAMPLE_NUM_THRESHOLD);
-    HashGridIndex cacheIndex = HashMapFindEntry(sharcParameters.hashMapData, sharcHitData.positionWorld,
-                                                sharcHitData.normalWorld, sharcParameters.gridParameters);
+void SharcCopyHashEntry(const Uint &entryIndex, HashMapDataVar &hashMapData,
+                        BufferVar<uint> &copyOffsetBuffer) {
+    static Callable impl = [](const Uint &entryIndex, HashMapDataVar &hashMapData,
+                              BufferVar<uint> &copyOffsetBuffer) -> void {
+        $if(entryIndex >= hashMapData.capacity) {
+            $return();
+        };
 
-    return ret;
+        Uint copyOffset = copyOffsetBuffer.read(entryIndex);
+        $if(copyOffset == 0) {
+            $return();
+        };
+
+        $if(copyOffset == HASH_GRID_INVALID_CACHE_INDEX) {
+            hashMapData.hashEntriesBuffer.write(entryIndex, HASH_GRID_INVALID_HASH_KEY);
+        }
+        $elif(copyOffset != 0) {
+            HashGridKey hashKey = hashMapData.hashEntriesBuffer.read(entryIndex);
+            hashMapData.hashEntriesBuffer.write(entryIndex, HASH_GRID_INVALID_HASH_KEY);
+            hashMapData.hashEntriesBuffer.write(copyOffset, hashKey);
+        };
+    };
+    impl(entryIndex, hashMapData, copyOffsetBuffer);
 }
 
 }// namespace vision
