@@ -159,4 +159,49 @@ void SharcAddVoxelData(SharcParametersVar &sharcParameters, const HashGridIndex 
     };
 }
 
+void SharcInit(SharcStateVar &sharcState) {
+    sharcState.pathLength = 0;
+}
+
+void SharcUpdateMiss(SharcParametersVar &sharcParameters, const SharcStateVar &sharcState, Float3 radiance) {
+    $for(i, sharcState.pathLength) {
+        SharcAddVoxelData(sharcParameters, sharcState.cacheIndices[i], radiance, sharcState.sampleWeights[i], 0);
+        radiance *= sharcState.sampleWeights[i];
+    };
+}
+
+Bool SharcUpdateHit(SharcParametersVar &sharcParameters, SharcStateVar &sharcState,
+                    const SharcHitDataVar &sharcHitData, Float3 directLighting, Float random) {
+    Bool continueTracing = true;
+
+    HashGridIndex cacheIndex = HashMapInsertEntry(sharcParameters.hashMapData, sharcHitData.positionWorld, sharcHitData.normalWorld, sharcParameters.gridParameters);
+
+    Float3 sharcRadiance = directLighting;
+
+    Uint resamplingDepth = cast<uint>(ocarina::round(ocarina::lerp(random, float(SHARC_RESAMPLING_DEPTH_MIN), float(SHARC_PROPOGATION_DEPTH - 1))));
+
+    $if(resamplingDepth <= sharcState.pathLength) {
+        SharcVoxelDataVar voxelData = SharcGetVoxelData(sharcParameters.voxelDataBufferPrev, cacheIndex);
+
+        $if(voxelData.accumulatedSampleNum > SHARC_SAMPLE_NUM_THRESHOLD) {
+            sharcRadiance = SharcResolveAccumulatedRadiance(voxelData.accumulatedRadiance, voxelData.accumulatedSampleNum);
+
+            continueTracing = false;
+        };
+    };
+
+    $if(continueTracing) {
+        SharcAddVoxelData(sharcParameters, cacheIndex, float3(0.0f), float3(0.0f), 1);
+    };
+
+    Uint i = 0;
+    $for(idx, sharcState.pathLength) {
+        i = idx;
+        SharcAddVoxelData(sharcParameters, sharcState.cacheIndices[i], sharcRadiance, sharcState.sampleWeights[i], 0);
+        sharcRadiance *= sharcState.sampleWeights[i];
+    };
+
+    return continueTracing;
+}
+
 }// namespace vision
