@@ -116,8 +116,6 @@ SharcVoxelDataVar SharcGetVoxelData(BufferVar<uint4> &voxelDataBuffer, const Uin
     return ret;
 }
 
-using HashGridIndex = Uint;
-
 void SharcAddVoxelData(SharcParametersVar &sharcParameters, const HashGridIndex &cacheIndex,
                        const Float3 &sampleValue, const Float3 &sampleWeight, const Uint &sampleData) {
     $if(cacheIndex != HASH_GRID_INVALID_CACHE_INDEX) {
@@ -201,7 +199,35 @@ Bool SharcUpdateHit(SharcParametersVar &sharcParameters, SharcStateVar &sharcSta
         sharcRadiance *= sharcState.sampleWeights[i];
     };
 
+    $for(idx, i, 0, -1) {
+        sharcState.cacheIndices[idx] = sharcState.cacheIndices[idx - 1];
+        sharcState.sampleWeights[idx] = sharcState.sampleWeights[idx - 1];
+    };
+
+    sharcState.cacheIndices[0] = cacheIndex;
+    sharcState.pathLength += 1;
+    sharcState.pathLength = ocarina::min(sharcState.pathLength, SHARC_PROPOGATION_DEPTH - 1u);
+
     return continueTracing;
+}
+
+void SharcSetThroughput(SharcStateVar &sharcState, Float3 throughput) {
+    sharcState.sampleWeights[0] = throughput;
+}
+
+Bool SharcGetCachedRadiance(SharcParametersVar &sharcParameters, const SharcHitDataVar &sharcHitData,
+                            float3 &radiance, const Bool &debug) {
+    Bool ret = false;
+
+    $if(debug) {
+        radiance = make_float3(0);
+    };
+
+    const Uint sampleThreshold = ocarina::select(debug, 0u, SHARC_SAMPLE_NUM_THRESHOLD);
+    HashGridIndex cacheIndex = HashMapFindEntry(sharcParameters.hashMapData, sharcHitData.positionWorld,
+                                                sharcHitData.normalWorld, sharcParameters.gridParameters);
+
+    return ret;
 }
 
 }// namespace vision

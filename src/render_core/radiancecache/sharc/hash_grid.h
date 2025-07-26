@@ -144,7 +144,7 @@ struct HashMapData {
 OC_PARAM_STRUCT(vision, HashMapData, capacity,
                 hashEntriesBuffer, lockBuffer){};
 
-namespace vision {
+namespace vision ::inline sharc {
 using namespace ocarina;
 void HashMapAtomicCompareExchange(HashMapDataVar &hashMapData, const Uint &dstOffset, const Uint64t &compareValue,
                                   const Uint64t &value, Uint64t &originalValue) {
@@ -202,6 +202,15 @@ void HashMapAtomicCompareExchange(HashMapDataVar &hashMapData, const Uint &dstOf
     return cacheIndex;
 }
 
+HashGridIndex HashMapFindEntry(HashMapDataVar &hashMapData, const Float3 &samplePosition,
+                               const Float3 &sampleNormal, const HashGridParametersVar &gridParameters) {
+    HashGridIndex cacheIndex = HASH_GRID_INVALID_CACHE_INDEX;
+    const HashGridKey hashKey = HashGridComputeSpatialHash(samplePosition, sampleNormal, gridParameters);
+    Bool successful = HashMapFind(hashMapData, hashKey, cacheIndex);
+
+    return cacheIndex;
+}
+
 template<EPort p = D>
 [[nodiscard]] oc_float3<p> HashGridGetColorFromHash32_impl(const oc_uint<p> &hash) {
     oc_float3<p> color;
@@ -234,14 +243,15 @@ Float3 HashGridDebugOccupancy(const Uint2 &pixelPosition, const uint2 &screenSiz
                         (columnIndex % HASH_GRID_HASH_MAP_BUCKET_SIZE);
     Float3 ret = make_float3(0.f);
 
-    $if (elementIndex < hashMapData.capacity && ((pixelPosition.x % blockSize) < elementSize && (pixelPosition.y % blockSize) < elementSize)) {
+    $if(elementIndex < hashMapData.capacity && ((pixelPosition.x % blockSize) < elementSize && (pixelPosition.y % blockSize) < elementSize)) {
         Uint64t storedHashGridKey = hashMapData.hashEntriesBuffer[elementIndex];
         $if(storedHashGridKey != HASH_GRID_INVALID_HASH_KEY) {
-            ret = make_float3(0.0f, 1.0f, 0.0f);;
+            ret = make_float3(0.0f, 1.0f, 0.0f);
+            ;
         };
     };
 
     return ret;
 }
 
-}// namespace vision
+}// namespace vision::inline sharc
