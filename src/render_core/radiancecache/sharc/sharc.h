@@ -124,42 +124,43 @@ void SharcAddVoxelData(SharcParametersVar &sharcParameters, const HashGridIndex 
                        const Float3 &sampleValue, const Float3 &sampleWeight, const Uint &sampleData) {
     static Callable impl = [](SharcParametersVar &sharcParameters, const HashGridIndex &cacheIndex,
                               const Float3 &sampleValue, const Float3 &sampleWeight, const Uint &sampleData) {
-        $if(cacheIndex != HASH_GRID_INVALID_CACHE_INDEX) {
-            $if(sharcParameters.enableAntiFireflyFilter) {
-                Float scalarWeight = ocarina::luminance(sampleWeight);
-                scalarWeight = max(scalarWeight, 1.0f);
+        $if(cacheIndex == HASH_GRID_INVALID_CACHE_INDEX) {
+            $return();
+        };
+        $if(sharcParameters.enableAntiFireflyFilter) {
+            Float scalarWeight = ocarina::luminance(sampleWeight);
+            scalarWeight = max(scalarWeight, 1.0f);
 
-                const float sampleWeightThreshold = 2.0f;
+            const float sampleWeightThreshold = 2.0f;
 
-                $if(scalarWeight > sampleWeightThreshold) {
-                    Uint4 voxelDataPackedPrev = sharcParameters.voxelDataBufferPrev.read(cacheIndex);
-                    Uint sampleNumPrev = SharcGetSampleNum(voxelDataPackedPrev.w);
+            $if(scalarWeight > sampleWeightThreshold) {
+                Uint4 voxelDataPackedPrev = sharcParameters.voxelDataBufferPrev.read(cacheIndex);
+                Uint sampleNumPrev = SharcGetSampleNum(voxelDataPackedPrev.w);
 
-                    const uint sampleConfidenceThreshold = 2;
-                    $if(sampleNumPrev > SHARC_SAMPLE_NUM_MULTIPLIER * sampleConfidenceThreshold) {
-                        Float lum = luminance(SharcResolveAccumulatedRadiance(voxelDataPackedPrev.xyz(), sampleNumPrev));
-                        Float luminancePrev = max(lum, 1.0f);
-                        Float luminanceCur = max(luminance(sampleValue * sampleWeight), 1.0f);
-                        Float confidenceScale = lerp(1.0f / sampleNumPrev, 5.0f, 10.0f);
-                        sampleWeight *= saturate(confidenceScale * luminancePrev / luminanceCur);
-                    }
-                    $else {
-                        scalarWeight = pow(scalarWeight, 0.5f);
-                        sampleWeight /= scalarWeight;
-                    };
+                const uint sampleConfidenceThreshold = 2;
+                $if(sampleNumPrev > SHARC_SAMPLE_NUM_MULTIPLIER * sampleConfidenceThreshold) {
+                    Float lum = luminance(SharcResolveAccumulatedRadiance(voxelDataPackedPrev.xyz(), sampleNumPrev));
+                    Float luminancePrev = max(lum, 1.0f);
+                    Float luminanceCur = max(luminance(sampleValue * sampleWeight), 1.0f);
+                    Float confidenceScale = lerp(1.0f / sampleNumPrev, 5.0f, 10.0f);
+                    sampleWeight *= saturate(confidenceScale * luminancePrev / luminanceCur);
+                }
+                $else {
+                    scalarWeight = pow(scalarWeight, 0.5f);
+                    sampleWeight /= scalarWeight;
                 };
             };
+        };
 
-            Uint3 scaledRadiance = make_uint3(sampleValue * sampleWeight * SHARC_RADIANCE_SCALE);
+        Uint3 scaledRadiance = make_uint3(sampleValue * sampleWeight * SHARC_RADIANCE_SCALE);
 
-            for (uint i = 0; i < 3; ++i) {
-                $if(scaledRadiance[i] != 0) {
-                    atomic_add(sharcParameters.voxelDataBuffer[cacheIndex][i], scaledRadiance[i]);
-                };
-            }
-            $if(sampleData != 0) {
-                atomic_add(sharcParameters.voxelDataBuffer[cacheIndex].w, sampleData);
+        for (uint i = 0; i < 3; ++i) {
+            $if(scaledRadiance[i] != 0) {
+                atomic_add(sharcParameters.voxelDataBuffer[cacheIndex][i], scaledRadiance[i]);
             };
+        }
+        $if(sampleData != 0) {
+            atomic_add(sharcParameters.voxelDataBuffer[cacheIndex].w, sampleData);
         };
     };
     impl.set_description("SharcAddVoxelData");
@@ -295,8 +296,8 @@ oc_int<p> SharcGetGridDistance2_impl(const oc_int3<p> &position) {
 VS_MAKE_CALLABLE(SharcGetGridDistance2)
 
 template<EPort p = D>
-oc_uint64t<p> SharcGetAdjacentLevelHashKey(const oc_uint64t<p> &hashKey, const HashGridParametersVar &gridParameters,
-                                           const oc_float3<p> &cameraPositionPrev) {
+oc_uint64t<p> SharcGetAdjacentLevelHashKey_impl(const oc_uint64t<p> &hashKey, const HashGridParametersVar &gridParameters,
+                                                const oc_float3<p> &cameraPositionPrev) {
     const int signBit = 1 << (HASH_GRID_POSITION_BIT_NUM - 1);
     const int signMask = ~((1 << HASH_GRID_POSITION_BIT_NUM) - 1);
 
@@ -318,9 +319,116 @@ oc_uint64t<p> SharcGetAdjacentLevelHashKey(const oc_uint64t<p> &hashKey, const H
 
     oc_int3<p> cameraGridPositionPrev = make_int3(floor((cameraPositionPrev + HASH_GRID_POSITION_OFFSET) / voxelSize));
     oc_int3<p> cameraVectorPrev = cameraGridPositionPrev - gridPosition;
-    oc_uint64t<p> modifiedHashGridKey;
+    oc_int<p> cameraDistancePrev = SharcGetGridDistance2(cameraVectorPrev);
+
+    $if(cameraDistance < cameraDistancePrev) {
+        gridPosition = make_int3(floor(gridPosition / gridParameters.logarithmBase));
+        level = ocarina::min(level + 1, int(HASH_GRID_LEVEL_BIT_MASK));
+    }
+    $else {
+        gridPosition = make_int3(floor(gridPosition * gridParameters.logarithmBase));
+        level = ocarina::max(level - 1, 1);
+    };
+
+    oc_uint64t<p> modifiedHashGridKey = ((cast<uint64t>(gridPosition.x) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 0)) |
+                                        ((cast<uint64t>(gridPosition.y) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 1)) |
+                                        ((cast<uint64t>(gridPosition.z) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 2)) |
+                                        ((cast<uint64t>(level) & HASH_GRID_LEVEL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3));
+
+    modifiedHashGridKey |= hashKey & (cast<uint64t>(HASH_GRID_NORMAL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3 + HASH_GRID_LEVEL_BIT_NUM));
 
     return modifiedHashGridKey;
+}
+VS_MAKE_CALLABLE(SharcGetAdjacentLevelHashKey)
+
+void SharcResolveEntry(const Uint &entryIndex, SharcParametersVar &sharcParameters,
+                       const SharcResolveParametersVar &resolveParameters,
+                       BufferVar<uint> &copyOffsetBuffer) {
+    static Callable impl = [](const Uint &entryIndex, SharcParametersVar &sharcParameters,
+                              const SharcResolveParametersVar &resolveParameters,
+                              BufferVar<uint> &copyOffsetBuffer) {
+        $if(entryIndex >= sharcParameters.hashMapData.capacity) {
+            $return();
+        };
+        HashGridKey hashKey = sharcParameters.hashMapData.hashEntriesBuffer.read(entryIndex);
+
+        $if(hashKey == HASH_GRID_INVALID_HASH_KEY) {
+            $return();
+        };
+
+        Uint4 voxelDataPackedPrev = sharcParameters.voxelDataBufferPrev.read(entryIndex);
+        Uint4 voxelDataPacked = sharcParameters.voxelDataBuffer.read(entryIndex);
+
+        Uint sampleNum = SharcGetSampleNum<D>(voxelDataPacked.w);
+        Uint sampleNumPrev = SharcGetSampleNum<D>(voxelDataPackedPrev.w);
+        Uint accumulatedFrameNum = SharcGetAccumulatedFrameNum<D>(voxelDataPackedPrev.w) + 1;
+        Uint staleFrameNum = SharcGetStaleFrameNum<D>(voxelDataPackedPrev.w);
+
+        voxelDataPacked.xyz() *= SHARC_SAMPLE_NUM_MULTIPLIER;
+        sampleNum *= SHARC_SAMPLE_NUM_MULTIPLIER;
+
+        Uint3 accumulatedRadiance = voxelDataPacked.xyz() + voxelDataPackedPrev.xyz();
+        Uint accumulatedSampleNum = sampleNum + sampleNumPrev;
+
+        Float3 cameraOffset = sharcParameters.gridParameters.cameraPosition.xyz() -
+                              resolveParameters.cameraPositionPrev.xyz();
+
+        $if((ocarina::length_squared(cameraOffset) != 0) && (accumulatedFrameNum < resolveParameters.accumulationFrameNum)) {
+            HashGridKey adjacentLevelHashKey = SharcGetAdjacentLevelHashKey<D>(hashKey, sharcParameters.gridParameters,
+                                                                               resolveParameters.cameraPositionPrev);
+
+            HashGridIndex cacheIndex = HASH_GRID_INVALID_CACHE_INDEX;
+            $if(HashMapFind(sharcParameters.hashMapData, adjacentLevelHashKey, cacheIndex)) {
+                Uint4 adjacentPackedDataPrev = sharcParameters.voxelDataBufferPrev.read(cacheIndex);
+                Uint adjacentSampleNum = SharcGetSampleNum<D>(adjacentPackedDataPrev.w);
+                $if(adjacentSampleNum > SHARC_SAMPLE_NUM_THRESHOLD) {
+                    Float blendWeight = adjacentSampleNum / cast<float>(adjacentSampleNum + accumulatedSampleNum);
+                    accumulatedRadiance = make_uint3(lerp(make_float3(blendWeight),
+                                                          make_float3(accumulatedRadiance.xyz()),
+                                                          make_float3(adjacentPackedDataPrev.xyz())));
+                    accumulatedSampleNum = cast<uint>(lerp(blendWeight,
+                                                           cast<float>(accumulatedSampleNum),
+                                                           cast<float>(adjacentSampleNum)));
+                };
+            };
+        };
+
+        $if(accumulatedSampleNum > SHARC_NORMALIZED_SAMPLE_NUM) {
+            accumulatedSampleNum >>= 1;
+            accumulatedRadiance >>= 1;
+        };
+
+        Uint accumulationFrameNum = ocarina::clamp(resolveParameters.accumulationFrameNum,
+                                                   SHARC_ACCUMULATED_FRAME_NUM_MIN,
+                                                   SHARC_ACCUMULATED_FRAME_NUM_MAX);
+
+        $if(accumulatedFrameNum > accumulationFrameNum) {
+            Float normalizedAccumulatedSampleNum = ocarina::round(accumulatedSampleNum * cast<float>(accumulationFrameNum) / accumulatedFrameNum);
+            Float normalizationScale = normalizedAccumulatedSampleNum / accumulatedSampleNum;
+
+            accumulatedSampleNum = cast<uint>(normalizedAccumulatedSampleNum);
+            accumulatedRadiance = make_uint3(accumulatedRadiance * normalizationScale);
+            accumulatedFrameNum = cast<uint>(accumulatedFrameNum * normalizationScale);
+        };
+
+        staleFrameNum = ocarina::select((sampleNum != 0), 0u, staleFrameNum + 1);
+
+        Uint4 packedData;
+        packedData.xyz() = make_uint3(accumulatedRadiance);
+
+        packedData.w = min(accumulatedSampleNum, SHARC_SAMPLE_NUM_BIT_MASK);
+        packedData.w |= (min(accumulatedFrameNum, SHARC_ACCUMULATED_FRAME_NUM_BIT_MASK) << SHARC_ACCUMULATED_FRAME_NUM_BIT_OFFSET);
+        packedData.w |= (min(staleFrameNum, SHARC_STALE_FRAME_NUM_BIT_MASK) << SHARC_STALE_FRAME_NUM_BIT_OFFSET);
+
+        Bool isValidElement = staleFrameNum < max(resolveParameters.staleFrameNumMax, SHARC_STALE_FRAME_NUM_MIN);
+
+        $if(!isValidElement) {
+            packedData = make_uint4(0);
+            sharcParameters.hashMapData.hashEntriesBuffer.write(entryIndex, HASH_GRID_INVALID_HASH_KEY);
+        };
+    };
+
+    return impl(entryIndex, sharcParameters, resolveParameters, copyOffsetBuffer);
 }
 
 }// namespace vision
