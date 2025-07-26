@@ -100,61 +100,71 @@ var_t<SharcVoxelData, p> SharcUnpackVoxelData_impl(const oc_uint4<p> &voxelDataP
 VS_MAKE_CALLABLE(SharcUnpackVoxelData)
 
 SharcVoxelDataVar SharcGetVoxelData(BufferVar<uint4> &voxelDataBuffer, const Uint &cacheIndex) {
-    SharcVoxelDataVar voxelData;
-    voxelData.accumulatedRadiance = make_uint3(0u);
-    voxelData.accumulatedSampleNum = 0;
-    voxelData.accumulatedFrameNum = 0;
-    voxelData.staleFrameNum = 0;
-    SharcVoxelDataVar ret;
-    $if(cacheIndex == HASH_GRID_INVALID_CACHE_INDEX) {
-        ret = voxelData;
-    }
-    $else {
-        Uint4 voxelDataPacked = voxelDataBuffer.at(cacheIndex);
-        ret = SharcUnpackVoxelData(voxelDataPacked);
+    static Callable impl = [](BufferVar<uint4> &voxelDataBuffer, const Uint &cacheIndex) {
+        SharcVoxelDataVar voxelData;
+        voxelData.accumulatedRadiance = make_uint3(0u);
+        voxelData.accumulatedSampleNum = 0;
+        voxelData.accumulatedFrameNum = 0;
+        voxelData.staleFrameNum = 0;
+        SharcVoxelDataVar ret;
+        $if(cacheIndex == HASH_GRID_INVALID_CACHE_INDEX) {
+            ret = voxelData;
+        }
+        $else {
+            Uint4 voxelDataPacked = voxelDataBuffer.at(cacheIndex);
+            ret = SharcUnpackVoxelData(voxelDataPacked);
+        };
+        return ret;
     };
-    return ret;
+    impl.set_description("SharcGetVoxelData");
+    return impl(voxelDataBuffer, cacheIndex);
 }
 
 void SharcAddVoxelData(SharcParametersVar &sharcParameters, const HashGridIndex &cacheIndex,
                        const Float3 &sampleValue, const Float3 &sampleWeight, const Uint &sampleData) {
-    $if(cacheIndex != HASH_GRID_INVALID_CACHE_INDEX) {
-        $if(sharcParameters.enableAntiFireflyFilter) {
-            Float scalarWeight = ocarina::luminance(sampleWeight);
-            scalarWeight = max(scalarWeight, 1.0f);
+    static Callable impl = [](SharcParametersVar &sharcParameters, const HashGridIndex &cacheIndex,
+                              const Float3 &sampleValue, const Float3 &sampleWeight, const Uint &sampleData) {
+        $if(cacheIndex != HASH_GRID_INVALID_CACHE_INDEX) {
+            $if(sharcParameters.enableAntiFireflyFilter) {
+                Float scalarWeight = ocarina::luminance(sampleWeight);
+                scalarWeight = max(scalarWeight, 1.0f);
 
-            const float sampleWeightThreshold = 2.0f;
+                const float sampleWeightThreshold = 2.0f;
 
-            $if(scalarWeight > sampleWeightThreshold) {
-                Uint4 voxelDataPackedPrev = sharcParameters.voxelDataBufferPrev[cacheIndex];
-                Uint sampleNumPrev = SharcGetSampleNum(voxelDataPackedPrev.w);
+                $if(scalarWeight > sampleWeightThreshold) {
+                    Uint4 voxelDataPackedPrev = sharcParameters.voxelDataBufferPrev[cacheIndex];
+                    Uint sampleNumPrev = SharcGetSampleNum(voxelDataPackedPrev.w);
 
-                const uint sampleConfidenceThreshold = 2;
-                $if(sampleNumPrev > SHARC_SAMPLE_NUM_MULTIPLIER * sampleConfidenceThreshold) {
-                    Float lum = luminance(SharcResolveAccumulatedRadiance(voxelDataPackedPrev.xyz(), sampleNumPrev));
-                    Float luminancePrev = max(lum, 1.0f);
-                    Float luminanceCur = max(luminance(sampleValue * sampleWeight), 1.0f);
-                    Float confidenceScale = lerp(1.0f / sampleNumPrev, 5.0f, 10.0f);
-                    sampleWeight *= saturate(confidenceScale * luminancePrev / luminanceCur);
-                }
-                $else {
-                    scalarWeight = pow(scalarWeight, 0.5f);
-                    sampleWeight /= scalarWeight;
+                    const uint sampleConfidenceThreshold = 2;
+                    $if(sampleNumPrev > SHARC_SAMPLE_NUM_MULTIPLIER * sampleConfidenceThreshold) {
+                        Float lum = luminance(SharcResolveAccumulatedRadiance(voxelDataPackedPrev.xyz(), sampleNumPrev));
+                        Float luminancePrev = max(lum, 1.0f);
+                        Float luminanceCur = max(luminance(sampleValue * sampleWeight), 1.0f);
+                        Float confidenceScale = lerp(1.0f / sampleNumPrev, 5.0f, 10.0f);
+                        sampleWeight *= saturate(confidenceScale * luminancePrev / luminanceCur);
+                    }
+                    $else {
+                        scalarWeight = pow(scalarWeight, 0.5f);
+                        sampleWeight /= scalarWeight;
+                    };
                 };
             };
-        };
 
-        Uint3 scaledRadiance = make_uint3(sampleValue * sampleWeight * SHARC_RADIANCE_SCALE);
+            Uint3 scaledRadiance = make_uint3(sampleValue * sampleWeight * SHARC_RADIANCE_SCALE);
 
-        for (uint i = 0; i < 3; ++i) {
-            $if(scaledRadiance[i] != 0) {
-                atomic_add(sharcParameters.voxelDataBuffer[cacheIndex][i], scaledRadiance[i]);
+            for (uint i = 0; i < 3; ++i) {
+                $if(scaledRadiance[i] != 0) {
+                    atomic_add(sharcParameters.voxelDataBuffer[cacheIndex][i], scaledRadiance[i]);
+                };
+            }
+            $if(sampleData != 0) {
+                atomic_add(sharcParameters.voxelDataBuffer[cacheIndex].w, sampleData);
             };
-        }
-        $if(sampleData != 0) {
-            atomic_add(sharcParameters.voxelDataBuffer[cacheIndex].w, sampleData);
         };
     };
+    impl.set_description("SharcAddVoxelData");
+    impl(sharcParameters, cacheIndex,
+         sampleValue, sampleWeight, sampleData);
 }
 
 void SharcInit(SharcStateVar &sharcState) {
@@ -162,53 +172,63 @@ void SharcInit(SharcStateVar &sharcState) {
 }
 
 void SharcUpdateMiss(SharcParametersVar &sharcParameters, const SharcStateVar &sharcState, Float3 radiance) {
-    $for(i, sharcState.pathLength) {
-        SharcAddVoxelData(sharcParameters, sharcState.cacheIndices[i], radiance, sharcState.sampleWeights[i], 0);
-        radiance *= sharcState.sampleWeights[i];
+    static Callable impl = [](SharcParametersVar &sharcParameters, const SharcStateVar &sharcState, Float3 radiance) {
+        $for(i, sharcState.pathLength) {
+            SharcAddVoxelData(sharcParameters, sharcState.cacheIndices[i], radiance, sharcState.sampleWeights[i], 0);
+            radiance *= sharcState.sampleWeights[i];
+        };
     };
+    impl.set_description("SharcUpdateMiss");
+    impl(sharcParameters, sharcState, radiance);
 }
 
 Bool SharcUpdateHit(SharcParametersVar &sharcParameters, SharcStateVar &sharcState,
                     const SharcHitDataVar &sharcHitData, Float3 directLighting, Float random) {
-    Bool continueTracing = true;
 
-    HashGridIndex cacheIndex = HashMapInsertEntry(sharcParameters.hashMapData, sharcHitData.positionWorld, sharcHitData.normalWorld, sharcParameters.gridParameters);
+    static Callable impl = [](SharcParametersVar &sharcParameters, SharcStateVar &sharcState,
+                              const SharcHitDataVar &sharcHitData, Float3 directLighting, Float random) {
+        Bool continueTracing = true;
 
-    Float3 sharcRadiance = directLighting;
+        HashGridIndex cacheIndex = HashMapInsertEntry(sharcParameters.hashMapData, sharcHitData.positionWorld, sharcHitData.normalWorld, sharcParameters.gridParameters);
 
-    Uint resamplingDepth = cast<uint>(ocarina::round(ocarina::lerp(random, float(SHARC_RESAMPLING_DEPTH_MIN), float(SHARC_PROPOGATION_DEPTH - 1))));
+        Float3 sharcRadiance = directLighting;
 
-    $if(resamplingDepth <= sharcState.pathLength) {
-        SharcVoxelDataVar voxelData = SharcGetVoxelData(sharcParameters.voxelDataBufferPrev, cacheIndex);
+        Uint resamplingDepth = cast<uint>(ocarina::round(ocarina::lerp(random, float(SHARC_RESAMPLING_DEPTH_MIN), float(SHARC_PROPOGATION_DEPTH - 1))));
 
-        $if(voxelData.accumulatedSampleNum > SHARC_SAMPLE_NUM_THRESHOLD) {
-            sharcRadiance = SharcResolveAccumulatedRadiance(voxelData.accumulatedRadiance, voxelData.accumulatedSampleNum);
+        $if(resamplingDepth <= sharcState.pathLength) {
+            SharcVoxelDataVar voxelData = SharcGetVoxelData(sharcParameters.voxelDataBufferPrev, cacheIndex);
 
-            continueTracing = false;
+            $if(voxelData.accumulatedSampleNum > SHARC_SAMPLE_NUM_THRESHOLD) {
+                sharcRadiance = SharcResolveAccumulatedRadiance(voxelData.accumulatedRadiance, voxelData.accumulatedSampleNum);
+
+                continueTracing = false;
+            };
         };
+
+        $if(continueTracing) {
+            SharcAddVoxelData(sharcParameters, cacheIndex, float3(0.0f), float3(0.0f), 1);
+        };
+
+        Uint i = 0;
+        $for(idx, sharcState.pathLength) {
+            i = idx;
+            SharcAddVoxelData(sharcParameters, sharcState.cacheIndices[i], sharcRadiance, sharcState.sampleWeights[i], 0);
+            sharcRadiance *= sharcState.sampleWeights[i];
+        };
+
+        $for(idx, i, 0, -1) {
+            sharcState.cacheIndices[idx] = sharcState.cacheIndices[idx - 1];
+            sharcState.sampleWeights[idx] = sharcState.sampleWeights[idx - 1];
+        };
+
+        sharcState.cacheIndices[0] = cacheIndex;
+        sharcState.pathLength += 1;
+        sharcState.pathLength = ocarina::min(sharcState.pathLength, SHARC_PROPOGATION_DEPTH - 1u);
+
+        return continueTracing;
     };
-
-    $if(continueTracing) {
-        SharcAddVoxelData(sharcParameters, cacheIndex, float3(0.0f), float3(0.0f), 1);
-    };
-
-    Uint i = 0;
-    $for(idx, sharcState.pathLength) {
-        i = idx;
-        SharcAddVoxelData(sharcParameters, sharcState.cacheIndices[i], sharcRadiance, sharcState.sampleWeights[i], 0);
-        sharcRadiance *= sharcState.sampleWeights[i];
-    };
-
-    $for(idx, i, 0, -1) {
-        sharcState.cacheIndices[idx] = sharcState.cacheIndices[idx - 1];
-        sharcState.sampleWeights[idx] = sharcState.sampleWeights[idx - 1];
-    };
-
-    sharcState.cacheIndices[0] = cacheIndex;
-    sharcState.pathLength += 1;
-    sharcState.pathLength = ocarina::min(sharcState.pathLength, SHARC_PROPOGATION_DEPTH - 1u);
-
-    return continueTracing;
+    impl.set_description("SharcUpdateHit");
+    return impl(sharcParameters, sharcState, sharcHitData, directLighting, random);
 }
 
 void SharcSetThroughput(SharcStateVar &sharcState, Float3 throughput) {
