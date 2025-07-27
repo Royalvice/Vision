@@ -296,7 +296,7 @@ oc_int<p> SharcGetGridDistance2_impl(const oc_int3<p> &position) {
 VS_MAKE_CALLABLE(SharcGetGridDistance2)
 
 template<EPort p = D>
-oc_uint64t<p> SharcGetAdjacentLevelHashKey_impl(const oc_uint64t<p> &hashKey, const HashGridParametersVar &gridParameters,
+oc_ulong<p> SharcGetAdjacentLevelHashKey_impl(const oc_ulong<p> &hashKey, const HashGridParametersVar &gridParameters,
                                                 const oc_float3<p> &cameraPositionPrev) {
     const int signBit = 1 << (HASH_GRID_POSITION_BIT_NUM - 1);
     const int signMask = ~((1 << HASH_GRID_POSITION_BIT_NUM) - 1);
@@ -330,12 +330,12 @@ oc_uint64t<p> SharcGetAdjacentLevelHashKey_impl(const oc_uint64t<p> &hashKey, co
         level = ocarina::max(level - 1, 1);
     };
 
-    oc_uint64t<p> modifiedHashGridKey = ((cast<uint64t>(gridPosition.x) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 0)) |
-                                        ((cast<uint64t>(gridPosition.y) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 1)) |
-                                        ((cast<uint64t>(gridPosition.z) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 2)) |
-                                        ((cast<uint64t>(level) & HASH_GRID_LEVEL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3));
+    oc_ulong<p> modifiedHashGridKey = ((cast<ulong>(gridPosition.x) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 0)) |
+                                        ((cast<ulong>(gridPosition.y) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 1)) |
+                                        ((cast<ulong>(gridPosition.z) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 2)) |
+                                        ((cast<ulong>(level) & HASH_GRID_LEVEL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3));
 
-    modifiedHashGridKey |= hashKey & (cast<uint64t>(HASH_GRID_NORMAL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3 + HASH_GRID_LEVEL_BIT_NUM));
+    modifiedHashGridKey |= hashKey & (cast<ulong>(HASH_GRID_NORMAL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3 + HASH_GRID_LEVEL_BIT_NUM));
 
     return modifiedHashGridKey;
 }

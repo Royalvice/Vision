@@ -65,6 +65,6 @@ static constexpr auto SHARC_DEBUG_BITS_OCCUPANCY_THRESHOLD_LOW = 0.125f;
 static constexpr auto SHARC_DEBUG_BITS_OCCUPANCY_THRESHOLD_MEDIUM = 0.5f;
 
 using HashGridIndex = Uint;
-using HashGridKey = Uint64t;
+using HashGridKey = Ulong;
 
 }// namespace vision::inline sharc
