@@ -49,7 +49,7 @@ template<EPort p = D>
 VS_MAKE_CALLABLE(HashGridHashJenkins32)
 
 template<EPort p = D>
-[[nodiscard]] oc_uint<p> HashGridHash32_impl(const oc_uint64t<p> &hashKey) {
+[[nodiscard]] oc_uint<p> HashGridHash32_impl(const oc_ulong<p> &hashKey) {
     return HashGridHashJenkins32<p>(cast<uint>((hashKey >> 0) & 0xFFFFFFFF)) ^
            HashGridHashJenkins32<p>(cast<uint>((hashKey >> 32) & 0xFFFFFFFF));
 }
@@ -87,11 +87,11 @@ template<EPort p = D>
 VS_MAKE_CALLABLE(HashGridCalculatePositionLog)
 
 template<EPort p = D>
-[[nodiscard]] oc_uint64t<p> HashGridComputeSpatialHash_impl(const oc_float3<p> &samplePosition, const oc_float3<p> &sampleNormal,
+[[nodiscard]] oc_ulong<p> HashGridComputeSpatialHash_impl(const oc_float3<p> &samplePosition, const oc_float3<p> &sampleNormal,
                                                             const var_t<HashGridParameters, p> &gridParameters) {
     oc_uint4<p> gridPosition = cast<uint4>(HashGridCalculatePositionLog<p>(samplePosition, gridParameters));
 
-    oc_uint64t<p> hashKey = ((cast<uint64_t>(gridPosition.x) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 0)) |
+    oc_ulong<p> hashKey = ((cast<uint64_t>(gridPosition.x) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 0)) |
                             ((cast<uint64_t>(gridPosition.y) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 1)) |
                             ((cast<uint64_t>(gridPosition.z) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 2)) |
                             ((cast<uint64_t>(gridPosition.w) & HASH_GRID_LEVEL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3));
@@ -108,7 +108,7 @@ template<EPort p = D>
 VS_MAKE_CALLABLE(HashGridComputeSpatialHash)
 
 template<EPort p = D>
-[[nodiscard]] oc_float3<p> HashGridGetPositionFromKey_impl(const oc_uint64t<p> &hashKey,
+[[nodiscard]] oc_float3<p> HashGridGetPositionFromKey_impl(const oc_ulong<p> &hashKey,
                                                            const var_t<HashGridParameters, p> &gridParameters) {
     int signBit = 1 << (HASH_GRID_POSITION_BIT_NUM - 1);
     int signMask = ~((1 << HASH_GRID_POSITION_BIT_NUM) - 1);
@@ -144,62 +144,91 @@ struct HashMapData {
 OC_PARAM_STRUCT(vision, HashMapData, capacity,
                 hashEntriesBuffer, lockBuffer){};
 
-namespace vision {
+namespace vision ::inline sharc {
 using namespace ocarina;
-void HashMapAtomicCompareExchange(HashMapDataVar &hashMapData, const Uint &dstOffset, const Uint64t &compareValue,
-                                  const Uint64t &value, Uint64t &originalValue) {
-    originalValue = ocarina::atomic_CAS(hashMapData.hashEntriesBuffer.at(dstOffset), compareValue, value);
+void HashMapAtomicCompareExchange(HashMapDataVar &hashMapData, const Uint &dstOffset, const Ulong &compareValue,
+                                  const Ulong &value, Ulong &originalValue) {
+    outline("HashMapAtomicCompareExchange", [&] {
+        originalValue = ocarina::atomic_CAS(hashMapData.hashEntriesBuffer.at(dstOffset), compareValue, value);
+    });
 }
 
-[[nodiscard]] Bool HashMapInsert(HashMapDataVar &hashMapData, const Uint64t &hashKey, Uint &cacheIndex) {
-    Bool ret = false;
-    Uint hash = HashGridHash32<D>(hashKey);
-    Uint slot = hash % hashMapData.capacity;
-    Uint64t prevHashGridKey = HASH_GRID_INVALID_HASH_KEY;
-    Uint baseSlot = HashGridGetBaseSlot<D>(slot, hashMapData.capacity);
+[[nodiscard]] Bool HashMapInsert(HashMapDataVar &hashMapData, const Ulong &hashKey, Uint &cacheIndex) {
+    static Callable impl = [](HashMapDataVar &hashMapData, const Ulong &hashKey, Uint &cacheIndex) -> Bool {
+        Bool ret = false;
+        Uint hash = HashGridHash32<D>(hashKey);
+        Uint slot = hash % hashMapData.capacity;
+        Ulong prevHashGridKey = HASH_GRID_INVALID_HASH_KEY;
+        Uint baseSlot = HashGridGetBaseSlot<D>(slot, hashMapData.capacity);
 
-    $for(bucketOffset, HASH_GRID_HASH_MAP_BUCKET_SIZE) {
-        HashMapAtomicCompareExchange(hashMapData, baseSlot + bucketOffset,
-                                     HASH_GRID_INVALID_HASH_KEY, hashKey, prevHashGridKey);
-        $if(prevHashGridKey == HASH_GRID_INVALID_HASH_KEY || prevHashGridKey == hashKey) {
-            cacheIndex = baseSlot + bucketOffset;
-            ret = true;
-            $break;
+        $for(bucketOffset, HASH_GRID_HASH_MAP_BUCKET_SIZE) {
+            HashMapAtomicCompareExchange(hashMapData, baseSlot + bucketOffset,
+                                         HASH_GRID_INVALID_HASH_KEY, hashKey, prevHashGridKey);
+            $if(prevHashGridKey == HASH_GRID_INVALID_HASH_KEY || prevHashGridKey == hashKey) {
+                cacheIndex = baseSlot + bucketOffset;
+                ret = true;
+                $return(ret);
+            };
         };
+        cacheIndex = 0u;
+        return ret;
     };
-    cacheIndex = ocarina::select(ret, cacheIndex, 0u);
-    return ret;
+    impl.function()->set_description("HashMapInsert");
+    return impl(hashMapData, hashKey, cacheIndex);
 }
 
-[[nodiscard]] Bool HashMapFind(HashMapDataVar &hashMapData, const Uint64t &hashKey, Uint &cacheIndex) {
-    Bool ret = false;
+[[nodiscard]] Bool HashMapFind(HashMapDataVar &hashMapData, const Ulong &hashKey, Uint &cacheIndex) {
+    static Callable impl = [](HashMapDataVar &hashMapData, const Ulong &hashKey, Uint &cacheIndex) {
+        Bool ret = false;
 
-    Uint hash = HashGridHash32<D>(hashKey);
-    Uint slot = hash % hashMapData.capacity;
+        Uint hash = HashGridHash32<D>(hashKey);
+        Uint slot = hash % hashMapData.capacity;
 
-    Uint baseSlot = HashGridGetBaseSlot<D>(slot, hashMapData.capacity);
+        Uint baseSlot = HashGridGetBaseSlot<D>(slot, hashMapData.capacity);
 
-    $for(bucketOffset, HASH_GRID_HASH_MAP_BUCKET_SIZE) {
-        Uint64t storedHashKey = hashMapData.hashEntriesBuffer[baseSlot + bucketOffset];
-        $if(storedHashKey == hashKey) {
-            cacheIndex = baseSlot + bucketOffset;
-            ret = true;
-            $break;
-        }
-        $elif(storedHashKey == HASH_GRID_INVALID_HASH_KEY) {
-            ret = false;
-            $break;
+        $for(bucketOffset, HASH_GRID_HASH_MAP_BUCKET_SIZE) {
+            Ulong storedHashKey = hashMapData.hashEntriesBuffer.read(baseSlot + bucketOffset);
+            $if(storedHashKey == hashKey) {
+                cacheIndex = baseSlot + bucketOffset;
+                ret = true;
+                $break;
+            }
+            $elif(storedHashKey == HASH_GRID_INVALID_HASH_KEY) {
+                ret = false;
+                $break;
+            };
         };
+        return ret;
     };
-    return ret;
+    impl.function()->set_description("HashMapFind");
+    return impl(hashMapData, hashKey, cacheIndex);
 }
 
 [[nodiscard]] Uint HashMapInsertEntry(HashMapDataVar &hashMapData, const Float3 &samplePosition,
                                       const Float3 &sampleNormal, const HashGridParametersVar &gridParameters) {
-    Uint cacheIndex = HASH_GRID_INVALID_CACHE_INDEX;
-    const Uint64t hashKey = HashGridComputeSpatialHash<D>(samplePosition, sampleNormal, gridParameters);
-    Bool successful = HashMapInsert(hashMapData, hashKey, cacheIndex);
-    return cacheIndex;
+    static Callable impl = [](HashMapDataVar &hashMapData, const Float3 &samplePosition,
+                              const Float3 &sampleNormal, const HashGridParametersVar &gridParameters) {
+        Uint cacheIndex = HASH_GRID_INVALID_CACHE_INDEX;
+        const Ulong hashKey = HashGridComputeSpatialHash<D>(samplePosition, sampleNormal, gridParameters);
+        Bool successful = HashMapInsert(hashMapData, hashKey, cacheIndex);
+        return cacheIndex;
+    };
+    impl.function()->set_description("HashMapInsertEntry");
+    return impl(hashMapData, samplePosition, sampleNormal, gridParameters);
+}
+
+HashGridIndex HashMapFindEntry(HashMapDataVar &hashMapData, const Float3 &samplePosition,
+                               const Float3 &sampleNormal, const HashGridParametersVar &gridParameters) {
+    static Callable impl = [](HashMapDataVar &hashMapData, const Float3 &samplePosition,
+                              const Float3 &sampleNormal, const HashGridParametersVar &gridParameters) {
+        HashGridIndex cacheIndex = HASH_GRID_INVALID_CACHE_INDEX;
+        const HashGridKey hashKey = HashGridComputeSpatialHash(samplePosition, sampleNormal, gridParameters);
+        Bool successful = HashMapFind(hashMapData, hashKey, cacheIndex);
+
+        return cacheIndex;
+    };
+    impl.function()->set_description("HashMapFindEntry");
+    return impl(hashMapData, samplePosition, sampleNormal, gridParameters);
 }
 
 template<EPort p = D>
@@ -214,34 +243,44 @@ VS_MAKE_CALLABLE(HashGridGetColorFromHash32)
 
 Float3 HashGridDebugColoredHash(const Float3 &samplePosition,
                                 const HashGridParametersVar &gridParameters) {
-    Uint64t hashKey = HashGridComputeSpatialHash(samplePosition, float3(0, 0, 0), gridParameters);
-    Uint gridLevel = HashGridGetLevel<D>(samplePosition, gridParameters);
-    Float3 hashColor = HashGridGetColorFromHash32(HashGridHashJenkins32(gridLevel));
-    Float3 color = HashGridGetColorFromHash32(HashGridHash32(hashKey)) * hashColor;
-    return color;
-}
-
-Float3 HashGridDebugOccupancy(const Uint2 &pixelPosition, const uint2 &screenSize,
-                              HashMapDataVar &hashMapData) {
-    const uint elementSize = 7;
-    const uint borderSize = 1;
-    const uint blockSize = elementSize + borderSize;
-    Uint rowNum = screenSize.y / blockSize;
-    Uint rowIndex = pixelPosition.y / blockSize;
-    Uint columnIndex = pixelPosition.x / blockSize;
-    Uint elementIndex = (columnIndex / HASH_GRID_HASH_MAP_BUCKET_SIZE) * (rowNum * HASH_GRID_HASH_MAP_BUCKET_SIZE) +
-                        rowIndex * HASH_GRID_HASH_MAP_BUCKET_SIZE +
-                        (columnIndex % HASH_GRID_HASH_MAP_BUCKET_SIZE);
-    Float3 ret = make_float3(0.f);
-
-    $if (elementIndex < hashMapData.capacity && ((pixelPosition.x % blockSize) < elementSize && (pixelPosition.y % blockSize) < elementSize)) {
-        Uint64t storedHashGridKey = hashMapData.hashEntriesBuffer[elementIndex];
-        $if(storedHashGridKey != HASH_GRID_INVALID_HASH_KEY) {
-            ret = make_float3(0.0f, 1.0f, 0.0f);;
-        };
+    static Callable impl = [](const Float3 &samplePosition,
+                              const HashGridParametersVar &gridParameters) {
+        Ulong hashKey = HashGridComputeSpatialHash(samplePosition, float3(0, 0, 0), gridParameters);
+        Uint gridLevel = HashGridGetLevel<D>(samplePosition, gridParameters);
+        Float3 hashColor = HashGridGetColorFromHash32(HashGridHashJenkins32(gridLevel));
+        Float3 color = HashGridGetColorFromHash32(HashGridHash32(hashKey)) * hashColor;
+        return color;
     };
-
-    return ret;
+    impl.function()->set_description("HashGridDebugColoredHash");
+    return impl(samplePosition, gridParameters);
 }
 
-}// namespace vision
+Float3 HashGridDebugOccupancy(const Uint2 &pixelPosition, const Uint2 &screenSize,
+                              HashMapDataVar &hashMapData) {
+    static Callable impl = [](const Uint2 &pixelPosition, const Uint2 &screenSize,
+                              HashMapDataVar &hashMapData) {
+        const uint elementSize = 7;
+        const uint borderSize = 1;
+        const uint blockSize = elementSize + borderSize;
+        Uint rowNum = screenSize.y / blockSize;
+        Uint rowIndex = pixelPosition.y / blockSize;
+        Uint columnIndex = pixelPosition.x / blockSize;
+        Uint elementIndex = (columnIndex / HASH_GRID_HASH_MAP_BUCKET_SIZE) * (rowNum * HASH_GRID_HASH_MAP_BUCKET_SIZE) +
+                            rowIndex * HASH_GRID_HASH_MAP_BUCKET_SIZE +
+                            (columnIndex % HASH_GRID_HASH_MAP_BUCKET_SIZE);
+        Float3 ret = make_float3(0.f);
+
+        $if(elementIndex < hashMapData.capacity && ((pixelPosition.x % blockSize) < elementSize && (pixelPosition.y % blockSize) < elementSize)) {
+            Ulong storedHashGridKey = hashMapData.hashEntriesBuffer.read(elementIndex);
+            $if(storedHashGridKey != HASH_GRID_INVALID_HASH_KEY) {
+                ret = make_float3(0.0f, 1.0f, 0.0f);
+            };
+        };
+
+        return ret;
+    };
+    impl.function()->set_description("HashGridDebugOccupancy");
+    return impl(pixelPosition, screenSize, hashMapData);
+}
+
+}// namespace vision::inline sharc
