@@ -297,7 +297,7 @@ VS_MAKE_CALLABLE(SharcGetGridDistance2)
 
 template<EPort p = D>
 oc_ulong<p> SharcGetAdjacentLevelHashKey_impl(const oc_ulong<p> &hashKey, const HashGridParametersVar &gridParameters,
-                                                const oc_float3<p> &cameraPositionPrev) {
+                                              const oc_float3<p> &cameraPositionPrev) {
     const int signBit = 1 << (HASH_GRID_POSITION_BIT_NUM - 1);
     const int signMask = ~((1 << HASH_GRID_POSITION_BIT_NUM) - 1);
 
@@ -331,9 +331,9 @@ oc_ulong<p> SharcGetAdjacentLevelHashKey_impl(const oc_ulong<p> &hashKey, const 
     };
 
     oc_ulong<p> modifiedHashGridKey = ((cast<ulong>(gridPosition.x) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 0)) |
-                                        ((cast<ulong>(gridPosition.y) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 1)) |
-                                        ((cast<ulong>(gridPosition.z) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 2)) |
-                                        ((cast<ulong>(level) & HASH_GRID_LEVEL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3));
+                                      ((cast<ulong>(gridPosition.y) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 1)) |
+                                      ((cast<ulong>(gridPosition.z) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 2)) |
+                                      ((cast<ulong>(level) & HASH_GRID_LEVEL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3));
 
     modifiedHashGridKey |= hashKey & (cast<ulong>(HASH_GRID_NORMAL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3 + HASH_GRID_LEVEL_BIT_NUM));
 
@@ -424,11 +424,41 @@ void SharcResolveEntry(const Uint &entryIndex, SharcParametersVar &sharcParamete
 
         $if(!isValidElement) {
             packedData = make_uint4(0);
+        };
+
+        Uint validElementNum = warp_active_count_bits(isValidElement);
+        Uint validElementMask = warp_active_bit_mask(isValidElement).x;
+        Bool cond = (entryIndex % HASH_GRID_HASH_MAP_BUCKET_SIZE) >= validElementNum;
+        Bool isMovableElement = isValidElement && cond;
+        Uint movableElementIndex = warp_prefix_count_bits(isMovableElement);
+
+        $if(cond) {
+            Uint writeOffset = 0;
             sharcParameters.hashMapData.hashEntriesBuffer.write(entryIndex, HASH_GRID_INVALID_HASH_KEY);
+            sharcParameters.voxelDataBuffer.write(entryIndex, make_uint4(0));
+            $if(isValidElement) {
+                Uint emptySlotIndex = 0;
+                $while(emptySlotIndex < validElementNum) {
+                    $if(((validElementMask >> writeOffset) & 0x1) == 0) {
+                        $if(emptySlotIndex == movableElementIndex) {
+                            writeOffset += HashGridGetBaseSlot<D>(entryIndex, sharcParameters.hashMapData.capacity);
+                            sharcParameters.voxelDataBuffer.write(writeOffset, packedData);
+                            $break;
+                        };
+                        emptySlotIndex += 1;
+                    };
+                    writeOffset += 1;
+                };
+            };
+            Uint val = ocarina::select(writeOffset != 0, writeOffset, HASH_GRID_INVALID_CACHE_INDEX);
+            copyOffsetBuffer.write(entryIndex, val);
+        }
+        $elif(isValidElement) {
+            sharcParameters.voxelDataBuffer.write(entryIndex, packedData);
         };
     };
 
-    return impl(entryIndex, sharcParameters, resolveParameters, copyOffsetBuffer);
+    impl(entryIndex, sharcParameters, resolveParameters, copyOffsetBuffer);
 }
 
 }// namespace vision
