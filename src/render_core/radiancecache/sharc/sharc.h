@@ -461,4 +461,46 @@ void SharcResolveEntry(const Uint &entryIndex, SharcParametersVar &sharcParamete
     impl(entryIndex, sharcParameters, resolveParameters, copyOffsetBuffer);
 }
 
+[[nodiscard]] Float3 SharcDebugGetBitsOccupancyColor(const Float &occupancy) {
+    static Callable impl = [](const Float &occupancy) -> Float3 {
+        Float3 ret = make_float3(1, 0, 0) * occupancy;
+        $if(occupancy < SHARC_DEBUG_BITS_OCCUPANCY_THRESHOLD_LOW) {
+            ret = make_float3(0.0f, 1.0f, 0.0f) * (occupancy + SHARC_DEBUG_BITS_OCCUPANCY_THRESHOLD_LOW);
+        }
+        $elif(occupancy < SHARC_DEBUG_BITS_OCCUPANCY_THRESHOLD_MEDIUM) {
+            ret = float3(1.0f, 1.0f, 0.0f) * (occupancy + SHARC_DEBUG_BITS_OCCUPANCY_THRESHOLD_MEDIUM);
+        };
+        return ret;
+    };
+    impl.set_description("SharcDebugGetBitsOccupancyColor");
+    return impl(occupancy);
+}
+
+Float3 SharcDebugBitsOccupancySampleNum(SharcParametersVar &sharcParameters,
+                                        const SharcHitDataVar &sharcHitData) {
+    static Callable impl = [](SharcParametersVar &sharcParameters,
+                              const SharcHitDataVar &sharcHitData) -> Float3 {
+        HashGridIndex cacheIndex = HashMapFindEntry(sharcParameters.hashMapData, sharcHitData.positionWorld, sharcHitData.normalWorld, sharcParameters.gridParameters);
+        SharcVoxelDataVar voxelData = SharcGetVoxelData(sharcParameters.voxelDataBuffer, cacheIndex);
+        Float occupancy = cast<float>(voxelData.accumulatedSampleNum) / SHARC_SAMPLE_NUM_BIT_MASK;
+        return SharcDebugGetBitsOccupancyColor(occupancy);
+    };
+    impl.set_description("SharcDebugBitsOccupancySampleNum");
+    return impl(sharcParameters, sharcHitData);
+}
+
+Float3 SharcDebugBitsOccupancyRadiance(SharcParametersVar &sharcParameters,
+                                       const SharcHitDataVar &sharcHitData) {
+    static Callable impl = [](SharcParametersVar &sharcParameters,
+                              const SharcHitDataVar &sharcHitData) -> Float3 {
+        HashGridIndex cacheIndex = HashMapFindEntry(sharcParameters.hashMapData, sharcHitData.positionWorld,
+                                                    sharcHitData.normalWorld, sharcParameters.gridParameters);
+        SharcVoxelDataVar voxelData = SharcGetVoxelData(sharcParameters.voxelDataBuffer, cacheIndex);
+        Float occupancy = cast<float>(max_comp(voxelData.accumulatedRadiance)) / 0xFFFFFFFF;
+        return SharcDebugGetBitsOccupancyColor(occupancy);
+    };
+    impl.set_description("SharcDebugBitsOccupancyRadiance");
+    return impl(sharcParameters, sharcHitData);
+}
+
 }// namespace vision
