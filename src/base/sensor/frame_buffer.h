@@ -143,6 +143,11 @@ OC_PARAM_STRUCT(vision, GradParam, frame_index, gbuffer){};
 
 namespace vision {
 
+class GBufferCallback {
+public:
+    virtual void compute_GBuffer(const RayState &rs, const Interaction &it) noexcept = 0;
+};
+
 class FrameBuffer : public Node, public EncodedObject, public Observer {
 public:
     static constexpr auto final_result = "FrameBuffer::final_result";
@@ -158,6 +163,8 @@ protected:
     string cur_view_{final_result};
     ScreenBuffer::manager_type screen_buffers_;
     Shader<void(Buffer<float4>, Buffer<float4>)> gamma_correct_;
+
+    vector<weak_ptr<GBufferCallback>> gbuffer_callbacks_;
 
     SP<Visualizer> visualizer_{make_shared<Visualizer>()};
 
@@ -268,6 +275,8 @@ public:
     OC_MAKE_MEMBER_GETTER(screen_window, )
     OC_MAKE_MEMBER_GETTER(tone_mapper, &)
     OC_MAKE_MEMBER_GETTER(upsampler, )
+    void register_callback(const SP<GBufferCallback> &cb) noexcept;
+    void deregister_callback(const SP<GBufferCallback> &cb) noexcept;
     void update_runtime_object(const IObjectConstructor *constructor) noexcept override;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
