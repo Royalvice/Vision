@@ -73,6 +73,19 @@ Float4 FrameBuffer::apply_exposure(const Float &exposure, const Float4 &input) c
     return 1.f - exp(-input * exposure);
 }
 
+void FrameBuffer::register_callback(const SP<vision::GBufferCallback>& cb) noexcept {
+    gbuffer_callbacks_.push_back(cb);
+}
+
+void FrameBuffer::deregister_callback(const SP<vision::GBufferCallback> &cb) noexcept {
+    auto iter = std::find_if(gbuffer_callbacks_.begin(), gbuffer_callbacks_.end(), [&](const weak_ptr<GBufferCallback> &elm) {
+        return elm.lock().get() == cb.get();
+    });
+    if (iter != gbuffer_callbacks_.cend()) {
+        gbuffer_callbacks_.erase(iter);
+    }
+}
+
 Float4 FrameBuffer::apply_exposure(const Float4 &input) const noexcept {
     return apply_exposure(*exposure_, input);
 }
