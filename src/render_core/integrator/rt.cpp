@@ -79,6 +79,7 @@ public:
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override {
         direct_->render_UI(widgets);
         indirect_->render_UI(widgets);
+        cache_->render_UI(widgets);
     }
 
     void compile() noexcept override {
