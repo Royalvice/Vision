@@ -32,11 +32,10 @@ namespace vision {
 struct SharcHitData {
     float3 positionWorld;
     float3 normalWorld;
-    float3 emissive;
 };
 }// namespace vision
-OC_STRUCT(vision, SharcHitData, positionWorld,
-          normalWorld, emissive){};
+OC_STRUCT(vision, SharcHitData,
+          positionWorld, normalWorld){};
 
 namespace vision {
 struct SharcVoxelData {
