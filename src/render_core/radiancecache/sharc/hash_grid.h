@@ -23,7 +23,20 @@ OC_STRUCT(vision, HashGridParameters, cameraPosition,
           logarithmBase, sceneScale, levelBias){};
 
 namespace vision {
+struct HashMapData {
+    uint capacity{};
+    BufferDesc<uint64_t> hashEntriesBuffer;
+    BufferDesc<uint> lockBuffer;
+};
+}// namespace vision
+
+OC_PARAM_STRUCT(vision, HashMapData, capacity,
+                hashEntriesBuffer, lockBuffer){};
+
+namespace vision {
+
 using namespace ocarina;
+
 template<EPort p = D>
 [[nodiscard]] oc_float<p> HashGridLogBase_impl(const oc_float<p> &x, const oc_float<p> &base) {
     return ocarina::log(x) / ocarina::log(base);
@@ -88,13 +101,13 @@ VS_MAKE_CALLABLE(HashGridCalculatePositionLog)
 
 template<EPort p = D>
 [[nodiscard]] oc_ulong<p> HashGridComputeSpatialHash_impl(const oc_float3<p> &samplePosition, const oc_float3<p> &sampleNormal,
-                                                            const var_t<HashGridParameters, p> &gridParameters) {
+                                                          const var_t<HashGridParameters, p> &gridParameters) {
     oc_uint4<p> gridPosition = cast<uint4>(HashGridCalculatePositionLog<p>(samplePosition, gridParameters));
 
     oc_ulong<p> hashKey = ((cast<uint64_t>(gridPosition.x) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 0)) |
-                            ((cast<uint64_t>(gridPosition.y) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 1)) |
-                            ((cast<uint64_t>(gridPosition.z) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 2)) |
-                            ((cast<uint64_t>(gridPosition.w) & HASH_GRID_LEVEL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3));
+                          ((cast<uint64_t>(gridPosition.y) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 1)) |
+                          ((cast<uint64_t>(gridPosition.z) & HASH_GRID_POSITION_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 2)) |
+                          ((cast<uint64_t>(gridPosition.w) & HASH_GRID_LEVEL_BIT_MASK) << (HASH_GRID_POSITION_BIT_NUM * 3));
 
     oc_uint<p> normalBits =
         ocarina::select(sampleNormal.x + HASH_GRID_NORMAL_BIAS >= 0, 0, 1) +
@@ -131,21 +144,6 @@ template<EPort p = D>
 }
 VS_MAKE_CALLABLE(HashGridGetPositionFromKey)
 
-}// namespace vision
-
-namespace vision {
-struct HashMapData {
-    uint capacity{};
-    BufferDesc<uint64_t> hashEntriesBuffer;
-    BufferDesc<uint> lockBuffer;
-};
-}// namespace vision
-
-OC_PARAM_STRUCT(vision, HashMapData, capacity,
-                hashEntriesBuffer, lockBuffer){};
-
-namespace vision ::inline sharc {
-using namespace ocarina;
 void HashMapAtomicCompareExchange(HashMapDataVar &hashMapData, const Uint &dstOffset, const Ulong &compareValue,
                                   const Ulong &value, Ulong &originalValue) {
     outline("HashMapAtomicCompareExchange", [&] {
@@ -283,4 +281,4 @@ Float3 HashGridDebugOccupancy(const Uint2 &pixelPosition, const Uint2 &screenSiz
     return impl(pixelPosition, screenSize, hashMapData);
 }
 
-}// namespace vision::inline sharc
+}// namespace vision

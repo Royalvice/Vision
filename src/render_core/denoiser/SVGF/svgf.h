@@ -14,7 +14,7 @@
 namespace vision::svgf {
 using namespace ocarina;
 
-class SVGF : public Denoiser {
+class SVGF : public Denoiser, public GBufferCallback, public enable_shared_from_this<SVGF> {
 public:
     RegistrableBuffer<SVGFData> svgf_data;
     Buffer<float> history;
@@ -57,6 +57,8 @@ public:
           params_(desc) {}
 
     void initialize_(const vision::NodeDesc &node_desc) noexcept override;
+
+    void compute_GBuffer(const vision::RayState &rs, const vision::Interaction &it) noexcept override;
 
     VS_HOTFIX_MAKE_RESTORE(Denoiser, svgf_data, history, reproject_,
                            filter_moments_, atrous_, modulator_, params_)

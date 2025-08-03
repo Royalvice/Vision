@@ -190,6 +190,9 @@ void FrameBuffer::compile_compute_geom() noexcept {
         $if(hit->is_hit()) {
             Interaction it = pipeline()->compute_surface_interaction(hit, rs.ray, true);
             geom->set_normal(it.shading.normal());
+            for (auto & cb : gbuffer_callbacks_) {
+                cb.lock()->compute_GBuffer(rs, it);
+            }
             normal_buffer.write(dispatch_id(), make_float4(it.shading.normal(), 1.f));
             geom.linear_depth = camera->linear_depth(it.pos);
             $if(it.has_material()) {

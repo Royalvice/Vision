@@ -12,10 +12,24 @@ public:
     SpatialHashRadianceCache() = default;
     explicit SpatialHashRadianceCache(const Desc &desc)
         : RadianceCache(desc) {
-      auto typ = Type::of<SharcState>();
-      int i  =0;
     }
+
     VS_MAKE_PLUGIN_NAME_FUNC
+    void update() noexcept override {
+
+    }
+
+    void resolve() noexcept override {
+
+    }
+
+    void compaction() noexcept override {
+
+    }
+
+    void query() noexcept override {
+
+    }
 };
 
 }// namespace vision

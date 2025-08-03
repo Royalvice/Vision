@@ -20,6 +20,10 @@ void SVGF::prepare_buffers() {
     svgf_data.register_view(rp->pixel_num(), rp->pixel_num());
 }
 
+void SVGF::compute_GBuffer(const vision::RayState &rs, const vision::Interaction &it) noexcept {
+//    OC_ASSERT(0);
+}
+
 void SVGF::initialize_(const vision::NodeDesc &node_desc) noexcept {
     reproject_ = make_shared<Reproject>(this);
     filter_moments_ = make_shared<FilterMoments>(this);
@@ -75,6 +79,7 @@ Float SVGF::cal_weight(const Float &cur_depth, const Float &neighbor_depth, cons
 
 void SVGF::prepare() noexcept {
     prepare_buffers();
+    frame_buffer().register_callback(shared_from_this());
     reproject_->prepare();
     filter_moments_->prepare();
     atrous_->prepare();
