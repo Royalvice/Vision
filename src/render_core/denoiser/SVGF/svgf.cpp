@@ -21,7 +21,7 @@ void SVGF::prepare_buffers() {
 }
 
 void SVGF::compute_GBuffer(const vision::RayState &rs, const vision::Interaction &it) noexcept {
-    OC_ASSERT(0);
+//    OC_ASSERT(0);
 }
 
 void SVGF::initialize_(const vision::NodeDesc &node_desc) noexcept {
