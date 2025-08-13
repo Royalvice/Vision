@@ -312,6 +312,23 @@ def parse_math(exporter, link, dim, node_tab):
     output_key = fs.name
     node_name = str(from_node)
     
+    
+def parse_separate_color(exporter, link, dim, node_tab):
+    from_node = link.from_node
+    fs = link.from_socket
+    output_key = fs.name
+    node_name = str(from_node)
+    ret = slot_data(node_name, fs.name)
+    val = {
+        "type" : "separate_color",
+        "param" : {
+            "value" : parse_node(exporter, from_node.inputs["Color"], 3, node_tab),
+        }
+    }
+    if not (node_name in node_tab):
+        node_tab[node_name] = val
+    return ret
+
 
 func_dict = {
     "TEX_IMAGE": parse_image_node,
@@ -329,6 +346,7 @@ func_dict = {
     "GAMMA" : parse_gamma,
     "COMBINE_COLOR" : parse_combine_color,
     "COMBINE_XYZ" : parse_combine_xyz,
+    "SEPARATE_COLOR" : parse_separate_color,
     "MATH" : parse_math,
 }
 
