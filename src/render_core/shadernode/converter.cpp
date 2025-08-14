@@ -225,6 +225,37 @@ public:
     }
 };
 
+class SeparateXYZ : public SlotsShaderNode {
+public:
+    VS_MAKE_PLUGIN_NAME_FUNC_(separate_xyz)
+private:
+    VS_MAKE_SLOT(value);
+
+public:
+    SeparateXYZ() = default;
+    explicit SeparateXYZ(const ShaderNodeDesc &desc)
+        : SlotsShaderNode(desc) {}
+
+    void initialize_slots(const vision::ShaderNodeDesc &desc) noexcept override {
+        VS_INIT_SLOT(value, 0.5f, Number);
+        init_slot_cursor(addressof(value_), 1);
+    }
+
+    AttrEvalContext evaluate(const std::string &key, const AttrEvalContext &ctx,
+                             const SampledWavelengths &swl) const noexcept override {
+        Float3 value = value_.evaluate(ctx, swl)->as_vec3();
+        if (key == "X") {
+            return float_array(1, value.x);
+        } else if (key == "Y") {
+            return float_array(1, value.y);
+        } else if (key == "Z") {
+            return float_array(1, value.z);
+        }
+        OC_ASSERT(false);
+        return float_array::from_vec(value);
+    }
+};
+
 class Clamp : public SlotsShaderNode {
 public:
     VS_MAKE_PLUGIN_NAME_FUNC_(clamp)
@@ -263,6 +294,7 @@ VS_MAKE_CLASS_CREATOR_HOTFIX_FUNC(vision, VectorMapping, vector_mapping)
 VS_MAKE_CLASS_CREATOR_HOTFIX_FUNC(vision, CombineXYZ, combine_xyz)
 VS_MAKE_CLASS_CREATOR_HOTFIX_FUNC(vision, CombineColor, combine_color)
 VS_MAKE_CLASS_CREATOR_HOTFIX_FUNC(vision, SeparateColor, separate_color)
+VS_MAKE_CLASS_CREATOR_HOTFIX_FUNC(vision, SeparateXYZ, separate_xyz)
 VS_MAKE_CLASS_CREATOR_HOTFIX_FUNC(vision, Gamma, gamma)
 VS_MAKE_CLASS_CREATOR_HOTFIX_FUNC(vision, Clamp, clamp)
 VS_REGISTER_CURRENT_FILE
