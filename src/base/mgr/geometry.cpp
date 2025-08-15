@@ -34,6 +34,7 @@ void Geometry::update_instances(const vector<SP<ShapeInstance>> &instances) {
 }
 
 void Geometry::build_accel() {
+    TIMER(build_accel);
     Stream &stream = rp->stream();
     for (const auto &inst : instances_) {
         uint mesh_id = inst.mesh_id;
