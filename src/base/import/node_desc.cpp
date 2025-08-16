@@ -8,7 +8,7 @@
 #include "medium_scatter_data.h"
 #include <sstream>
 #include "math/transform.h"
-#include "ocarina/src/rhi/context.h"
+#include "rhi/context.h"
 
 namespace vision {
 

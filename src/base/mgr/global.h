@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "ocarina/src/rhi/context.h"
+#include "rhi/context.h"
 #include "image_pool.h"
 #include "rhi/common.h"
 

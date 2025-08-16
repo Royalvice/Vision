@@ -6,7 +6,7 @@
 
 #include "core/stl.h"
 #include "core/logging.h"
-#include "ocarina/src/rhi/context.h"
+#include "rhi/context.h"
 #include "core/dynamic_module.h"
 #include "module_interface.h"
 

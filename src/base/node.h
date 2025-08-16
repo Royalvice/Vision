@@ -9,7 +9,7 @@
 #include "UI/GUI.h"
 #include "GUI/widgets.h"
 #include "base/import/node_desc.h"
-#include "ocarina/src/rhi/context.h"
+#include "rhi/context.h"
 #include "hotfix/hotfix.h"
 
 namespace ocarina {

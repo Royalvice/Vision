@@ -6,7 +6,7 @@
 
 #include "rhi/common.h"
 #include "base/import/node_desc.h"
-#include "ocarina/src/core/image.h"
+#include "core/image.h"
 
 namespace vision {
 using namespace ocarina;

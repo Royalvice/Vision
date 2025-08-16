@@ -5,8 +5,8 @@
 #include "base/warper.h"
 #include "core/stl.h"
 #include "rhi/common.h"
-#include "ocarina/src/core/image.h"
-#include "ocarina/src/rhi/context.h"
+#include "core/image.h"
+#include "rhi/context.h"
 #include "base/import/node_desc.h"
 #include "base/node.h"
 
