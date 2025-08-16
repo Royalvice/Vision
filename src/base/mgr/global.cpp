@@ -11,7 +11,7 @@ namespace vision {
 OC_MAKE_INSTANCE_FUNC_DEF_WITH_HOTFIX(Global, s_global)
 
 Global::~Global() {
-    FileManager::destroy_instance();
+    RHIContext::destroy_instance();
     ImagePool::destroy_instance();
 }
 

@@ -10,7 +10,7 @@
 
 namespace vision::inline hotfix {
 
-class ModuleInterface {
+class VS_EXPORT_SYMBOL ModuleInterface {
 public:
     using creator_t = ModuleInterface *();
 

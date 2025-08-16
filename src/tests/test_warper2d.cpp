@@ -5,8 +5,8 @@
 #include "base/warper.h"
 #include "core/stl.h"
 #include "rhi/common.h"
-#include "util/image.h"
-#include "util/file_manager.h"
+#include "ocarina/src/core/image.h"
+#include "ocarina/src/rhi/context.h"
 #include "base/import/node_desc.h"
 #include "base/node.h"
 
@@ -15,7 +15,7 @@ using namespace ocarina;
 
 int main(int argc, char *argv[]) {
     fs::path path(argv[0]);
-    FileManager &file_manager = FileManager::instance();
+    RHIContext &file_manager = RHIContext::instance();
     Device device = file_manager.create_device("cuda");
     device.init_rtx();
     Stream stream = device.create_stream();

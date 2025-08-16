@@ -20,7 +20,7 @@ string BuildRules::obj_path(std::string_view cpp_path) const noexcept {
 
 BuildRules::Handle BuildRules::create(const std::string &name) {
     string plugin_name = ocarina::format("vision-hotfix-rules_parser-{}.dll", name);
-    auto module = ocarina::FileManager::instance().obtain_module(plugin_name);
+    auto module = ocarina::RHIContext::instance().obtain_module(plugin_name);
     auto creator = module->function<BuildRules::Creator *>("create");
     auto deleter = module->function<BuildRules::Deleter *>("destroy");
     return Handle{creator(), deleter};

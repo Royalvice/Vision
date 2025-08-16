@@ -7,8 +7,8 @@
 #include "base/import/scene_desc.h"
 #include "core/stl.h"
 #include "base/mgr/pipeline.h"
-#include "util/file_manager.h"
-#include "util/image.h"
+#include "ocarina/src/rhi/context.h"
+#include "ocarina/src/core/image.h"
 #include "core/logging.h"
 #include "base/denoiser.h"
 #include "base/mgr/global.h"
@@ -24,7 +24,7 @@ using namespace vision;
 struct App {
     Device device;
     SP<Pipeline> rp{};
-    App() : device(FileManager::instance().create_device("cuda")) {
+    App() : device(RHIContext::instance().create_device("cuda")) {
         Global::instance().set_device(&device);
         fs::path file_path = parent_path(__FILE__, 1) / "precompute.json";
         rp = Importer::import_scene(file_path);

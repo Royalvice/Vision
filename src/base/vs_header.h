@@ -28,6 +28,12 @@
 #define VS_IMPORT_API VS_EXTERN_C
 #endif
 
+#ifdef VS_EXPORT_DLL
+#define VS_EXPORT_SYMBOL __declspec(dllexport)
+#else
+#define VS_EXPORT_SYMBOL __declspec(dllimport)
+#endif
+
 #define VS_MAKE_CALLABLE(func)                          \
     template<EPort p = EPort::D, typename... Args>      \
     [[nodiscard]] auto func(Args &&...args) {           \

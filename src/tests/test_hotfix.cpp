@@ -5,16 +5,16 @@
 #include "hotfix/hotfix.h"
 #include "core/stl.h"
 #include "dsl/dsl.h"
-#include "util/file_manager.h"
+#include "ocarina/src/rhi/context.h"
 #include "rhi/common.h"
 #include <windows.h>
 
 #include <memory>
 #include "math/base.h"
-#include "util/image.h"
+#include "ocarina/src/core/image.h"
 #include "dsl/dsl.h"
 #include "GUI_impl/imGui/window.h"
-#include "util/image.h"
+#include "ocarina/src/core/image.h"
 #include "hotfix/test/test.h"
 #include "hotfix/test/hotfix_test.h"
 #include "hotfix/module_interface.h"
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 
 
 
-    auto window = FileManager::instance().create_window("display", make_uint2(500), "imGui");
+    auto window = RHIContext::instance().create_window("display", make_uint2(500), "imGui");
     auto image_io = Image::pure_color(make_float4(1, 0, 0, 1), ColorSpace::LINEAR, make_uint2(500));
     window->init_widgets();
 
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 
             auto target = inspector.get_target("vision-hotfix-test.dll");
 
-            auto module = FileManager::instance().obtain_module(target.dll_path().string());
+            auto module = RHIContext::instance().obtain_module(target.dll_path().string());
 
             auto func2 = module->function<fun2_t *>("module_interface");
             auto *mi = func2();

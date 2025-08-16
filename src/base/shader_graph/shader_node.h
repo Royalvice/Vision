@@ -5,7 +5,7 @@
 #pragma once
 
 #include "base/node.h"
-#include "util/image.h"
+#include "ocarina/src/core/image.h"
 #include "base/color/spectrum.h"
 #include "base/scattering/interaction.h"
 #include "hotfix/hotfix.h"

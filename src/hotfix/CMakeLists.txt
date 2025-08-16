@@ -13,7 +13,7 @@ else ()
 endif ()
 
 target_compile_definitions(vision-hotfix PRIVATE
-        VISION_HOTFIX_EXPORT_DLL=1
+        VS_EXPORT_DLL=1
         CPP_COMPILER_PATH="${CMAKE_CXX_COMPILER}"
         CPP_COMPILER_TYPE="${CPP_COMPILE_TYPE}"
         -DCMAKE_VERBOSE_MAKEFILE=ON)

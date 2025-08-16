@@ -32,7 +32,7 @@ UnwrapperResult BakedShape::load_uv_config_from_cache() const {
 }
 
 void BakedShape::save_to_cache(const UnwrapperResult &result) {
-    FileManager::create_directory_if_necessary(cache_directory());
+    RHIContext::create_directory_if_necessary(cache_directory());
     DataWrap data = DataWrap::object();
     data["resolution"] = {result.width, result.height};
     data["uv_result"] = DataWrap::array();
@@ -49,11 +49,11 @@ void BakedShape::save_to_cache(const UnwrapperResult &result) {
     data["uv_result"].push_back(elm);
     string data_str = data.dump(4);
     fs::path uv_config = uv_config_fn();
-    FileManager::write_file(uv_config, data_str);
+    RHIContext::write_file(uv_config, data_str);
 }
 
 CommandList BakedShape::save_lightmap_to_cache() const {
-    FileManager::create_directory_if_necessary(instance_cache_directory());
+    RHIContext::create_directory_if_necessary(instance_cache_directory());
     CommandList ret;
     float4 *ptr = ocarina::allocate<float4>(pixel_num());
     ret << lightmap_tex_.download(ptr);
@@ -66,7 +66,7 @@ CommandList BakedShape::save_lightmap_to_cache() const {
 
 CommandList BakedShape::save_rasterize_map_to_cache() const {
     CommandList ret;
-    FileManager::create_directory_if_necessary(instance_cache_directory());
+    RHIContext::create_directory_if_necessary(instance_cache_directory());
     float4 *ptr = ocarina::allocate<float4>(pixel_num());
     ret << pixels_.download(ptr);
     ret << [&, ptr] {
