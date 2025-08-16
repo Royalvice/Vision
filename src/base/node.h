@@ -9,7 +9,7 @@
 #include "UI/GUI.h"
 #include "GUI/widgets.h"
 #include "base/import/node_desc.h"
-#include "util/file_manager.h"
+#include "rhi/context.h"
 #include "hotfix/hotfix.h"
 
 namespace ocarina {
@@ -108,7 +108,7 @@ public:
 
 template<typename impl_t, typename Desc>
 SP<impl_t> Node::create_shared(const Desc &desc) {
-    const DynamicModule *module = FileManager::instance().obtain_module(desc.plugin_name());
+    const DynamicModule *module = RHIContext::instance().obtain_module(desc.plugin_name());
     using Constructor = INodeConstructor *();
     Constructor *constructor = module->function<Constructor *>(desc.construct_name);
     SP<impl_t> ret = constructor()->construct_shared<impl_t>(&desc);

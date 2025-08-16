@@ -8,7 +8,7 @@
 #include "medium_scatter_data.h"
 #include <sstream>
 #include "math/transform.h"
-#include "util/file_manager.h"
+#include "rhi/context.h"
 
 namespace vision {
 

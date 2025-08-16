@@ -128,7 +128,7 @@ inline void line_bresenham(float2 p1, float2 p2,
     }
 }
 
-inline void safe_line_bresenham(float2 p1, float2 p2,
+VS_EXPORT_API inline void safe_line_bresenham(float2 p1, float2 p2,
                                 const std::function<void(int, int)> &write) noexcept {
     if (has_nan(p1) || has_nan(p2) || has_inf(p1) || has_inf(p2)) {
         return;

@@ -16,7 +16,7 @@ function(vision_add_compiler_plugins name)
     set_target_properties(${lib_name} PROPERTIES
             LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
             RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-            WINDOWS_EXPORT_ALL_SYMBOLS ON
+            WINDOWS_EXPORT_ALL_SYMBOLS OFF
             UNITY_BUILD OFF
             DEBUG_POSTFIX "")
 endfunction()

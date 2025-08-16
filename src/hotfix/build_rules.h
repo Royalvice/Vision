@@ -6,7 +6,7 @@
 
 #include "core/stl.h"
 #include "core/logging.h"
-#include "util/file_manager.h"
+#include "rhi/context.h"
 #include "core/dynamic_module.h"
 #include "module_interface.h"
 

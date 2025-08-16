@@ -84,7 +84,7 @@ bool Pipeline::render_UI(ocarina::Widgets *widgets) noexcept {
         widgets->check_box("hotfix", &show_hotfix_);
         widgets->check_box("output setting", &show_output_);
         widgets->button_click("clear cache", [&] {
-            FileManager::instance().clear_cache();
+            RHIContext::instance().clear_cache();
         });
     });
     if (show_scene_data_) {

@@ -31,7 +31,7 @@ private:
 public:
     explicit BakePipeline(const PipelineDesc &desc);
     static void create_cache_directory_if_necessary() {
-        FileManager::create_directory_if_necessary(Global::instance().scene_cache_path());
+        RHIContext::create_directory_if_necessary(Global::instance().scene_cache_path());
     }
     VS_MAKE_PLUGIN_NAME_FUNC
     void compile() noexcept override;

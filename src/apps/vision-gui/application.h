@@ -9,8 +9,8 @@
 #include "base/import/scene_desc.h"
 #include "core/stl.h"
 #include "base/mgr/pipeline.h"
-#include "util/file_manager.h"
-#include "util/image.h"
+#include "rhi/context.h"
+#include "core/image.h"
 #include "core/logging.h"
 #include "base/denoiser.h"
 #include "base/mgr/global.h"
@@ -64,7 +64,7 @@ public:
 public:
     App(int argc, char *argv[])
         : cli_parser(make_unique<CLIParser>(argc, argv)),
-          device(FileManager::instance().create_device(cli_parser->backend())) {
+          device(RHIContext::instance().create_device(cli_parser->backend())) {
         init(argc);
     }
     void init(int argc = 0);

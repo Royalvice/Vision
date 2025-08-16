@@ -6,7 +6,7 @@
 
 #include "core/stl.h"
 #include "file_tool.h"
-#include "util/file_manager.h"
+#include "rhi/context.h"
 #include "core/dynamic_module.h"
 #include "build_rules.h"
 #include "cmd_process.h"

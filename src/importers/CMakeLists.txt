@@ -10,7 +10,9 @@ target_link_libraries(vision-assimp_util PUBLIC
         vision-base
         vision-ext-assimp_config
         ocarina-include)
+target_compile_definitions(vision-assimp_util PRIVATE
+        VS_EXPORT_DLL=1)
 set_target_properties(vision-assimp_util PROPERTIES
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-        WINDOWS_EXPORT_ALL_SYMBOLS ON)
+        WINDOWS_EXPORT_ALL_SYMBOLS OFF)

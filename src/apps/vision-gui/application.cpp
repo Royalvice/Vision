@@ -26,7 +26,7 @@ void App::init(int argc) {
     params.init(cli_parser.get());
     device.init_rtx();
     if (params.clear_cache) {
-        FileManager::instance().clear_cache();
+        RHIContext::instance().clear_cache();
     }
     if (cli_parser) {
         cli_parser->try_print_help_and_exit();
@@ -44,7 +44,7 @@ void App::init_pipeline() {
 void App::prepare() {
     init_pipeline();
     pipeline().prepare();
-    window = FileManager::instance().create_window("LajiRender", pipeline().resolution(), "imGui", true);
+    window = RHIContext::instance().create_window("LajiRender", pipeline().resolution(), "imGui", true);
     register_event();
 }
 

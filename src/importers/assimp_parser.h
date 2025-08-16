@@ -33,7 +33,7 @@ namespace assimp {
 
 }// namespace assimp
 
-class AssimpParser {
+class VS_EXPORT_SYMBOL AssimpParser {
 private:
     Assimp::Importer ai_importer_;
     const aiScene *ai_scene_{};

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "util/file_manager.h"
+#include "rhi/context.h"
 #include "image_pool.h"
 #include "rhi/common.h"
 
@@ -34,7 +34,7 @@ public:
     [[nodiscard]] fs::path scene_path() const noexcept;
     [[nodiscard]] fs::path scene_cache_path() const noexcept;
     [[nodiscard]] static decltype(auto) file_manager() {
-        return FileManager::instance();
+        return RHIContext::instance();
     }
 };
 
