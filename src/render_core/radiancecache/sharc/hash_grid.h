@@ -26,12 +26,11 @@ namespace vision {
 struct HashMapData {
     uint capacity{};
     BufferDesc<uint64_t> hashEntriesBuffer;
-    BufferDesc<uint> lockBuffer;
 };
 }// namespace vision
 
 OC_PARAM_STRUCT(vision, HashMapData, capacity,
-                hashEntriesBuffer, lockBuffer){};
+                hashEntriesBuffer){};
 
 namespace vision {
 

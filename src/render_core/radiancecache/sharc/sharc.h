@@ -318,7 +318,7 @@ oc_ulong<p> SharcGetAdjacentLevelHashKey_impl(const oc_ulong<p> &hashKey, const 
 
     oc_int3<p> cameraGridPositionPrev = make_int3(floor((cameraPositionPrev + HASH_GRID_POSITION_OFFSET) / voxelSize));
     oc_int3<p> cameraVectorPrev = cameraGridPositionPrev - gridPosition;
-    oc_int<p> cameraDistancePrev = SharcGetGridDistance2(cameraVectorPrev);
+    oc_int<p> cameraDistancePrev = SharcGetGridDistance2<p>(cameraVectorPrev);
 
     $if(cameraDistance < cameraDistancePrev) {
         gridPosition = make_int3(floor(gridPosition / gridParameters.logarithmBase));

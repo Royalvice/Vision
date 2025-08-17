@@ -8,6 +8,12 @@
 namespace vision {
 
 class SpatialHashRadianceCache : public RadianceCache {
+private:
+    RegistrableBuffer<uint4> voxel_data_;
+    RegistrableBuffer<uint4> prev_voxel_data_;
+    RegistrableBuffer<ulong> hash_entries_;
+    RegistrableBuffer<uint> copy_offset_;
+
 public:
     SpatialHashRadianceCache() = default;
     explicit SpatialHashRadianceCache(const Desc &desc)
@@ -16,19 +22,15 @@ public:
 
     VS_MAKE_PLUGIN_NAME_FUNC
     void update() noexcept override {
-
     }
 
     void resolve() noexcept override {
-
     }
 
     void compaction() noexcept override {
-
     }
 
     void query() noexcept override {
-
     }
 };
 
