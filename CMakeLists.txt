@@ -42,7 +42,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(OCARINA_PY "Build python export" FALSE)
 option(OIDN_ON "Build oidn" TRUE)
-
+option(VISION_UNITY_BUILD "Unity build" OFF)
 #set(OCARINA_BUILD_TESTS FALSE)
 #set(OCARINA_PY TRUE)
 #set(OIDN_ON FALSE)

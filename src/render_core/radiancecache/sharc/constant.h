@@ -43,7 +43,7 @@ static constexpr auto SHARC_NORMALIZED_SAMPLE_NUM = (1u << (SHARC_SAMPLE_NUM_BIT
 static constexpr auto SHARC_ACCUMULATED_FRAME_NUM_MIN = 1u;                                   // minimum number of frames to use for data accumulation;
 static constexpr auto SHARC_ACCUMULATED_FRAME_NUM_MAX = SHARC_ACCUMULATED_FRAME_NUM_BIT_MASK;// maximum number of frames to use for data accumulation;
                                                                                              // increase sample count internally to make resolve step with low sample count more robust, power of 2 usage may help compiler with optimizations;
-static constexpr auto SHARC_SAMPLE_NUM_MULTIPLIER = 16;
+static constexpr auto SHARC_SAMPLE_NUM_MULTIPLIER = 16u;
 static constexpr auto SHARC_SAMPLE_NUM_THRESHOLD = 0u;// elements with sample count above this threshold will be used for early-out/resampling;
 
 static constexpr auto SHARC_SEPARATE_EMISSIVE = 0;// if set, emissive values should be passed separately on updates and added to the cache query;
