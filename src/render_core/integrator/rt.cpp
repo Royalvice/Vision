@@ -34,6 +34,7 @@ public:
         const Desc &desc = static_cast<const Desc &>(node_desc);
         direct_ = make_shared<ReSTIRDI>(shared_from_this(), desc["direct"]);
         indirect_ = make_shared<ReSTIRGI>(shared_from_this(), desc["indirect"]);
+        cache_->set_integrator(shared_from_this());
     }
 
     VS_MAKE_GUI_STATUS_FUNC(IlluminationIntegrator, direct_, indirect_)
@@ -44,6 +45,7 @@ public:
                              combine_, path_tracing_, denoiser_)
         direct_->set_integrator(shared_from_this());
         indirect_->set_integrator(shared_from_this());
+        cache_->set_integrator(shared_from_this());
     }
 
     void update_resolution(ocarina::uint2 res) noexcept override {

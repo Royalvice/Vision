@@ -81,7 +81,6 @@ public:
         compile_shader0();
         compile_shader1();
     }
-    OC_MAKE_MEMBER_SETTER(integrator)
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override;
     [[nodiscard]] static Bool is_valid_neighbor(const SurfaceDataVar &cur_surface,
