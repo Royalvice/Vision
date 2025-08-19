@@ -64,6 +64,7 @@ public:
         direct_->prepare();
         indirect_->prepare();
         denoiser_->prepare();
+        cache_->prepare();
         Pipeline *rp = pipeline();
 
         frame_buffer().prepare_screen_buffer(specular_buffer_);
