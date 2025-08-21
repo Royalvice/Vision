@@ -26,12 +26,11 @@ namespace vision {
 struct HashMapData {
     uint capacity{};
     BufferDesc<uint64_t> hashEntriesBuffer;
-    BufferDesc<uint> lockBuffer;
 };
 }// namespace vision
 
 OC_PARAM_STRUCT(vision, HashMapData, capacity,
-                hashEntriesBuffer, lockBuffer){};
+                hashEntriesBuffer){};
 
 namespace vision {
 
@@ -71,7 +70,7 @@ VS_MAKE_CALLABLE(HashGridHash32)
 template<EPort p = D>
 [[nodiscard]] oc_uint<p> HashGridGetLevel_impl(const oc_float3<p> &samplePosition,
                                                const var_t<HashGridParameters, p> &gridParameters) {
-    oc_float<p> distance2 = dot(gridParameters.cameraPosition - samplePosition, gridParameters.cameraPosition - samplePosition);
+    oc_float<p> distance2 = distance_squared(gridParameters.cameraPosition, samplePosition);
     oc_float<p> val = 0.5f * HashGridLogBase<p>(distance2, gridParameters.logarithmBase) + gridParameters.levelBias;
     return cast<uint>(ocarina::clamp(val, 1.0f, cast<float>(HASH_GRID_LEVEL_BIT_MASK)));
 }

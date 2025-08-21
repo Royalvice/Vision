@@ -101,6 +101,7 @@ public:
     VS_HOTFIX_MAKE_RESTORE(RuntimeObject, spatial_, temporal_, open_,
                            max_age_, diff_factor_, integrator_)
     OC_MAKE_MEMBER_GETTER(open, )
+    OC_MAKE_MEMBER_SETTER(integrator)
     [[nodiscard]] IlluminationIntegrator *integrator() noexcept { return integrator_.lock().get(); }
     [[nodiscard]] const IlluminationIntegrator *integrator() const noexcept { return integrator_.lock().get(); }
     virtual void update_resolution(uint2 res) noexcept {}

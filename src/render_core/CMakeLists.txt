@@ -1,3 +1,6 @@
+
+set(CMAKE_UNITY_BUILD ${VISION_UNITY_BUILD})
+
 add_subdirectory(filter)
 add_subdirectory(sampler)
 add_subdirectory(light)
