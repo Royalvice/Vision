@@ -17,6 +17,7 @@ private:
     RegistrableTexture *texture_{};
     EncodedData<uint> tex_id_{};
     ShaderNodeDesc desc_;
+    EncodedData<float> scale_{1.f};
     mutable optional<float_array> cache_;
 
 public:
@@ -24,13 +25,14 @@ public:
     explicit ImageNode(const ShaderNodeDesc &desc)
         : ShaderNode(desc),
           desc_(desc),
+          scale_(desc["scale"].as_float(1.f)),
           texture_(&Global::instance().pipeline()->image_pool().obtain_texture(desc)) {
         tex_id_ = texture_->index();
     }
     VS_MAKE_GUI_STATUS_FUNC(ShaderNode, vector_)
-    OC_ENCODABLE_FUNC(ShaderNode, vector_, tex_id_)
+    OC_ENCODABLE_FUNC(ShaderNode, vector_, tex_id_, scale_)
     VS_MAKE_PLUGIN_NAME_FUNC
-    VS_HOTFIX_MAKE_RESTORE(ShaderNode, vector_, texture_, tex_id_, desc_)
+    VS_HOTFIX_MAKE_RESTORE(ShaderNode, vector_, texture_, tex_id_, desc_, scale_)
 
     void initialize_slots(const vision::ShaderNodeDesc &desc) noexcept override {
         VS_INIT_SLOT_NO_DEFAULT(vector, Number);
@@ -50,6 +52,7 @@ public:
 
     void render_sub_UI(ocarina::Widgets *widgets) noexcept override {
         vector_.render_UI(widgets);
+        changed_ |= widgets->drag_float("scale", addressof(scale_.hv()), 0.05, 0);
         widgets->button_click("reload", [&] {
             reload(widgets);
         });
@@ -81,9 +84,11 @@ public:
 
     [[nodiscard]] AttrEvalContext evaluate(const AttrEvalContext &ctx,
                                            const SampledWavelengths &swl) const noexcept override {
+
         if (!cache_) {
             AttrEvalContext ctx_processed = vector_.evaluate(ctx, swl);
             float_array value = pipeline()->tex_var(*tex_id_).sample(channel_num(), ctx_processed.uv());
+            value = value * *scale_;
             cache_.emplace(value);
         }
         return *cache_;
