@@ -16,7 +16,7 @@ using namespace ocarina;
 
 class HotfixSystem;
 
-class VS_EXPORT_SYMBOL Observer {
+class Observer {
 protected:
     bool valid_{true};
     void invalidation() noexcept { valid_ = false; }
@@ -38,7 +38,7 @@ struct StaticMemoryBlock {
     size_t size{};
 };
 
-class VS_EXPORT_SYMBOL HotfixSystem {
+class HotfixSystem {
 public:
     using StaticMap = std::map<string, StaticMemoryBlock>;
 
