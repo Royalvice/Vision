@@ -211,9 +211,9 @@
 				"z" : 1,
 //				 "material" : "ShortBox",
 //								 "material" : "substrate",
-								"material" : "Mirror",
+//								"material" : "Mirror",
 //								"material" : "Metal",
-//				"material" : "principled_bsdf",
+				"material" : "principled_bsdf",
 //				"material" : "plastic",
 //				"material" : "metallic",
 //																                "material" : "mix",
@@ -260,11 +260,11 @@
 				"z" : 1,
 //				"material": "TallBox",
 //				"material" : "mix2",
-				"material" : "Mirror",
+//				"material" : "Mirror",
 //				                "material": "Mirror2",
 //								                "material": "Glass",
 //												"material" : "Metal",
-//				"material" : "principled_bsdf2",
+				"material" : "principled_bsdf2",
 //				"material" : "metallic",
 				"transform" : {
 					"type" : "matrix4x4",
@@ -1190,7 +1190,7 @@
 			"frame_buffer" : {
 				"type" : "normal",
 				"param" : {
-					"accumulation": false,
+					"accumulation": 1,
 					"resolution" : [
 						1024,
 						1024
@@ -1212,8 +1212,8 @@
 		"fn" : "glass-old.exr"
 	},
 	"integrator" : {
-		"type" : "rt",
-//		"type" : "pt",
+//		"type" : "rt",
+		"type" : "pt",
 		"param" : {
 			"mis_mode": 0,
 //			"separate": true,
