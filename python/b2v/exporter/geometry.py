@@ -24,7 +24,7 @@ def export_mesh(exporter, object, materials):
         b_mesh = object.data
     else:
         b_mesh = object.to_mesh()
-
+    print(object.name, "--------------------------------")
     mat = b_mesh.materials[0]
     mat_data = material.export(exporter, mat, materials)
     ret = {
