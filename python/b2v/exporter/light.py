@@ -148,6 +148,5 @@ def export_environment(exporter):
             },
             "node_tab" : node_tab,
         }
-        print("wocaonimabi")
         # ret["node_tab"] = node_tab
         return ret
