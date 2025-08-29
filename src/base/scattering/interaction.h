@@ -103,6 +103,13 @@ public:
         this->x = normalize(cross(norm, this->y)) * length(this->x);
         this->y = normalize(cross(norm, this->x)) * length(this->y);
     }
+    void update(const vec_ty &n, const vec_ty &s) noexcept {
+        vec_ty ss = normalize(s - n * dot(n, s));
+        vec_ty tt = normalize(cross(n, ss));
+        this->z = n;
+        this->x = ss;
+        this->y = tt;
+    }
     [[nodiscard]] vec_ty dp_du() const noexcept { return this->x; }
     [[nodiscard]] vec_ty dp_dv() const noexcept { return this->y; }
     [[nodiscard]] vec_ty normal() const noexcept { return this->z; }
