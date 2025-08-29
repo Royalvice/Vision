@@ -16,6 +16,7 @@ private:
     VS_MAKE_SLOT(vector);
     RegistrableTexture *texture_{};
     EncodedData<uint> tex_id_{};
+    EncodedData<uint> gamma_correct_{false};
     ShaderNodeDesc desc_;
     EncodedData<float> scale_{1.f};
     mutable optional<float_array> cache_;
