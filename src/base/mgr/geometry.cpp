@@ -113,8 +113,8 @@ Interaction Geometry::compute_surface_interaction(const TriangleHitVar &hit, boo
             Float3 dp_du, dp_dv;
             $if(!degenerate_uv) {
                 Float inv_det = 1 / det;
-                dp_du = (duv12[1] * dp02 - duv02[1] * dp12) * inv_det;
-                dp_dv = (-duv12[0] * dp02 + duv02[0] * dp12) * inv_det;
+                dp_du = normalize((duv12[1] * dp02 - duv02[1] * dp12) * inv_det);
+                dp_dv = normalize((-duv12[0] * dp02 + duv02[0] * dp12) * inv_det);
             }
             $else {
                 dp_du = normalize(p1 - p0);
