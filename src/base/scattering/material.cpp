@@ -334,6 +334,10 @@ PartialDerivative<Float3> Material::compute_shading_frame(const Interaction &it,
     if (!normal_) {
         return ret;
     }
+//    Float3 normal = normal_.evaluate(it, swl)->as_vec3();
+//    Float3 world_normal = ret.to_world(normal);
+//    world_normal = detail::clamp_ns(world_normal, it.ng, it.wo);
+//    ret.update(world_normal, ret.x);
     Float3 normal = normal_.evaluate(it, swl)->as_vec3();
     float3 n = make_float3(0, 0, 1);
     Float3 axis = cross(n, normal);
@@ -344,7 +348,7 @@ PartialDerivative<Float3> Material::compute_shading_frame(const Interaction &it,
     world_normal = normalize(world_normal);
     world_normal = detail::clamp_ns(world_normal, it.ng, it.wo);
     world_normal = normalize(face_forward(world_normal, it.shading.normal()));
-    ret.update(world_normal);
+    ret.update(world_normal, ret.x);
     return ret;
 }
 

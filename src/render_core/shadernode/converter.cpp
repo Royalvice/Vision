@@ -84,9 +84,9 @@ public:
 
     void initialize_slots(const vision::ShaderNodeDesc &desc) noexcept override {
         VS_INIT_SLOT(vector, make_float3(0, 0, 0), Number);
-        VS_INIT_SLOT(location, make_float3(0, 0, 0), Number).set_range(0, 100);
+        VS_INIT_SLOT(location, make_float3(0, 0, 0), Number).set_range(-10, 10);
         VS_INIT_SLOT(rotation, make_float3(0, 0, 0), Number).set_range(0, 360);
-        VS_INIT_SLOT(scale, make_float3(1), Number).set_range(0.001, 100);
+        VS_INIT_SLOT(scale, make_float3(1), Number).set_range(-10, 10);
         init_slot_cursor(&vector_, &scale_);
     }
 
