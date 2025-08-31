@@ -11,7 +11,7 @@
 namespace vision {
 using namespace ocarina;
 
-class ImageNode : public ShaderNode {
+class ImageNode : public SlotsShaderNode {
 private:
     VS_MAKE_SLOT(vector);
     RegistrableTexture *texture_{};
@@ -24,7 +24,7 @@ private:
 public:
     ImageNode() = default;
     explicit ImageNode(const ShaderNodeDesc &desc)
-        : ShaderNode(desc),
+        : SlotsShaderNode(desc),
           desc_(desc),
           scale_(desc["scale"].as_float(1.f)),
           texture_(&Global::instance().pipeline()->image_pool().obtain_texture(desc)) {
@@ -37,6 +37,7 @@ public:
 
     void initialize_slots(const vision::ShaderNodeDesc &desc) noexcept override {
         VS_INIT_SLOT_NO_DEFAULT(vector, Number);
+        init_slot_cursor(&vector_, 1);
     }
 
     void reload(ocarina::Widgets *widgets) noexcept {

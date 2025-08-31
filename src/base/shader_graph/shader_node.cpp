@@ -41,6 +41,22 @@ void SlotsShaderNode::restore(vision::RuntimeObject *old_obj) noexcept {
     }
 }
 
+uint64_t SlotsShaderNode::compute_hash() const noexcept {
+    uint64_t ret = Hash64::default_seed;
+    reduce_slots(ret, [&](uint64_t hash, const ShaderNodeSlot &slot) {
+        return hash64(hash, slot.hash());
+    });
+    return ret;
+}
+
+uint64_t SlotsShaderNode::compute_topology_hash() const noexcept {
+    uint64_t ret = Hash64::default_seed;
+    reduce_slots(ret, [&](uint64_t hash, const ShaderNodeSlot &slot) {
+        return hash64(hash, slot.topology_hash());
+    });
+    return ret;
+}
+
 uint SlotsShaderNode::compacted_size() const noexcept {
     return reduce_slots(0u, [&](uint size, const ShaderNodeSlot &slot) {
         return size + slot->compacted_size();
@@ -48,9 +64,11 @@ uint SlotsShaderNode::compacted_size() const noexcept {
 }
 
 uint SlotsShaderNode::cal_offset(ocarina::uint prev_size) const noexcept {
-    return reduce_slots(prev_size, [&](uint size, const ShaderNodeSlot &slot) {
-        return slot->cal_offset(size);
+    auto ret = reduce_slots(prev_size, [&](uint size, const ShaderNodeSlot &slot) {
+        auto ofs = slot->cal_offset(size);
+        return ofs;
     });
+    return ret;
 }
 
 uint SlotsShaderNode::alignment() const noexcept {
