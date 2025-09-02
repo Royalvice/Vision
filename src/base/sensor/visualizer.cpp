@@ -18,9 +18,15 @@ uint2 Visualizer::resolution() const noexcept {
 }
 
 void Visualizer::init() noexcept {
-    line_segments_.set_bindless_array(pipeline()->bindless_array());
-    line_segments_.set_list(device().create_list<LineSegment>(10000, "line segments"));
-    line_segments_.register_self();
+#define ALLOCATE(member, Type, num)                                             \
+    member.set_bindless_array(pipeline()->bindless_array());                    \
+    member.set_list(device().create_list<Type>(10000, "Visualizer::" #member)); \
+    member.register_self();
+
+    ALLOCATE(line_segments_, LineSegment, 10000)
+    ALLOCATE(frames_, float3x3, 100)
+
+#undef ALLOCATE
     clear();
 }
 

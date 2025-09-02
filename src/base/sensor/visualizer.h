@@ -30,6 +30,7 @@ private:
     float3 color_{make_float3(1, 0, 0)};
     int width_{0};
     mutable RegistrableList<LineSegment> line_segments_{};
+    mutable RegistrableList<float3x3> frames_{};
 
 public:
     Visualizer() = default;
@@ -45,7 +46,8 @@ public:
     }
     HOTFIX_VIRTUAL void clear() noexcept;
     OC_MAKE_MEMBER_GETTER(show, )
-    VS_HOTFIX_MAKE_RESTORE(RuntimeObject, state_, show_, line_segments_, color_, width_)
+    VS_HOTFIX_MAKE_RESTORE(RuntimeObject, state_, show_, line_segments_,
+                           frames_, color_, width_)
     [[nodiscard]] Sensor *sensor() const noexcept;
     [[nodiscard]] uint2 resolution() const noexcept;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
