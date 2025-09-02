@@ -36,12 +36,21 @@ public:
     Visualizer() = default;
     HOTFIX_VIRTUAL void init() noexcept;
     HOTFIX_VIRTUAL void draw(float4 *data) const noexcept;
+    HOTFIX_VIRTUAL void draw_line_segments(float4 *data) const noexcept;
+    HOTFIX_VIRTUAL void draw_frames(float4 *data) const noexcept;
     HOTFIX_VIRTUAL void write(int x, int y, float4 val, float4 *pixel) const noexcept;
     HOTFIX_VIRTUAL void add_line_segment(const Float3 &p0, const Float3 &p1) noexcept;
+    HOTFIX_VIRTUAL void add_frame(const Float3x3 &frame) noexcept;
     template<typename... Args>
     void condition_add_line_segment(Args &&...args) noexcept {
         $condition_execute {
             add_line_segment(OC_FORWARD(args)...);
+        };
+    }
+    template<typename... Args>
+    void condition_add_frame(Args &&...args) noexcept {
+        $condition_execute {
+            add_frame(OC_FORWARD(args)...);
         };
     }
     HOTFIX_VIRTUAL void clear() noexcept;

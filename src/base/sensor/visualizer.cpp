@@ -32,6 +32,7 @@ void Visualizer::init() noexcept {
 
 void Visualizer::clear() noexcept {
     line_segments_.clear_immediately();
+    frames_.clear_immediately();
 }
 
 void Visualizer::write(int x, int y, ocarina::float4 val, ocarina::float4 *pixel) const noexcept {
@@ -51,8 +52,12 @@ void Visualizer::add_line_segment(const Float3 &p0, const Float3 &p1) noexcept {
     line_segments_.push_back(line_segment);
 }
 
-void Visualizer::draw(ocarina::float4 *data) const noexcept {
-    if (!show_) { return; }
+void Visualizer::add_frame(const ocarina::Float3x3 &frame) noexcept {
+    if (state_ != ENormal) { return; }
+    frames_.push_back(frame);
+}
+
+void Visualizer::draw_line_segments(ocarina::float4 *data) const noexcept {
     static vector<LineSegment> host;
     host.resize(line_segments_.capacity());
     stream() << line_segments_.storage_segment().download(host.data(), false);
@@ -76,6 +81,25 @@ void Visualizer::draw(ocarina::float4 *data) const noexcept {
                 });
             }
         }
+    }
+}
+
+void Visualizer::draw_frames(ocarina::float4 *data) const noexcept {
+    static vector<float3x3> host;
+
+}
+
+void Visualizer::draw(ocarina::float4 *data) const noexcept {
+    if (!show_) { return; }
+    switch (state_) {
+        case ERay:
+            draw_line_segments(data);
+            break;
+        case ENormal:
+            draw_frames(data);
+            break;
+        default:
+            break;
     }
 }
 
