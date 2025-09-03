@@ -52,9 +52,10 @@ void Visualizer::add_line_segment(const Float3 &p0, const Float3 &p1) noexcept {
     line_segments_.push_back(line_segment);
 }
 
-void Visualizer::add_frame(const ocarina::Float3x3 &frame) noexcept {
+void Visualizer::add_frame(const Interaction &it) noexcept {
     if (state_ != ENormal) { return; }
-    frames_.push_back(frame);
+    Float3x3 mat = make_float3x3(it.shading.x, it.shading.y, it.shading.z);
+    frames_.push_back(mat);
 }
 
 void Visualizer::draw_line_segments(ocarina::float4 *data) const noexcept {
@@ -86,7 +87,9 @@ void Visualizer::draw_line_segments(ocarina::float4 *data) const noexcept {
 
 void Visualizer::draw_frames(ocarina::float4 *data) const noexcept {
     static vector<float3x3> host;
-
+    host.resize(frames_.capacity());
+    stream() << frames_.storage_segment().download(host.data(), false);
+    uint count = frames_.host_count();
 }
 
 void Visualizer::draw(ocarina::float4 *data) const noexcept {
