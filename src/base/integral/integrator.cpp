@@ -191,7 +191,7 @@ Float3 IlluminationIntegrator::Li(RayState rs, Float scatter_pdf, const Uint &ma
 
         it = geometry.compute_surface_interaction(hit, rs.ray);
         $if(bounces == 0) {
-            frame_buffer().visualizer()->condition_add_frame();
+            frame_buffer().visualizer()->condition_add_frame(it);
         };
 
         frame_buffer().visualizer()->condition_add_line_segment(rs.origin(), it.pos);
