@@ -21,7 +21,8 @@ public:
     enum State {
         EOff,
         ERay,
-        ENormal
+        EGFrame,
+        ESFrame,
     };
 
 private:
@@ -30,14 +31,15 @@ private:
     float3 color_{make_float3(1, 0, 0)};
     int width_{0};
     mutable RegistrableList<LineSegment> line_segments_{};
-    mutable RegistrableList<float3x3> frames_{};
+    mutable RegistrableList<float3x3> shading_frames_{};
+    mutable RegistrableList<float3x3> geometry_frames_{};
 
 public:
     Visualizer() = default;
     HOTFIX_VIRTUAL void init() noexcept;
     HOTFIX_VIRTUAL void draw(float4 *data) const noexcept;
     HOTFIX_VIRTUAL void draw_line_segments(float4 *data) const noexcept;
-    HOTFIX_VIRTUAL void draw_frames(float4 *data) const noexcept;
+    HOTFIX_VIRTUAL void draw_frames(float4 *data, const RegistrableList<float3x3> &frame) const noexcept;
     HOTFIX_VIRTUAL void write(int x, int y, float4 val, float4 *pixel) const noexcept;
     HOTFIX_VIRTUAL void add_line_segment(const Float3 &p0, const Float3 &p1) noexcept;
     HOTFIX_VIRTUAL void add_frame(const Interaction &it) noexcept;
@@ -56,7 +58,7 @@ public:
     HOTFIX_VIRTUAL void clear() noexcept;
     OC_MAKE_MEMBER_GETTER(show, )
     VS_HOTFIX_MAKE_RESTORE(RuntimeObject, state_, show_, line_segments_,
-                           frames_, color_, width_)
+                           shading_frames_, geometry_frames_, color_, width_)
     [[nodiscard]] Sensor *sensor() const noexcept;
     [[nodiscard]] uint2 resolution() const noexcept;
     bool render_UI(ocarina::Widgets *widgets) noexcept override;
