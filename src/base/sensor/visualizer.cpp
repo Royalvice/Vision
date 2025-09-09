@@ -24,8 +24,8 @@ void Visualizer::init() noexcept {
     member.register_self();
 
     ALLOCATE(line_segments_, LineSegment, 10000)
-    ALLOCATE(shading_frames_, float3x3, 100)
-    ALLOCATE(geometry_normals_, float3, 100)
+    ALLOCATE(shading_frames_, float3x4, 100)
+    ALLOCATE(geometry_normals_, LineSegment, 100)
 
 #undef ALLOCATE
     clear();
@@ -57,12 +57,15 @@ void Visualizer::add_line_segment(const Float3 &p0, const Float3 &p1) noexcept {
 void Visualizer::add_frame(const Interaction &it) noexcept {
     switch (state_) {
         case ESFrame: {
-            Float3x3 mat = make_float3x3(it.shading.x, it.shading.y, it.shading.z);
+            Float3x4 mat = make_float3x4(it.pos, it.shading.x, it.shading.y, it.shading.z);
             shading_frames_.push_back(mat);
             break;
         }
-        case EGNormal:{
-            geometry_normals_.push_back(it.ng);
+        case EGNormal: {
+            LineSegmentVar line_segment;
+            line_segment.p0 = it.pos;
+            line_segment.p1 = it.pos + it.ng;
+            geometry_normals_.push_back(line_segment);
             break;
         }
         default:
@@ -98,14 +101,22 @@ void Visualizer::draw_line_segments(ocarina::float4 *data) const noexcept {
 }
 
 void Visualizer::draw_frames(ocarina::float4 *data) const noexcept {
-    static vector<float3x3> host;
+    static vector<float3x4> host;
     host.resize(shading_frames_.capacity());
     stream() << shading_frames_.storage_segment().download(host.data(), false);
     uint count = shading_frames_.host_count();
 }
 
 void Visualizer::draw_normals(ocarina::float4 *data) const noexcept {
+    static vector<LineSegment> host;
+    host.resize(geometry_normals_.capacity());
+    stream() << geometry_normals_.storage_segment().download(host.data(), false);
+    uint count = geometry_normals_.host_count();
 
+    for (int index = 0; index < count; ++index) {
+        LineSegment ls = host[index];
+        ls = sensor()->clipping(ls);
+    }
 }
 
 void Visualizer::draw(ocarina::float4 *data) const noexcept {

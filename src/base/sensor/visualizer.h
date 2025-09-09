@@ -31,8 +31,8 @@ private:
     float3 color_{make_float3(1, 0, 0)};
     int width_{0};
     mutable RegistrableList<LineSegment> line_segments_{};
-    mutable RegistrableList<float3x3> shading_frames_{};
-    mutable RegistrableList<float3> geometry_normals_{};
+    mutable RegistrableList<float3x4> shading_frames_{};
+    mutable RegistrableList<LineSegment> geometry_normals_{};
 
 public:
     Visualizer() = default;
