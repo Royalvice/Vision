@@ -38,9 +38,10 @@ public:
     Visualizer() = default;
     HOTFIX_VIRTUAL void init() noexcept;
     HOTFIX_VIRTUAL void draw(float4 *data) const noexcept;
-    HOTFIX_VIRTUAL void draw_line_segments(float4 *data) const noexcept;
+    HOTFIX_VIRTUAL void draw_rays(float4 *data) const noexcept;
     HOTFIX_VIRTUAL void draw_frames(float4 *data) const noexcept;
     HOTFIX_VIRTUAL void draw_normals(float4 *data) const noexcept;
+    HOTFIX_VIRTUAL void draw_line_segment(LineSegment ls, ocarina::float4 *data) const noexcept;
     HOTFIX_VIRTUAL void write(int x, int y, float4 val, float4 *pixel) const noexcept;
     HOTFIX_VIRTUAL void add_line_segment(const Float3 &p0, const Float3 &p1) noexcept;
     HOTFIX_VIRTUAL void add_frame(const Interaction &it) noexcept;

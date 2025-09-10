@@ -73,7 +73,27 @@ void Visualizer::add_frame(const Interaction &it) noexcept {
     }
 }
 
-void Visualizer::draw_line_segments(ocarina::float4 *data) const noexcept {
+void Visualizer::draw_line_segment(ocarina::LineSegment ls,
+                                   ocarina::float4 *data) const noexcept {
+    ls = sensor()->clipping(ls);
+    float2 p0 = sensor()->raster_coord(ls.p0).xy();
+    float2 p1 = sensor()->raster_coord(ls.p1).xy();
+
+    p0.x = ocarina::isnan(p0.x) ? resolution().x / 2 : p0.x;
+    p0.y = ocarina::isnan(p0.y) ? resolution().y / 2 : p0.y;
+    p1.x = ocarina::isnan(p1.x) ? resolution().x / 2 : p1.x;
+    p1.y = ocarina::isnan(p1.y) ? resolution().y / 2 : p1.y;
+
+    for (int i = -width_; i <= width_; ++i) {
+        for (int j = -width_; j <= width_; ++j) {
+            safe_line_bresenham(p0, p1 + make_float2(i, j), [&](int x, int y) {
+                write(x, y, make_float4(color_, 1), data);
+            });
+        }
+    }
+}
+
+void Visualizer::draw_rays(float4 *data) const noexcept {
     static vector<LineSegment> host;
     host.resize(line_segments_.capacity());
     stream() << line_segments_.storage_segment().download(host.data(), false);
@@ -81,22 +101,7 @@ void Visualizer::draw_line_segments(ocarina::float4 *data) const noexcept {
 
     for (int index = 0; index < count; ++index) {
         LineSegment ls = host[index];
-        ls = sensor()->clipping(ls);
-        float2 p0 = sensor()->raster_coord(ls.p0).xy();
-        float2 p1 = sensor()->raster_coord(ls.p1).xy();
-
-        p0.x = ocarina::isnan(p0.x) ? resolution().x / 2 : p0.x;
-        p0.y = ocarina::isnan(p0.y) ? resolution().y / 2 : p0.y;
-        p1.x = ocarina::isnan(p1.x) ? resolution().x / 2 : p1.x;
-        p1.y = ocarina::isnan(p1.y) ? resolution().y / 2 : p1.y;
-
-        for (int i = -width_; i <= width_; ++i) {
-            for (int j = -width_; j <= width_; ++j) {
-                safe_line_bresenham(p0, p1 + make_float2(i, j), [&](int x, int y) {
-                    write(x, y, make_float4(color_, 1), data);
-                });
-            }
-        }
+        draw_line_segment(ls, data);
     }
 }
 
@@ -115,7 +120,14 @@ void Visualizer::draw_normals(ocarina::float4 *data) const noexcept {
 
     for (int index = 0; index < count; ++index) {
         LineSegment ls = host[index];
+        float3 dir = ls.p1 - ls.p0;
+        float4x4 c2w = sensor()->host_c2w();
+        float3 dir_c = transform_vector<H>(inverse(c2w), dir);
+        float len = length(dir_c);
+        dir = dir / len;
+        ls.p1 = ls.p0 + dir;
         ls = sensor()->clipping(ls);
+
     }
 }
 
@@ -123,7 +135,7 @@ void Visualizer::draw(ocarina::float4 *data) const noexcept {
     if (!show_) { return; }
     switch (state_) {
         case ERay:
-            draw_line_segments(data);
+            draw_rays(data);
             break;
         case ESFrame:
             draw_frames(data);
