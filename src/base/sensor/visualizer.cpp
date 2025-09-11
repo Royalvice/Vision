@@ -73,6 +73,16 @@ void Visualizer::add_frame(const Interaction &it) noexcept {
     }
 }
 
+LineSegment Visualizer::scaling(ocarina::LineSegment ls) const noexcept {
+    float3 dir = ls.p1 - ls.p0;
+    float4x4 c2w = sensor()->host_c2w();
+    float3 dir_c = transform_vector<H>(inverse(c2w), dir);
+    float len = length(dir_c);
+    dir = dir / len;
+    ls.p1 = ls.p0 + dir;
+    return ls;
+}
+
 void Visualizer::draw_line_segment(ocarina::LineSegment ls,
                                    ocarina::float4 *data) const noexcept {
     ls = sensor()->clipping(ls);
@@ -120,14 +130,8 @@ void Visualizer::draw_normals(ocarina::float4 *data) const noexcept {
 
     for (int index = 0; index < count; ++index) {
         LineSegment ls = host[index];
-        float3 dir = ls.p1 - ls.p0;
-        float4x4 c2w = sensor()->host_c2w();
-        float3 dir_c = transform_vector<H>(inverse(c2w), dir);
-        float len = length(dir_c);
-        dir = dir / len;
-        ls.p1 = ls.p0 + dir;
-        ls = sensor()->clipping(ls);
-
+        ls = scaling(ls);
+        draw_line_segment(ls, data);        
     }
 }
 
