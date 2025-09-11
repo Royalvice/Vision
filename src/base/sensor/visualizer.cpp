@@ -74,17 +74,17 @@ void Visualizer::add_frame(const Interaction &it) noexcept {
 }
 
 LineSegment Visualizer::scaling(ocarina::LineSegment ls) const noexcept {
-    float3 dir = ls.p1 - ls.p0;
-    float4x4 c2w = sensor()->host_c2w();
-    float3 dir_c = transform_vector<H>(inverse(c2w), dir);
-    float len = length(dir_c);
-    dir = dir / len;
-    ls.p1 = ls.p0 + dir;
+    //    float3 dir = ls.p1 - ls.p0;
+    //    float4x4 c2w = sensor()->host_c2w();
+    //    float3 dir_c = transform_vector<H>(inverse(c2w), dir);
+    //    float len = length(dir_c);
+    //    dir = dir / len;
+    //    ls.p1 = ls.p0 + dir;
     return ls;
 }
 
-void Visualizer::draw_line_segment(ocarina::LineSegment ls,
-                                   ocarina::float4 *data) const noexcept {
+void Visualizer::draw_line_segment(LineSegment ls, float3 color,
+                                   float4 *data) const noexcept {
     ls = sensor()->clipping(ls);
     float2 p0 = sensor()->raster_coord(ls.p0).xy();
     float2 p1 = sensor()->raster_coord(ls.p1).xy();
@@ -97,7 +97,7 @@ void Visualizer::draw_line_segment(ocarina::LineSegment ls,
     for (int i = -width_; i <= width_; ++i) {
         for (int j = -width_; j <= width_; ++j) {
             safe_line_bresenham(p0, p1 + make_float2(i, j), [&](int x, int y) {
-                write(x, y, make_float4(color_, 1), data);
+                write(x, y, make_float4(color, 1), data);
             });
         }
     }
@@ -111,7 +111,7 @@ void Visualizer::draw_rays(float4 *data) const noexcept {
 
     for (int index = 0; index < count; ++index) {
         LineSegment ls = host[index];
-        draw_line_segment(ls, data);
+        draw_line_segment(ls, color_, data);
     }
 }
 
@@ -120,6 +120,18 @@ void Visualizer::draw_frames(ocarina::float4 *data) const noexcept {
     host.resize(shading_frames_.capacity());
     stream() << shading_frames_.storage_segment().download(host.data(), false);
     uint count = shading_frames_.host_count();
+    static constexpr std::array colors = {float3{1, 0, 0}, float3{0, 1, 0}, float3{0, 0, 1}};
+    for (int index = 0; index < count; ++index) {
+        float3x4 mat = host[index];
+        float3 org = mat[0];
+        for (int i = 1; i < 4; ++i) {
+            float3 color = colors[i - 1];
+            LineSegment ls;
+            ls.p0 = org;
+            ls.p1 = org + mat[i];
+            draw_line_segment(ls, color, data);
+        }
+    }
 }
 
 void Visualizer::draw_normals(ocarina::float4 *data) const noexcept {
@@ -131,7 +143,7 @@ void Visualizer::draw_normals(ocarina::float4 *data) const noexcept {
     for (int index = 0; index < count; ++index) {
         LineSegment ls = host[index];
         ls = scaling(ls);
-        draw_line_segment(ls, data);        
+        draw_line_segment(ls, color_, data);
     }
 }
 
