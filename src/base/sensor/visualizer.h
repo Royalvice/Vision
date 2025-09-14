@@ -45,7 +45,8 @@ public:
     HOTFIX_VIRTUAL LineSegment scaling(LineSegment ls) const noexcept;
     HOTFIX_VIRTUAL void write(int x, int y, float4 val, float4 *pixel) const noexcept;
     HOTFIX_VIRTUAL void add_line_segment(const Float3 &p0, const Float3 &p1) noexcept;
-    HOTFIX_VIRTUAL void add_frame(const Interaction &it) noexcept;
+    HOTFIX_VIRTUAL void add_frame(const Interaction &it, const ShadingFrame &shading_frame) noexcept;
+    HOTFIX_VIRTUAL void add_normal(const Interaction &it) noexcept;
     template<typename... Args>
     void condition_add_line_segment(Args &&...args) noexcept {
         $condition_execute {
@@ -56,6 +57,12 @@ public:
     void condition_add_frame(Args &&...args) noexcept {
         $condition_execute {
             add_frame(OC_FORWARD(args)...);
+        };
+    }
+    template<typename... Args>
+    void condition_add_normal(Args &&...args) noexcept {
+        $condition_execute {
+            add_normal(OC_FORWARD(args)...);
         };
     }
     HOTFIX_VIRTUAL void clear() noexcept;

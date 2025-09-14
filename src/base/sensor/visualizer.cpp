@@ -54,23 +54,18 @@ void Visualizer::add_line_segment(const Float3 &p0, const Float3 &p1) noexcept {
     line_segments_.push_back(line_segment);
 }
 
-void Visualizer::add_frame(const Interaction &it) noexcept {
-    switch (state_) {
-        case ESFrame: {
-            Float3x4 mat = make_float3x4(it.pos, it.shading.x, it.shading.y, it.shading.z);
-            shading_frames_.push_back(mat);
-            break;
-        }
-        case EGNormal: {
-            LineSegmentVar line_segment;
-            line_segment.p0 = it.pos;
-            line_segment.p1 = it.pos + it.ng;
-            geometry_normals_.push_back(line_segment);
-            break;
-        }
-        default:
-            break;
-    }
+void Visualizer::add_frame(const Interaction &it, const ShadingFrame &shading_frame) noexcept {
+    if (state_ != ESFrame) { return; }
+    Float3x4 mat = make_float3x4(it.pos, shading_frame.x, shading_frame.y, shading_frame.z);
+    shading_frames_.push_back(mat);
+}
+
+void Visualizer::add_normal(const Interaction &it) noexcept {
+    if (state_ != EGNormal) { return; }
+    LineSegmentVar line_segment;
+    line_segment.p0 = it.pos;
+    line_segment.p1 = it.pos + it.ng;
+    geometry_normals_.push_back(line_segment);
 }
 
 LineSegment Visualizer::scaling(ocarina::LineSegment ls) const noexcept {
