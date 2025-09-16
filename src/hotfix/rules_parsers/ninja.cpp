@@ -147,9 +147,24 @@ void NinjaParser::extract_link_cmd(const std::string_view *lines) {
 
 void NinjaParser::parse(const std::string &content) {
     auto lines = string_split(content, '\n');
+
+    auto is_compile_cmd = [&](uint i) {
+        string_view &line = lines[i];
+        bool cond0 = line.starts_with("build");
+        if (!cond0) {
+            return false;
+        }
+        for(uint j = 1; j < 4; ++j) {
+            if (lines[i + j].starts_with("  DEFINES") && cond0) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     for (int i = 0; i < lines.size(); ++i) {
         string_view &line = lines[i];
-        if (line.starts_with("build") && lines[i + 1].starts_with("  DEFINES")) {
+        if (is_compile_cmd(i)) {
             extract_compile_cmd(addressof(line));
         } else if (line.starts_with("# Link the ")) {
             extract_link_cmd(addressof(line));

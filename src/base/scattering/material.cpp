@@ -331,20 +331,24 @@ void Material::add_material_reference(SP<ShapeInstance> shape_instance) noexcept
 PartialDerivative<Float3> Material::compute_shading_frame(const Interaction &it,
                                                           const SampledWavelengths &swl) const noexcept {
     PartialDerivative<Float3> ret = it.shading;
-    if (!normal_) {
-        return ret;
+    if (normal_) {
+        Float3 normal = normal_.evaluate(it, swl)->as_vec3();
+        float3 n = make_float3(0, 0, 1);
+        Float3 axis = cross(n, normal);
+        Float theta = acos(dot(n, normal));
+        Quaternion q = Quaternion::from_axis_angle(axis, theta);
+        Float3x3 m = q.to_float3x3();
+        Float3 world_normal = m * ret.z;
+        world_normal = normalize(world_normal);
+        world_normal = detail::clamp_ns(world_normal, it.ng, it.wo);
+        world_normal = normalize(face_forward(world_normal, it.shading.normal()));
+        ret.update(world_normal, ret.x);
     }
-    Float3 normal = normal_.evaluate(it, swl)->as_vec3();
-    float3 n = make_float3(0, 0, 1);
-    Float3 axis = cross(n, normal);
-    Float theta = acos(dot(n, normal));
-    Quaternion q = Quaternion::from_axis_angle(axis, theta);
-    Float3x3 m = q.to_float3x3();
-    Float3 world_normal = m * ret.z;
-    world_normal = normalize(world_normal);
-    world_normal = detail::clamp_ns(world_normal, it.ng, it.wo);
-    world_normal = normalize(face_forward(world_normal, it.shading.normal()));
-    ret.update(world_normal);
+    Env::instance().execute_if<Int>("bounces", [&](const Int &bounces) {
+        $if(bounces == 0u) {
+            frame_buffer().visualizer()->condition_add_frame(it, ret);
+        };
+    });
     return ret;
 }
 

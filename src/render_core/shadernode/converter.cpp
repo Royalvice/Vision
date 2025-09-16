@@ -47,7 +47,7 @@ public:
     explicit NormalMap(const ShaderNodeDesc &desc)
         : SlotsShaderNode(desc) {}
 
-    void initialize_slots(const vision::ShaderNodeDesc &desc) noexcept override {
+    void initialize_slots(const vision::ShaderNodeDesc &desc) noexcept override     {
         VS_INIT_SLOT(color, make_float3(0.5, 0.5, 1), Albedo);
         VS_INIT_SLOT(strength, 1.f, Number).set_range(-10, 10);
         init_slot_cursor(&color_, &strength_);
@@ -84,9 +84,9 @@ public:
 
     void initialize_slots(const vision::ShaderNodeDesc &desc) noexcept override {
         VS_INIT_SLOT(vector, make_float3(0, 0, 0), Number);
-        VS_INIT_SLOT(location, make_float3(0, 0, 0), Number).set_range(0, 100);
+        VS_INIT_SLOT(location, make_float3(0, 0, 0), Number).set_range(-10, 10);
         VS_INIT_SLOT(rotation, make_float3(0, 0, 0), Number).set_range(0, 360);
-        VS_INIT_SLOT(scale, make_float3(1), Number).set_range(0.001, 100);
+        VS_INIT_SLOT(scale, make_float3(1), Number).set_range(-10, 10);
         init_slot_cursor(&vector_, &scale_);
     }
 

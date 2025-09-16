@@ -106,6 +106,10 @@ public:
 };
 
 class SlotsShaderNode : public ShaderNode, public ShaderNodeSlotSet {
+protected:
+    [[nodiscard]] uint64_t compute_hash() const noexcept override;
+    [[nodiscard]] uint64_t compute_topology_hash() const noexcept override;
+
 public:
     SlotsShaderNode() = default;
     explicit SlotsShaderNode(const ShaderNodeDesc &desc)
